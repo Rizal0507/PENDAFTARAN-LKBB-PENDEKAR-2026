@@ -367,14 +367,25 @@
     }
 
     // Helper Merubah File ke String Base64 Tanpa Mengubah Kualitas
-    function fileToBase64(file) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result.split(',')[1]);
-        reader.onerror = error => reject(error);
-      });
+   function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    if (!file) {
+      reject(new Error("File tidak ditemukan"));
+      return;
     }
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => {
+      const res = reader.result;
+      if (res && res.includes(',')) {
+        resolve(res.split(',')[1]); // Ambil string Base64 setelah koma
+      } else {
+        reject(new Error("Format file tidak valid"));
+      }
+    };
+    reader.onerror = error => reject(error);
+  });
+}
 
     // Simpan & Muat Draft Isian Teks
     function saveDraft() {

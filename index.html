@@ -366,26 +366,26 @@
       });
     }
 
-    // Helper Merubah File ke String Base64 Tanpa Mengubah Kualitas
-   function fileToBase64(file) {
-  return new Promise((resolve, reject) => {
-    if (!file) {
-      reject(new Error("File tidak ditemukan"));
-      return;
+    // Helper Merubah File ke String Base64 secara Valid
+    function fileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        if (!file) {
+          reject(new Error("File tidak ada atau belum dipilih."));
+          return;
+        }
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => {
+          const resultStr = reader.result;
+          if (resultStr && resultStr.includes(',')) {
+            resolve(resultStr.split(',')[1]); // Ambil string Base64 murni setelah koma
+          } else {
+            reject(new Error("Gagal membaca format Base64 file."));
+          }
+        };
+        reader.onerror = error => reject(error);
+      });
     }
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => {
-      const res = reader.result;
-      if (res && res.includes(',')) {
-        resolve(res.split(',')[1]); // Ambil string Base64 setelah koma
-      } else {
-        reject(new Error("Format file tidak valid"));
-      }
-    };
-    reader.onerror = error => reject(error);
-  });
-}
 
     // Simpan & Muat Draft Isian Teks
     function saveDraft() {
@@ -473,9 +473,9 @@
         roles.forEach((role, idx) => {
           const namaInput = document.getElementById(`nama_${idx}`);
           const fotoInput = document.getElementById(`foto_${idx}`);
-          if (namaInput && fotoInput && fotoInput.files[0]) {
+          if (namaInput && fotoInput && fotoInput.files && fotoInput.files[0]) {
             const cleanRoleName = role.replace(/[^a-zA-Z0-9]/g, '_');
-            const cleanPersonName = namaInput.value.trim().replace(/[^a-zA-Z0-9]/g, '_');
+            const cleanPersonName = (namaInput.value.trim() || `Anggota_${idx}`).replace(/[^a-zA-Z0-9]/g, '_');
             filesToUpload.push({
               fileName: `${cleanRoleName}_${cleanPersonName}.jpg`,
               mimeType: fotoInput.files[0].type || 'image/jpeg',
@@ -491,7 +491,12 @@
           loadingStatus.innerText = `Mengunggah Berkas (${i + 1} dari ${totalFiles})`;
           loadingDetail.innerText = `File: ${item.fileName}`;
 
+          // Ambil Base64 File
           const base64Data = await fileToBase64(item.file);
+
+          if (!base64Data || base64Data.trim() === '') {
+            throw new Error(`File ${item.fileName} tidak memiliki data/kosong.`);
+          }
 
           const uploadResponse = await fetch(scriptURL, {
             method: 'POST',
@@ -506,7 +511,7 @@
 
           const uploadResult = await uploadResponse.json();
           if (uploadResult.result !== 'success') {
-            throw new Error(`Gagal mengunggah file ${item.fileName}: ${uploadResult.message}`);
+            throw new Error(`Gagal mengunggah ${item.fileName}: ${uploadResult.message}`);
           }
         }
 

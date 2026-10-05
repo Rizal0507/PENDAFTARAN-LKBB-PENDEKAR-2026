@@ -3,41 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LKBB Pendekar 2026</title>
-  <!-- Library pdf-lib untuk menggabung & memanipulasi PDF -->
-  <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
-  <style>
-    :root { --primary: #003399; --secondary: #0055cc; --gold: #d4af37; --bg: #f0f4f8; }
-    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; padding: 0; }
-    body { background-color: var(--bg); color: #222; padding-bottom: 30px; }
-    
-    header { background: linear-gradient(135deg, #001a4d 0%, var(--primary) 50%, #001133 100%); text-align: center; padding: 25px 15px; border-bottom: 4px solid var(--gold); }
-    .container { max-width: 850px; margin: 20px auto; padding: 0 15px; }
-    .card { background: white; border-radius: 12px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); margin-bottom: 25px; border-top: 4px solid var(--primary); }
-    
-    .btn { display: block; width: 100%; padding: 14px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-bottom: 12px; font-size: 1rem; color: white;}
-    .btn-blue { background: var(--secondary); }
-    .btn-gold { background: var(--gold); color: #000; }
-    .btn-green { background: #25d366; }
-    .btn-submit { background: linear-gradient(135deg, var(--primary), var(--secondary)); border: 1px solid var(--gold); margin-top: 20px;}
-    
-    .form-group { margin-bottom: 18px; }
-    .form-group label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 0.9rem; color: var(--primary);}
-    .form-group input, .form-group select { width: 100%; padding: 11px; border: 1px solid #Mohon maaf, kamu benar. Pada respons sebelumnya saya memotong bagian `processSubmit()` untuk menyingkat teks. 
-
-Berikut adalah **keseluruhan kode `index.html` yang 100% lengkap dari baris pertama hingga terakhir**, tanpa ada satu baris pun yang dipotong. 
-
-Pastikan kamu sudah meletakkan file **`bg_pasukan.jpg`** dan **`template_formulir.pdf`** di dalam folder Vercel/GitHub yang sama dengan file `index.html` ini agar fitur gabung PDF-nya bekerja sempurna.
-
-```html
-<!DOCTYPE html>
-<html lang="id">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>LKBB Pendekar 2026 - Rekap Andalan</title>
   <!-- Library pdf-lib untuk menggabung & memanipulasi PDF -->
-  <script src="[https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js](https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js)"></script>
+  <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
   <style>
     :root { 
       --primary: #003399; 
@@ -45,8 +13,19 @@ Pastikan kamu sudah meletakkan file **`bg_pasukan.jpg`** dan **`template_formuli
       --gold: #d4af37; 
       --bg: #f0f4f8; 
     }
-    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; padding: 0; }
-    body { background-color: var(--bg); color: #222; padding-bottom: 30px; }
+    
+    * { 
+      box-sizing: border-box; 
+      font-family: 'Segoe UI', Tahoma, sans-serif; 
+      margin: 0; 
+      padding: 0; 
+    }
+    
+    body { 
+      background-color: var(--bg); 
+      color: #222; 
+      padding-bottom: 30px; 
+    }
     
     header { 
       background: linear-gradient(135deg, #001a4d 0%, var(--primary) 50%, #001133 100%); 
@@ -55,7 +34,12 @@ Pastikan kamu sudah meletakkan file **`bg_pasukan.jpg`** dan **`template_formuli
       border-bottom: 4px solid var(--gold); 
     }
     
-    .container { max-width: 850px; margin: 20px auto; padding: 0 15px; }
+    .container { 
+      max-width: 850px; 
+      margin: 20px auto; 
+      padding: 0 15px; 
+    }
+    
     .card { 
       background: white; 
       border-radius: 12px; 
@@ -79,6 +63,7 @@ Pastikan kamu sudah meletakkan file **`bg_pasukan.jpg`** dan **`template_formuli
       text-decoration: none;
       text-align: center;
     }
+    
     .btn-blue { background: var(--secondary); }
     .btn-gold { background: var(--gold); color: #000; }
     .btn-green { background: #25d366; }
@@ -92,7 +77,9 @@ Pastikan kamu sudah meletakkan file **`bg_pasukan.jpg`** dan **`template_formuli
     .form-group label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 0.9rem; color: var(--primary);}
     .form-group input, .form-group select { width: 100%; padding: 11px; border: 1px solid #ccc; border-radius: 6px; }
     
-    /* LAYOUT UPLOAD FOTO (Kiri Input, Kanan Preview) */
+    .section-title { font-size: 1.1rem; color: var(--primary); border-bottom: 2px solid var(--gold); padding-bottom: 5px; margin: 25px 0 15px 0; }
+    
+    /* PERBAIKAN LAYOUT UPLOAD FOTO */
     .row-member { 
       display: flex; 
       flex-direction: row; 
@@ -100,14 +87,32 @@ Pastikan kamu sudah meletakkan file **`bg_pasukan.jpg`** dan **`template_formuli
       align-items: center; 
       gap: 15px; 
       background: #fafafa; 
-      padding: 12px; 
+      padding: 15px; 
       border-radius: 8px; 
       border: 1px solid #e0e0e0; 
       margin-bottom: 15px; 
     }
-    .member-inputs { flex: 1; display: flex; flex-direction: column; gap: 8px; }
-    .member-inputs label { font-weight: bold; font-size: 0.9rem; color: var(--primary); }
-    .member-inputs input { width: 100%; padding: 9px; border: 1px solid #ccc; border-radius: 6px; background: #fff;}
+    
+    .member-inputs { 
+      flex: 1; 
+      display: flex; 
+      flex-direction: column; 
+      gap: 8px; 
+    }
+    
+    .member-inputs label { 
+      font-weight: bold; 
+      font-size: 0.9rem; 
+      color: var(--primary); 
+    }
+    
+    .member-inputs input { 
+      width: 100%; 
+      padding: 10px; 
+      border: 1px solid #ccc; 
+      border-radius: 6px; 
+      background: #fff;
+    }
     
     .member-preview { 
       width: 90px; 
@@ -122,7 +127,14 @@ Pastikan kamu sudah meletakkan file **`bg_pasukan.jpg`** dan **`template_formuli
       background: #fff; 
       position: relative;
     }
-    .member-preview span { font-size: 0.7rem; color: #aaa; text-align: center; font-weight: bold; }
+    
+    .member-preview span { 
+      font-size: 0.75rem; 
+      color: #aaa; 
+      text-align: center; 
+      font-weight: bold; 
+    }
+    
     .member-preview img { 
       width: 100%; 
       height: 100%; 
@@ -135,31 +147,46 @@ Pastikan kamu sudah meletakkan file **`bg_pasukan.jpg`** dan **`template_formuli
     
     .badge-req { color: red; font-size: 0.8rem; }
     
-    /* Modal Review */
+    /* MODAL REVIEW */
     #modalReview { 
       position: fixed; 
       top: 0; 
       left: 0; 
       width: 100%; 
       height: 100%; 
-      background: rgba(0,0,0,0.8); 
+      background: rgba(0,0,0,0.85); 
       display: none; 
       justify-content: center; 
       align-items: center; 
       z-index: 1000; 
-      padding: 20px;
+      padding: 15px;
     }
+    
     .modal-content { 
       background: white; 
       width: 100%; 
       max-width: 700px; 
       height: 90vh; 
       border-radius: 12px; 
-      padding: 20px; 
+      padding: 25px; 
       display: flex; 
       flex-direction: column;
     }
-    .modal-content iframe { flex: 1; width: 100%; border: 1px solid #ccc; margin: 15px 0; border-radius: 8px;}
+    
+    .modal-content iframe { 
+      flex: 1; 
+      width: 100%; 
+      border: 1px solid #ccc; 
+      margin: 15px 0; 
+      border-radius: 8px;
+    }
+    
+    .modal-buttons {
+      display: flex;
+      gap: 15px;
+      width: 100%;
+      margin-top: 10px;
+    }
     
     /* Loading Overlay */
     #loadingOverlay { 
@@ -177,6 +204,7 @@ Pastikan kamu sudah meletakkan file **`bg_pasukan.jpg`** dan **`template_formuli
       color: var(--gold); 
       text-align: center; 
     }
+    
     .spinner { 
       width: 50px; 
       height: 50px; 
@@ -185,30 +213,37 @@ Pastikan kamu sudah meletakkan file **`bg_pasukan.jpg`** dan **`template_formuli
       border-radius: 50%; 
       animation: spin 1s linear infinite; 
     }
+    
     @keyframes spin { 100% { transform: rotate(360deg); } }
+    
+    @media (max-width: 600px) {
+      .row-member { padding: 10px; gap: 10px; }
+      .member-preview { width: 75px; height: 100px; }
+      .modal-buttons { flex-direction: column; gap: 10px; }
+    }
   </style>
 </head>
 <body>
 
   <header>
-    <!-- LOGO DARI GOOGLE DRIVE -->
-    <img src="[https://drive.google.com/uc?export=view&id=11poKmRpeengsCYKJPdlDYM--ZHJo7ln6](https://drive.google.com/uc?export=view&id=11poKmRpeengsCYKJPdlDYM--ZHJo7ln6)" alt="Logo LKBB" style="max-height: 90px; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));">
+    <!-- LOGO (Pastikan file logo.png ada di Vercel) -->
+    <img src="./logo.png" alt="Logo LKBB" style="max-height: 90px; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));">
   </header>
 
   <div class="container">
     <!-- HALAMAN LANDING PAGE -->
     <div id="viewLanding" class="card">
-      <!-- PAMFLET DARI GOOGLE DRIVE -->
-      <img src="[https://drive.google.com/uc?export=view&id=1EUlQfTJ7Iyx27aRl80MyUXPqzRhajMAo](https://drive.google.com/uc?export=view&id=1EUlQfTJ7Iyx27aRl80MyUXPqzRhajMAo)" alt="Pamflet" style="width:100%; border-radius:8px; margin-bottom:15px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
+      <!-- PAMFLET (Pastikan file pamflet.jpg ada di Vercel) -->
+      <img src="./pamflet.jpg" alt="Pamflet" style="width:100%; border-radius:8px; margin-bottom:15px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
       
+      <!-- JADWAL PELAKSANAAN -->
       <div style="background:#e6f0ff; padding:15px; border-left:4px solid var(--primary); border-radius:6px; margin-bottom:20px;">
-        <h3 style="color:var(--primary); margin-bottom: 5px;">A. PELAKSANAAN</h3>
-        <p style="font-weight:bold; font-size: 1.1rem; color: #333;">Minggu, 25 Oktober 2026</p>
-        <p style="color: #555; margin-top: 3px;">GOR Wilis Kota Madiun</p>
+        <p style="font-weight:bold; font-size: 1.15rem; color: var(--primary);">Minggu, 25 Oktober 2026</p>
+        <p style="color: #444; margin-top: 3px; font-size: 1rem;">GOR Wilis Kota Madiun</p>
       </div>
       
-      <a href="[https://wa.me/6281335658828](https://wa.me/6281335658828)" target="_blank" class="btn btn-green">💬 Chat CP 1: Airlangga (081335658828)</a>
-      <a href="[https://wa.me/6285733298367](https://wa.me/6285733298367)" target="_blank" class="btn btn-green">💬 Chat CP 2: Imun (085733298367)</a>
+      <a href="https://wa.me/6281335658828" target="_blank" class="btn btn-green">💬 Chat CP 1: Airlangga (081335658828)</a>
+      <a href="https://wa.me/6285733298367" target="_blank" class="btn btn-green">💬 Chat CP 2: Imun (085733298367)</a>
       
       <hr style="margin:25px 0; border:0; border-top:1px solid #ccc;">
       
@@ -238,7 +273,7 @@ Pastikan kamu sudah meletakkan file **`bg_pasukan.jpg`** dan **`template_formuli
         </div>
         
         <div class="form-group">
-          <label>Email Penanggung Jawab <span class="badge-req">* (PDF Bukti Daftar Dikirim Kesini)</span></label>
+          <label>Email Penanggung Jawab <span class="badge-req">* (PDF Gabungan Dikirim Kesini)</span></label>
           <input type="email" id="email" placeholder="official@sekolah.com" required>
         </div>
 
@@ -269,10 +304,11 @@ Pastikan kamu sudah meletakkan file **`bg_pasukan.jpg`** dan **`template_formuli
         <p style="font-size: 0.85rem; color: #555; margin-bottom: 15px;">*Pastikan nama sesuai dan foto berkualitas baik.</p>
         
         <div id="containerAnggota">
-            <!-- Form Input Anggota (Di-generate otomatis oleh Javascript) -->
+            <!-- Form Input Anggota (Di-generate otomatis) -->
         </div>
         
-        <button type="button" class="btn btn-submit" onclick="generateCombinedPDF()">Lanjut Review & Generate PDF ➔</button>
+        <!-- TOMBOL DAFTAR -->
+        <button type="button" class="btn btn-submit" onclick="generateCombinedPDF()">Daftar ➔</button>
       </form>
     </div>
   </div>
@@ -285,9 +321,9 @@ Pastikan kamu sudah meletakkan file **`bg_pasukan.jpg`** dan **`template_formuli
       
       <iframe id="pdfPreviewIframe"></iframe>
       
-      <div style="display:flex; gap:10px;">
-        <button class="btn" style="background:#ccc; color:#333;" onclick="document.getElementById('modalReview').style.display='none'">Batal Edit</button>
-        <button class="btn btn-blue" onclick="processSubmit()">Konfirmasi & Kirim Data</button>
+      <div class="modal-buttons">
+        <button class="btn" style="background:#ccc; color:#333; flex: 1; margin: 0;" onclick="document.getElementById('modalReview').style.display='none'">Batal Edit</button>
+        <button class="btn btn-blue" style="flex: 1; margin: 0;" onclick="processSubmit()">Konfirmasi & Kirim Data</button>
       </div>
     </div>
   </div>
@@ -309,7 +345,7 @@ Pastikan kamu sudah meletakkan file **`bg_pasukan.jpg`** dan **`template_formuli
 
   <script>
     // URL WEB APP MILIKMU
-    const scriptURL = '[https://script.google.com/macros/s/AKfycbwE2q_sxiOa7ZueVrwqrjZzq0rgg2XzANff4-gQSww9qOfGzxckMOfS_QnnxrFpuoAenA/exec](https://script.google.com/macros/s/AKfycbwE2q_sxiOa7ZueVrwqrjZzq0rgg2XzANff4-gQSww9qOfGzxckMOfS_QnnxrFpuoAenA/exec)';
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbwE2q_sxiOa7ZueVrwqrjZzq0rgg2XzANff4-gQSww9qOfGzxckMOfS_QnnxrFpuoAenA/exec';
     
     const roles = ["Pelatih/Pembina", "Official Team", "Danton"];
     for (let i = 1; i <= 16; i++) roles.push(`Pasukan ${i}`);
@@ -416,7 +452,6 @@ Pastikan kamu sudah meletakkan file **`bg_pasukan.jpg`** dan **`template_formuli
 
         // 2. FOTO PASUKAN (+ BACKGROUND)
         try {
-          // HARUS ADA FILE bg_pasukan.jpg DI FOLDER VERCEL KAMU
           const bgBytes = await fetch('./bg_pasukan.jpg').then(res => res.arrayBuffer());
           const bgImage = await mergedPdf.embedJpg(bgBytes);
           const pageFoto = mergedPdf.addPage([bgImage.width, bgImage.height]);
@@ -432,7 +467,6 @@ Pastikan kamu sudah meletakkan file **`bg_pasukan.jpg`** dan **`template_formuli
               imgPasukan = await mergedPdf.embedJpg(imgPasukanBytes);
           }
           
-          // Koordinat dan ukuran Foto Pasukan di atas Background (Disesuaikan)
           pageFoto.drawImage(imgPasukan, { x: 50, y: 250, width: bgImage.width - 100, height: 450 });
         } catch(e) { 
           console.warn("Gagal merender background/foto pasukan: ", e); 
@@ -440,13 +474,11 @@ Pastikan kamu sudah meletakkan file **`bg_pasukan.jpg`** dan **`template_formuli
 
         // 3. FORMULIR TEMPLATE
         try {
-          // HARUS ADA FILE template_formulir.pdf DI FOLDER VERCEL KAMU
           const templateBytes = await fetch('./template_formulir.pdf').then(res => res.arrayBuffer());
           const templateDoc = await PDFDocument.load(templateBytes);
           const templatePages = await mergedPdf.copyPages(templateDoc, templateDoc.getPageIndices());
           
           templatePages.forEach(page => mergedPdf.addPage(page));
-          // Jika diperlukan logika penempatan teks/foto otomatis ke template, dilakukan di array templatePages ini.
         } catch(e) { 
           console.warn("Template PDF tidak ditemukan: ", e); 
         }
@@ -455,11 +487,11 @@ Pastikan kamu sudah meletakkan file **`bg_pasukan.jpg`** dan **`template_formuli
         const pdfBytesFinal = await mergedPdf.saveAsBase64({ dataUri: true });
         generatedPdfBase64 = pdfBytesFinal.split(',')[1];
         
-        document.getElementById('pdfPreviewIframe').src = pdfBytesFinal;
+        document.getElementById('pdfPreviewIframe').src = 'data:application/pdf;base64,' + pdfBytesFinal;
         loading.style.display = 'none';
         document.getElementById('modalReview').style.display = 'flex';
       } catch (err) {
-        alert("Gagal menggabung PDF: " + err.message);
+        alert("Gagal menggabung PDF: Pastikan file PDF Surat Rekomendasi Anda tidak di-password. (" + err.message + ")");
         document.getElementById('loadingOverlay').style.display = 'none';
       }
     }
@@ -514,7 +546,7 @@ Pastikan kamu sudah meletakkan file **`bg_pasukan.jpg`** dan **`template_formuli
           const nm = document.getElementById(`nama_${idx}`).value;
           const ft = document.getElementById(`foto_${idx}`).files[0];
           if (nm && ft) {
-            if(idx >= 2) totalPasukanDanton++; // Hitung Danton & Pasukan
+            if(idx >= 2) totalPasukanDanton++; 
             const cleanRole = role.replace(/[^a-zA-Z0-9]/g, '_');
             const cleanNm = nm.replace(/[^a-zA-Z0-9]/g, '_');
             

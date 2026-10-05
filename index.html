@@ -360,11 +360,11 @@
           });
         }
 
-        const res1 = await fetch('./template_hal1.png?v=FINAL-FIX');
+        const res1 = await fetch('./template_hal1.png?v=SUBMIT-FIX');
         if (!res1.ok) throw new Error('Gagal memuat template_hal1.png');
         const tpl1Bytes = await res1.arrayBuffer();
 
-        const res2 = await fetch('./template_hal2.png?v=FINAL-FIX');
+        const res2 = await fetch('./template_hal2.png?v=SUBMIT-FIX');
         if (!res2.ok) throw new Error('Gagal memuat template_hal2.png');
         const tpl2Bytes = await res2.arrayBuffer();
         
@@ -387,7 +387,7 @@
             lines.push(currentLine); return lines;
         }
 
-        // AUTO-GRID GENERATOR FINAL (Jabatan, Garis, dan Nama Aman di Kolom Masing-Masing)
+        // AUTO-GRID GENERATOR
         const processingPromises = roles.map(async (role, i) => {
           const nm = document.getElementById(`nama_${i}`).value.trim();
           const ftFile = document.getElementById(`foto_${i}`).files[0];
@@ -402,7 +402,6 @@
             const col = pageIndex % 2; // 0 = Kolom Kiri, 1 = Kolom Kanan
             const row = Math.floor(pageIndex / 2); // Baris 0 sampai 4
             
-            // KOORDINAT MUTLAK (Kolom Kiri X=45, Kolom Kanan X=325)
             const xPos = col === 0 ? 45 : 325;
             const yPos = 635 - (row * 135); 
             
@@ -418,11 +417,11 @@
             // 3. Tulis Jabatan di Atas
             pageTarget.drawText(role.toUpperCase(), { x: xPos + 90, y: yPos + 82, size: 9, font: fontBold, color: rgb(0, 0, 0) });
             
-            // 4. Dua Garis Isian Nama (Lebar 145pt agar aman tidak menembus kolom kanan)
+            // 4. Dua Garis Isian Nama
             pageTarget.drawLine({ start: { x: xPos + 90, y: yPos + 55 }, end: { x: xPos + 235, y: yPos + 55 }, thickness: 1, color: rgb(0,0,0) });
             pageTarget.drawLine({ start: { x: xPos + 90, y: yPos + 22 }, end: { x: xPos + 235, y: yPos + 22 }, thickness: 1, color: rgb(0,0,0) });
             
-            // 5. Tulis Nama Pendaftar (Batas lebar 140pt, Font disesuaikan otomatis)
+            // 5. Tulis Nama Pendaftar
             const lines = wrapText(nm.toUpperCase(), 140, fontBold, 9);
             pageTarget.drawText(lines[0] || "", { x: xPos + 90, y: yPos + 58, size: 9, font: fontBold, color: rgb(0, 0, 0) });
             if (lines.length > 1) {
@@ -445,6 +444,8 @@
         } catch (e) { console.warn("Foto Pasukan Gagal: ", e); }
 
         const pdfBytes = await mergedPdf.save();
+        
+        // --- PERBAIKAN UTAMA: SIMPAN BASE64 AGAR TOMBOL KIRIM DATA BERFUNGSI ---
         generatedPdfBase64 = await mergedPdf.saveAsBase64(); 
         
         const blob = new Blob([pdfBytes], { type: 'application/pdf' });

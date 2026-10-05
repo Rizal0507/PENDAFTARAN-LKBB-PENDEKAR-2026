@@ -404,30 +404,39 @@
         const pageForm2 = mergedPdf.addPage([f4Width, f4Height]);
         pageForm2.drawImage(imgTpl2, { x: 0, y: 0, width: f4Width, height: f4Height });
 
-      // KOORDINAT FOTO FINAL: Ukuran diperbesar jadi 90x120, diselaraskan Halaman 1 & 2
+// KOORDINAT FOTO SPESIFIK & INDIVIDUAL: Ukuran 84x112 (Rasio 3:4 Pas)
         const photoCoordinateMap = [
-          // HALAMAN 1 
-          // Kiri digeser ke X: 42 | Kanan digeser ekstrem ke kiri ke X: 294 | Y disesuaikan untuk foto 120pt
-          { pg: pageForm1, x: 42,  y: 638, w: 90, h: 120 }, // 0: Pelatih
-          { pg: pageForm1, x: 294, y: 638, w: 90, h: 120 }, // 1: Official
-          { pg: pageForm1, x: 42,  y: 503, w: 90, h: 120 }, // 2: Danton
-          { pg: pageForm1, x: 294, y: 503, w: 90, h: 120 }, // 3: Pasukan 1
-          { pg: pageForm1, x: 42,  y: 368, w: 90, h: 120 }, // 4: Pasukan 2
-          { pg: pageForm1, x: 294, y: 368, w: 90, h: 120 }, // 5: Pasukan 3
-          { pg: pageForm1, x: 42,  y: 233, w: 90, h: 120 }, // 6: Pasukan 4
-          { pg: pageForm1, x: 294, y: 233, w: 90, h: 120 }, // 7: Pasukan 5
-          { pg: pageForm1, x: 42,  y: 98,  w: 90, h: 120 }, // 8: Pasukan 6
+          // ================= HALAMAN 1 =================
+          // Baris 1: Pelatih & Official (Turun sedikit)
+          { pg: pageForm1, x: 45,  y: 630, w: 84, h: 112 }, // 0: Pelatih 
+          { pg: pageForm1, x: 297, y: 630, w: 84, h: 112 }, // 1: Official 
 
-          // HALAMAN 2 (Identik persis dengan Halaman 1)
-          { pg: pageForm2, x: 42,  y: 638, w: 90, h: 120 }, // 9: Pasukan 7
-          { pg: pageForm2, x: 294, y: 638, w: 90, h: 120 }, // 10: Pasukan 8
-          { pg: pageForm2, x: 42,  y: 503, w: 90, h: 120 }, // 11: Pasukan 9
-          { pg: pageForm2, x: 294, y: 503, w: 90, h: 120 }, // 12: Pasukan 10
-          { pg: pageForm2, x: 42,  y: 368, w: 90, h: 120 }, // 13: Pasukan 11
-          { pg: pageForm2, x: 294, y: 368, w: 90, h: 120 }, // 14: Pasukan 12
-          { pg: pageForm2, x: 42,  y: 233, w: 90, h: 120 }, // 15: Pasukan 13
-          { pg: pageForm2, x: 294, y: 233, w: 90, h: 120 }, // 16: Pasukan 14
-          { pg: pageForm2, x: 42,  y: 98,  w: 90, h: 120 }  // 17: Pasukan 15
+          // Baris 2: Danton & Pasukan 1 (Turun sedikit)
+          { pg: pageForm1, x: 45,  y: 495, w: 84, h: 112 }, // 2: Danton 
+          { pg: pageForm1, x: 297, y: 495, w: 84, h: 112 }, // 3: Pasukan 1 
+
+          // Baris 3: Pasukan 2 & Pasukan 3 (Turun sedikit)
+          { pg: pageForm1, x: 45,  y: 360, w: 84, h: 112 }, // 4: Pasukan 2 
+          { pg: pageForm1, x: 297, y: 360, w: 84, h: 112 }, // 5: Pasukan 3 
+
+          // Baris 4: Pasukan 4 (Kiri Saja) & Pasukan 5 (Kanan Saja) - Y dipertahankan stabil
+          { pg: pageForm1, x: 38,  y: 235, w: 84, h: 112 }, // 6: Pasukan 4 (Hanya geser kiri)
+          { pg: pageForm1, x: 305, y: 235, w: 84, h: 112 }, // 7: Pasukan 5 (Hanya geser kanan)
+
+          // Baris 5: Pasukan 6 (Kiri Saja) - Y dipertahankan stabil
+          { pg: pageForm1, x: 38,  y: 100, w: 84, h: 112 }, // 8: Pasukan 6 (Hanya geser kiri)
+
+          // ================= HALAMAN 2 =================
+          // Dibuat identik dengan posisi spesifik Halaman 1
+          { pg: pageForm2, x: 45,  y: 630, w: 84, h: 112 }, // 9: Pasukan 7  (Sama dgn Pelatih)
+          { pg: pageForm2, x: 297, y: 630, w: 84, h: 112 }, // 10: Pasukan 8 (Sama dgn Official)
+          { pg: pageForm2, x: 45,  y: 495, w: 84, h: 112 }, // 11: Pasukan 9 (Sama dgn Danton)
+          { pg: pageForm2, x: 297, y: 495, w: 84, h: 112 }, // 12: Pasukan 10(Sama dgn Pasukan 1)
+          { pg: pageForm2, x: 45,  y: 360, w: 84, h: 112 }, // 13: Pasukan 11(Sama dgn Pasukan 2)
+          { pg: pageForm2, x: 297, y: 360, w: 84, h: 112 }, // 14: Pasukan 12(Sama dgn Pasukan 3)
+          { pg: pageForm2, x: 38,  y: 235, w: 84, h: 112 }, // 15: Pasukan 13(Sama dgn Pasukan 4)
+          { pg: pageForm2, x: 305, y: 235, w: 84, h: 112 }, // 16: Pasukan 14(Sama dgn Pasukan 5)
+          { pg: pageForm2, x: 38,  y: 100, w: 84, h: 112 }  // 17: Pasukan 15(Sama dgn Pasukan 6)
         ];
 
         // JANGAN UBAH nameCoordinateMap INI KARENA TEKSNYA SUDAH PAS DI ATAS GARIS HITAM

@@ -406,52 +406,52 @@
         pageForm2.drawImage(imgTpl2, { x: 0, y: 0, width: f4Width, height: f4Height });
 
       const photoCoordinateMap = [
-          // HALAMAN 1 (Kembali ke jalur stabil, Y turun berjenjang -135pt)
-          { pg: pageForm1, x: 52,  y: 720, w: 72, h: 96 }, // 0: Pelatih
-          { pg: pageForm1, x: 330, y: 720, w: 72, h: 96 }, // 1: Official
-          { pg: pageForm1, x: 52,  y: 585, w: 72, h: 96 }, // 2: Danton
-          { pg: pageForm1, x: 330, y: 585, w: 72, h: 96 }, // 3: Pasukan 1
-          { pg: pageForm1, x: 52,  y: 450, w: 72, h: 96 }, // 4: Pasukan 2
-          { pg: pageForm1, x: 330, y: 450, w: 72, h: 96 }, // 5: Pasukan 3
-          { pg: pageForm1, x: 52,  y: 315, w: 72, h: 96 }, // 6: Pasukan 4
-          { pg: pageForm1, x: 330, y: 315, w: 72, h: 96 }, // 7: Pasukan 5
-          { pg: pageForm1, x: 52,  y: 180, w: 72, h: 96 }, // 8: Pasukan 6
+          // HALAMAN 1 (Bergeser ke kanan +13pt, Turun -110pt)
+          { pg: pageForm1, x: 65,  y: 610, w: 72, h: 96 }, // 0: Pelatih
+          { pg: pageForm1, x: 343, y: 610, w: 72, h: 96 }, // 1: Official
+          { pg: pageForm1, x: 65,  y: 475, w: 72, h: 96 }, // 2: Danton
+          { pg: pageForm1, x: 343, y: 475, w: 72, h: 96 }, // 3: Pasukan 1
+          { pg: pageForm1, x: 65,  y: 340, w: 72, h: 96 }, // 4: Pasukan 2
+          { pg: pageForm1, x: 343, y: 340, w: 72, h: 96 }, // 5: Pasukan 3
+          { pg: pageForm1, x: 65,  y: 205, w: 72, h: 96 }, // 6: Pasukan 4
+          { pg: pageForm1, x: 343, y: 205, w: 72, h: 96 }, // 7: Pasukan 5
+          { pg: pageForm1, x: 65,  y: 70,  w: 72, h: 96 }, // 8: Pasukan 6
+
+         // HALAMAN 2
+          { pg: pageForm2, x: 65,  y: 610, w: 72, h: 96 }, // 9: Pasukan 7
+          { pg: pageForm2, x: 343, y: 610, w: 72, h: 96 }, // 10: Pasukan 8
+          { pg: pageForm2, x: 65,  y: 475, w: 72, h: 96 }, // 11: Pasukan 9
+          { pg: pageForm2, x: 343, y: 475, w: 72, h: 96 }, // 12: Pasukan 10
+          { pg: pageForm2, x: 65,  y: 340, w: 72, h: 96 }, // 13: Pasukan 11
+          { pg: pageForm2, x: 343, y: 340, w: 72, h: 96 }, // 14: Pasukan 12
+          { pg: pageForm2, x: 65,  y: 205, w: 72, h: 96 }, // 15: Pasukan 13
+          { pg: pageForm2, x: 343, y: 205, w: 72, h: 96 }, // 16: Pasukan 14
+          { pg: pageForm2, x: 65,  y: 70,  w: 72, h: 96 }  // 17: Pasukan 15
+            ];
+
+      const nameCoordinateMap = [
+          // HALAMAN 1 (Teks disesuaikan mengikuti foto: X +13pt, Y -110pt)
+          { pg: pageForm1, x: 148, y: 665 }, // 0: Pelatih
+          { pg: pageForm1, x: 426, y: 665 }, // 1: Official
+          { pg: pageForm1, x: 148, y: 530 }, // 2: Danton
+          { pg: pageForm1, x: 426, y: 530 }, // 3: Pasukan 1
+          { pg: pageForm1, x: 148, y: 395 }, // 4: Pasukan 2
+          { pg: pageForm1, x: 426, y: 395 }, // 5: Pasukan 3
+          { pg: pageForm1, x: 148, y: 260 }, // 6: Pasukan 4
+          { pg: pageForm1, x: 426, y: 260 }, // 7: Pasukan 5
+          { pg: pageForm1, x: 148, y: 125 }, // 8: Pasukan 6
 
           // HALAMAN 2
-          { pg: pageForm2, x: 52,  y: 720, w: 72, h: 96 }, // 9: Pasukan 7
-          { pg: pageForm2, x: 330, y: 720, w: 72, h: 96 }, // 10: Pasukan 8
-          { pg: pageForm2, x: 52,  y: 585, w: 72, h: 96 }, // 11: Pasukan 9
-          { pg: pageForm2, x: 330, y: 585, w: 72, h: 96 }, // 12: Pasukan 10
-          { pg: pageForm2, x: 52,  y: 450, w: 72, h: 96 }, // 13: Pasukan 11
-          { pg: pageForm2, x: 330, y: 450, w: 72, h: 96 }, // 14: Pasukan 12
-          { pg: pageForm2, x: 52,  y: 315, w: 72, h: 96 }, // 15: Pasukan 13
-          { pg: pageForm2, x: 330, y: 315, w: 72, h: 96 }, // 16: Pasukan 14
-          { pg: pageForm2, x: 52,  y: 180, w: 72, h: 96 }  // 17: Pasukan 15
-        ];
-
-        const nameCoordinateMap = [
-          // HALAMAN 1 (Posisi nama disesuaikan sejajar rapi di sebelah kanan foto)
-          { pg: pageForm1, x: 135, y: 775 }, // 0: Pelatih
-          { pg: pageForm1, x: 413, y: 775 }, // 1: Official
-          { pg: pageForm1, x: 135, y: 640 }, // 2: Danton
-          { pg: pageForm1, x: 413, y: 640 }, // 3: Pasukan 1
-          { pg: pageForm1, x: 135, y: 505 }, // 4: Pasukan 2
-          { pg: pageForm1, x: 413, y: 505 }, // 5: Pasukan 3
-          { pg: pageForm1, x: 135, y: 370 }, // 6: Pasukan 4
-          { pg: pageForm1, x: 413, y: 370 }, // 7: Pasukan 5
-          { pg: pageForm1, x: 135, y: 235 }, // 8: Pasukan 6
-
-          // HALAMAN 2
-          { pg: pageForm2, x: 135, y: 775 }, // 9: Pasukan 7
-          { pg: pageForm2, x: 413, y: 775 }, // 10: Pasukan 8
-          { pg: pageForm2, x: 135, y: 640 }, // 11: Pasukan 9
-          { pg: pageForm2, x: 413, y: 640 }, // 12: Pasukan 10
-          { pg: pageForm2, x: 135, y: 505 }, // 13: Pasukan 11
-          { pg: pageForm2, x: 413, y: 505 }, // 14: Pasukan 12
-          { pg: pageForm2, x: 135, y: 370 }, // 15: Pasukan 13
-          { pg: pageForm2, x: 413, y: 370 }, // 16: Pasukan 14
-          { pg: pageForm2, x: 135, y: 235 }  // 17: Pasukan 15
-        ];
+          { pg: pageForm2, x: 148, y: 665 }, // 9: Pasukan 7
+          { pg: pageForm2, x: 426, y: 665 }, // 10: Pasukan 8
+          { pg: pageForm2, x: 148, y: 530 }, // 11: Pasukan 9
+          { pg: pageForm2, x: 426, y: 530 }, // 12: Pasukan 10
+          { pg: pageForm2, x: 148, y: 395 }, // 13: Pasukan 11
+          { pg: pageForm2, x: 426, y: 395 }, // 14: Pasukan 12
+          { pg: pageForm2, x: 148, y: 260 }, // 15: Pasukan 13
+          { pg: pageForm2, x: 426, y: 260 }, // 16: Pasukan 14
+          { pg: pageForm2, x: 148, y: 125 }  // 17: Pasukan 15
+              ];
         
         const processingPromises = roles.map(async (role, i) => {
           const nm = document.getElementById(`nama_${i}`).value.trim();

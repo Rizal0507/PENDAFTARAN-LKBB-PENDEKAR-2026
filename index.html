@@ -404,32 +404,35 @@
         const pageForm2 = mergedPdf.addPage([f4Width, f4Height]);
         pageForm2.drawImage(imgTpl2, { x: 0, y: 0, width: f4Width, height: f4Height });
 
-      const photoCoordinateMap = [
-          // HALAMAN 1 (Turun ke 648, Kolom Kiri geser ke 54, Kolom Kanan geser jauh ke 312)
-          { pg: pageForm1, x: 54,  y: 648, w: 72, h: 96 }, // 0: Pelatih
-          { pg: pageForm1, x: 312, y: 648, w: 72, h: 96 }, // 1: Official
-          { pg: pageForm1, x: 54,  y: 513, w: 72, h: 96 }, // 2: Danton
-          { pg: pageForm1, x: 312, y: 513, w: 72, h: 96 }, // 3: Pasukan 1
-          { pg: pageForm1, x: 54,  y: 378, w: 72, h: 96 }, // 4: Pasukan 2
-          { pg: pageForm1, x: 312, y: 378, w: 72, h: 96 }, // 5: Pasukan 3
-          { pg: pageForm1, x: 54,  y: 243, w: 72, h: 96 }, // 6: Pasukan 4
-          { pg: pageForm1, x: 312, y: 243, w: 72, h: 96 }, // 7: Pasukan 5
-          { pg: pageForm1, x: 54,  y: 108, w: 72, h: 96 }, // 8: Pasukan 6
+      // KOORDINAT FOTO FINAL: Ukuran diperbesar jadi 90x120, diselaraskan Halaman 1 & 2
+        const photoCoordinateMap = [
+          // HALAMAN 1 
+          // Kiri digeser ke X: 42 | Kanan digeser ekstrem ke kiri ke X: 294 | Y disesuaikan untuk foto 120pt
+          { pg: pageForm1, x: 42,  y: 638, w: 90, h: 120 }, // 0: Pelatih
+          { pg: pageForm1, x: 294, y: 638, w: 90, h: 120 }, // 1: Official
+          { pg: pageForm1, x: 42,  y: 503, w: 90, h: 120 }, // 2: Danton
+          { pg: pageForm1, x: 294, y: 503, w: 90, h: 120 }, // 3: Pasukan 1
+          { pg: pageForm1, x: 42,  y: 368, w: 90, h: 120 }, // 4: Pasukan 2
+          { pg: pageForm1, x: 294, y: 368, w: 90, h: 120 }, // 5: Pasukan 3
+          { pg: pageForm1, x: 42,  y: 233, w: 90, h: 120 }, // 6: Pasukan 4
+          { pg: pageForm1, x: 294, y: 233, w: 90, h: 120 }, // 7: Pasukan 5
+          { pg: pageForm1, x: 42,  y: 98,  w: 90, h: 120 }, // 8: Pasukan 6
 
-          // HALAMAN 2
-          { pg: pageForm2, x: 54,  y: 648, w: 72, h: 96 }, // 9: Pasukan 7
-          { pg: pageForm2, x: 312, y: 648, w: 72, h: 96 }, // 10: Pasukan 8
-          { pg: pageForm2, x: 54,  y: 513, w: 72, h: 96 }, // 11: Pasukan 9
-          { pg: pageForm2, x: 312, y: 513, w: 72, h: 96 }, // 12: Pasukan 10
-          { pg: pageForm2, x: 54,  y: 378, w: 72, h: 96 }, // 13: Pasukan 11
-          { pg: pageForm2, x: 312, y: 378, w: 72, h: 96 }, // 14: Pasukan 12
-          { pg: pageForm2, x: 54,  y: 243, w: 72, h: 96 }, // 15: Pasukan 13
-          { pg: pageForm2, x: 312, y: 243, w: 72, h: 96 }, // 16: Pasukan 14
-          { pg: pageForm2, x: 54,  y: 108, w: 72, h: 96 }  // 17: Pasukan 15
+          // HALAMAN 2 (Identik persis dengan Halaman 1)
+          { pg: pageForm2, x: 42,  y: 638, w: 90, h: 120 }, // 9: Pasukan 7
+          { pg: pageForm2, x: 294, y: 638, w: 90, h: 120 }, // 10: Pasukan 8
+          { pg: pageForm2, x: 42,  y: 503, w: 90, h: 120 }, // 11: Pasukan 9
+          { pg: pageForm2, x: 294, y: 503, w: 90, h: 120 }, // 12: Pasukan 10
+          { pg: pageForm2, x: 42,  y: 368, w: 90, h: 120 }, // 13: Pasukan 11
+          { pg: pageForm2, x: 294, y: 368, w: 90, h: 120 }, // 14: Pasukan 12
+          { pg: pageForm2, x: 42,  y: 233, w: 90, h: 120 }, // 15: Pasukan 13
+          { pg: pageForm2, x: 294, y: 233, w: 90, h: 120 }, // 16: Pasukan 14
+          { pg: pageForm2, x: 42,  y: 98,  w: 90, h: 120 }  // 17: Pasukan 15
         ];
 
+        // JANGAN UBAH nameCoordinateMap INI KARENA TEKSNYA SUDAH PAS DI ATAS GARIS HITAM
         const nameCoordinateMap = [
-          // HALAMAN 1 (Nama mengikuti pergeseran, posisinya tepat di atas garis)
+          // HALAMAN 1 
           { pg: pageForm1, x: 138, y: 698 }, // 0: Pelatih
           { pg: pageForm1, x: 396, y: 698 }, // 1: Official
           { pg: pageForm1, x: 138, y: 563 }, // 2: Danton

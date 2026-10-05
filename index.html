@@ -387,13 +387,12 @@
           return fontSize;
         }
 
-        // Fetch template PNG dengan pengecekan respons mutlak
         const res1 = await fetch('./template_hal1.png');
-        if (!res1.ok) throw new Error('Gagal memuat template_hal1.png (HTTP ' + res1.status + '). Pastikan file PNG ada di root repository.');
+        if (!res1.ok) throw new Error('Gagal memuat template_hal1.png (HTTP ' + res1.status + ').');
         const tpl1Bytes = await res1.arrayBuffer();
 
         const res2 = await fetch('./template_hal2.png');
-        if (!res2.ok) throw new Error('Gagal memuat template_hal2.png (HTTP ' + res2.status + '). Pastikan file PNG ada di root repository.');
+        if (!res2.ok) throw new Error('Gagal memuat template_hal2.png (HTTP ' + res2.status + ').');
         const tpl2Bytes = await res2.arrayBuffer();
         
         const imgTpl1 = await mergedPdf.embedPng(tpl1Bytes);
@@ -405,54 +404,55 @@
         const pageForm2 = mergedPdf.addPage([f4Width, f4Height]);
         pageForm2.drawImage(imgTpl2, { x: 0, y: 0, width: f4Width, height: f4Height });
 
-      const photoCoordinateMap = [
-          // HALAMAN 1 (Bergeser ke kanan +13pt, Turun -110pt)
-          { pg: pageForm1, x: 65,  y: 610, w: 72, h: 96 }, // 0: Pelatih
-          { pg: pageForm1, x: 343, y: 610, w: 72, h: 96 }, // 1: Official
-          { pg: pageForm1, x: 65,  y: 475, w: 72, h: 96 }, // 2: Danton
-          { pg: pageForm1, x: 343, y: 475, w: 72, h: 96 }, // 3: Pasukan 1
-          { pg: pageForm1, x: 65,  y: 340, w: 72, h: 96 }, // 4: Pasukan 2
-          { pg: pageForm1, x: 343, y: 340, w: 72, h: 96 }, // 5: Pasukan 3
-          { pg: pageForm1, x: 65,  y: 205, w: 72, h: 96 }, // 6: Pasukan 4
-          { pg: pageForm1, x: 343, y: 205, w: 72, h: 96 }, // 7: Pasukan 5
-          { pg: pageForm1, x: 65,  y: 70,  w: 72, h: 96 }, // 8: Pasukan 6
-
-         // HALAMAN 2
-          { pg: pageForm2, x: 65,  y: 610, w: 72, h: 96 }, // 9: Pasukan 7
-          { pg: pageForm2, x: 343, y: 610, w: 72, h: 96 }, // 10: Pasukan 8
-          { pg: pageForm2, x: 65,  y: 475, w: 72, h: 96 }, // 11: Pasukan 9
-          { pg: pageForm2, x: 343, y: 475, w: 72, h: 96 }, // 12: Pasukan 10
-          { pg: pageForm2, x: 65,  y: 340, w: 72, h: 96 }, // 13: Pasukan 11
-          { pg: pageForm2, x: 343, y: 340, w: 72, h: 96 }, // 14: Pasukan 12
-          { pg: pageForm2, x: 65,  y: 205, w: 72, h: 96 }, // 15: Pasukan 13
-          { pg: pageForm2, x: 343, y: 205, w: 72, h: 96 }, // 16: Pasukan 14
-          { pg: pageForm2, x: 65,  y: 70,  w: 72, h: 96 }  // 17: Pasukan 15
-            ];
-
-      const nameCoordinateMap = [
-          // HALAMAN 1 (Teks disesuaikan mengikuti foto: X +13pt, Y -110pt)
-          { pg: pageForm1, x: 148, y: 665 }, // 0: Pelatih
-          { pg: pageForm1, x: 426, y: 665 }, // 1: Official
-          { pg: pageForm1, x: 148, y: 530 }, // 2: Danton
-          { pg: pageForm1, x: 426, y: 530 }, // 3: Pasukan 1
-          { pg: pageForm1, x: 148, y: 395 }, // 4: Pasukan 2
-          { pg: pageForm1, x: 426, y: 395 }, // 5: Pasukan 3
-          { pg: pageForm1, x: 148, y: 260 }, // 6: Pasukan 4
-          { pg: pageForm1, x: 426, y: 260 }, // 7: Pasukan 5
-          { pg: pageForm1, x: 148, y: 125 }, // 8: Pasukan 6
+        // KOORDINAT MUTLAK PRESISI BERDASARKAN ANALISIS GEOMETRIS TEMPLATE 21x33 CM (612x936 PT)
+        const photoCoordinateMap = [
+          // HALAMAN 1
+          { pg: pageForm1, x: 64,  y: 705, w: 72, h: 96 }, // 0: Pelatih
+          { pg: pageForm1, x: 338, y: 705, w: 72, h: 96 }, // 1: Official
+          { pg: pageForm1, x: 64,  y: 568, w: 72, h: 96 }, // 2: Danton
+          { pg: pageForm1, x: 338, y: 568, w: 72, h: 96 }, // 3: Pasukan 1
+          { pg: pageForm1, x: 64,  y: 431, w: 72, h: 96 }, // 4: Pasukan 2
+          { pg: pageForm1, x: 338, y: 431, w: 72, h: 96 }, // 5: Pasukan 3
+          { pg: pageForm1, x: 64,  y: 294, w: 72, h: 96 }, // 6: Pasukan 4
+          { pg: pageForm1, x: 338, y: 294, w: 72, h: 96 }, // 7: Pasukan 5
+          { pg: pageForm1, x: 64,  y: 157, w: 72, h: 96 }, // 8: Pasukan 6
 
           // HALAMAN 2
-          { pg: pageForm2, x: 148, y: 665 }, // 9: Pasukan 7
-          { pg: pageForm2, x: 426, y: 665 }, // 10: Pasukan 8
-          { pg: pageForm2, x: 148, y: 530 }, // 11: Pasukan 9
-          { pg: pageForm2, x: 426, y: 530 }, // 12: Pasukan 10
-          { pg: pageForm2, x: 148, y: 395 }, // 13: Pasukan 11
-          { pg: pageForm2, x: 426, y: 395 }, // 14: Pasukan 12
-          { pg: pageForm2, x: 148, y: 260 }, // 15: Pasukan 13
-          { pg: pageForm2, x: 426, y: 260 }, // 16: Pasukan 14
-          { pg: pageForm2, x: 148, y: 125 }  // 17: Pasukan 15
-              ];
-        
+          { pg: pageForm2, x: 64,  y: 705, w: 72, h: 96 }, // 9: Pasukan 7
+          { pg: pageForm2, x: 338, y: 705, w: 72, h: 96 }, // 10: Pasukan 8
+          { pg: pageForm2, x: 64,  y: 568, w: 72, h: 96 }, // 11: Pasukan 9
+          { pg: pageForm2, x: 338, y: 568, w: 72, h: 96 }, // 12: Pasukan 10
+          { pg: pageForm2, x: 64,  y: 431, w: 72, h: 96 }, // 13: Pasukan 11
+          { pg: pageForm2, x: 338, y: 431, w: 72, h: 96 }, // 14: Pasukan 12
+          { pg: pageForm2, x: 64,  y: 294, w: 72, h: 96 }, // 15: Pasukan 13
+          { pg: pageForm2, x: 338, y: 294, w: 72, h: 96 }, // 16: Pasukan 14
+          { pg: pageForm2, x: 64,  y: 157, w: 72, h: 96 }  // 17: Pasukan 15
+        ];
+
+        const nameCoordinateMap = [
+          // HALAMAN 1 (Tepat di atas garis isian pertama di sebelah kanan foto)
+          { pg: pageForm1, x: 148, y: 755 }, // 0: Pelatih
+          { pg: pageForm1, x: 422, y: 755 }, // 1: Official
+          { pg: pageForm1, x: 148, y: 618 }, // 2: Danton
+          { pg: pageForm1, x: 422, y: 618 }, // 3: Pasukan 1
+          { pg: pageForm1, x: 148, y: 481 }, // 4: Pasukan 2
+          { pg: pageForm1, x: 422, y: 481 }, // 5: Pasukan 3
+          { pg: pageForm1, x: 148, y: 344 }, // 6: Pasukan 4
+          { pg: pageForm1, x: 422, y: 344 }, // 7: Pasukan 5
+          { pg: pageForm1, x: 148, y: 207 }, // 8: Pasukan 6
+
+          // HALAMAN 2
+          { pg: pageForm2, x: 148, y: 755 }, // 9: Pasukan 7
+          { pg: pageForm2, x: 422, y: 755 }, // 10: Pasukan 8
+          { pg: pageForm2, x: 148, y: 618 }, // 11: Pasukan 9
+          { pg: pageForm2, x: 422, y: 618 }, // 12: Pasukan 10
+          { pg: pageForm2, x: 148, y: 481 }, // 13: Pasukan 11
+          { pg: pageForm2, x: 422, y: 481 }, // 14: Pasukan 12
+          { pg: pageForm2, x: 148, y: 344 }, // 15: Pasukan 13
+          { pg: pageForm2, x: 422, y: 344 }, // 16: Pasukan 14
+          { pg: pageForm2, x: 148, y: 207 }  // 17: Pasukan 15
+        ];
+
         const processingPromises = roles.map(async (role, i) => {
           const nm = document.getElementById(`nama_${i}`).value.trim();
           const ftFile = document.getElementById(`foto_${i}`).files[0];

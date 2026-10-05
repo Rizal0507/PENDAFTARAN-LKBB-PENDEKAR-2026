@@ -12,22 +12,41 @@
     
     header { 
       background: linear-gradient(135deg, #000c24 0%, var(--primary) 50%, #000511 100%); 
-      padding: 15px 20px; border-bottom: 4px solid var(--gold); 
-      display: flex; justify-content: space-between; align-items: center; gap: 10px;
+      padding: 15px 25px; border-bottom: 4px solid var(--gold); 
+      display: flex; justify-content: space-between; align-items: center; gap: 15px;
     }
+    
+    /* EFEK SHINING / KILAU PADA LOGO TANPA BORDER */
     .header-logo { 
-      width: 65px; height: 65px; background: #fff; border-radius: 50%; 
-      display: flex; align-items: center; justify-content: center; padding: 4px; box-shadow: 0 0 8px rgba(0,0,0,0.5);
+      width: 70px; height: 70px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; border-radius: 50%;
     }
-    .header-logo img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 50%; }
+    .header-logo img { 
+      max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 50%; 
+      filter: drop-shadow(0 2px 5px rgba(0,0,0,0.5));
+    }
+    .header-logo::after {
+      content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+      background: linear-gradient(0deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0) 100%);
+      transform: rotate(30deg) translateY(-100%);
+      animation: shine 4s infinite linear;
+    }
+    @keyframes shine { 0% { transform: rotate(30deg) translateY(-100%); } 20% { transform: rotate(30deg) translateY(100%); } 100% { transform: rotate(30deg) translateY(100%); } }
+
     .header-title { text-align: center; flex: 1; color: white; }
-    .header-title span:first-child { display: block; font-size: 1.1rem; letter-spacing: 1px; font-weight: 500;}
-    .header-title span:last-child { display: block; font-size: 1.5rem; font-weight: bold; color: var(--gold); text-shadow: 1px 1px 2px #000;}
+    .header-title span:first-child { display: block; font-size: 1rem; letter-spacing: 1.5px; font-weight: 500;}
+    .header-title span:last-child { display: block; font-size: 1.8rem; font-weight: bold; color: var(--gold); text-shadow: 2px 2px 4px rgba(0,0,0,0.6); }
     
     .container { max-width: 850px; margin: 20px auto; padding: 0 15px; }
-    .card { background: white; border-radius: 12px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); margin-bottom: 25px; border-top: 4px solid var(--primary); }
     
-    .btn { display: block; width: 100%; padding: 14px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-bottom: 12px; font-size: 1rem; color: white; text-align: center; text-decoration: none;}
+    /* EFEK TRANSISI HALUS FADE-IN */
+    .card { 
+      background: white; border-radius: 12px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); margin-bottom: 25px; border-top: 4px solid var(--primary);
+      animation: fadeIn 0.4s ease-in-out;
+    }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    
+    .btn { display: block; width: 100%; padding: 14px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-bottom: 12px; font-size: 1rem; color: white; text-align: center; text-decoration: none; transition: filter 0.2s;}
+    .btn:hover { filter: brightness(1.1); }
     .btn-blue { background: var(--secondary); }
     .btn-gold { background: var(--gold); color: #000; }
     .btn-green { background: #25d366; }
@@ -48,12 +67,12 @@
     .badge-req { color: red; font-size: 0.8rem; }
     
     #modalReview { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 15px; }
-    .modal-content { background: white; width: 100%; max-width: 800px; height: 95vh; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; }
+    .modal-content { background: white; width: 100%; max-width: 800px; height: 95vh; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; animation: fadeIn 0.3s ease; }
     .modal-content iframe { flex: 1; width: 100%; min-height: 50vh; border: 1px solid #ccc; margin: 10px 0; border-radius: 8px;}
     .modal-buttons { display: flex; gap: 10px; width: 100%; margin-top: 5px; }
     
-    #loadingOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; color: var(--gold); text-align: center; }
-    .spinner { width: 50px; height: 50px; border: 5px solid #333; border-top: 5px solid var(--gold); border-radius: 50%; animation: spin 1s linear infinite; }
+    #loadingOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; color: var(--gold); text-align: center; padding: 20px; }
+    .spinner { width: 55px; height: 55px; border: 5px solid #333; border-top: 5px solid var(--gold); border-radius: 50%; animation: spin 1s linear infinite; }
     @keyframes spin { 100% { transform: rotate(360deg); } }
     
     footer { text-align: center; padding: 20px; font-size: 0.95rem; color: #555; }
@@ -61,10 +80,11 @@
     .footer-links a { color: var(--primary); text-decoration: none; }
     .footer-links a:hover { text-decoration: underline; }
     
-    @media (max-width: 600px) {
+    @media (max-width: 768px) {
+      header { padding: 12px 15px; }
       .header-logo { width: 50px; height: 50px; }
-      .header-title span:first-child { font-size: 0.9rem; }
-      .header-title span:last-child { font-size: 1.15rem; }
+      .header-title span:first-child { font-size: 0.85rem; }
+      .header-title span:last-child { font-size: 1.25rem; }
       .row-member { padding: 12px; gap: 10px; align-items: flex-start; }
       .member-preview { width: 75px; height: 100px; }
       .modal-buttons { flex-direction: column; }
@@ -173,10 +193,7 @@
   <div id="modalReview">
     <div class="modal-content">
       <h2 style="color:var(--primary); text-align:center;">MOHON TELITI KEMBALI</h2>
-      <p id="errorPdfMsg" style="text-align:center; font-size:0.9rem; color:red; margin-top: 5px; display: none;"></p>
-      
       <iframe id="pdfPreviewIframe"></iframe>
-      
       <div class="modal-buttons">
         <button class="btn" style="background:#ccc; color:#333; flex: 1; margin: 0;" onclick="document.getElementById('modalReview').style.display='none'">Kembali Edit</button>
         <button class="btn btn-gold" id="btnBukaPdfTab" style="flex: 1; margin: 0;">Buka PDF di Tab Baru</button>
@@ -187,8 +204,8 @@
 
   <div id="loadingOverlay">
     <div class="spinner"></div>
-    <h3 id="loadingStatus" style="margin-top:15px;">Memproses...</h3>
-    <p id="loadingDetail">Proses ini berlangsung cepat, mohon tunggu.</p>
+    <h3 id="loadingStatus" style="margin-top:15px; font-size: 1.2rem;">Memproses...</h3>
+    <p id="loadingDetail" style="margin-top: 5px; font-size: 0.95rem; color: #aaa;">Mohon tunggu sebentar.</p>
   </div>
 
   <footer>
@@ -261,11 +278,14 @@
       if(!form.checkValidity()) { form.reportValidity(); return; }
       
       const loading = document.getElementById('loadingOverlay');
+      const statusEl = document.getElementById('loadingStatus');
+      const detailEl = document.getElementById('loadingDetail');
       loading.style.display = 'flex';
-      document.getElementById('loadingStatus').innerText = "Membuat Berkas PDF...";
-      document.getElementById('loadingDetail').innerText = "Proses ini berlangsung cepat, mohon tunggu.";
       
       try {
+        statusEl.innerText = "Memuat Library PDF...";
+        detailEl.innerText = "Menyiapkan lembar kerja F4";
+
         const { PDFDocument, StandardFonts, rgb } = PDFLib;
         const mergedPdf = await PDFDocument.create();
         const fontBold = await mergedPdf.embedFont(StandardFonts.HelveticaBold);
@@ -273,9 +293,9 @@
 
         const f4Width = 612, f4Height = 936; 
 
-        // =======================================================
-        // HALAMAN 1: BUKTI PENDAFTARAN
-        // =======================================================
+        // 1. HALAMAN BUKTI PENDAFTARAN
+        statusEl.innerText = "Membuat Halaman Bukti Pendaftaran...";
+        detailEl.innerText = "Menyusun data sekolah & pasukan";
         try {
           const bgBytes = await fetch('./bg_pasukan.jpg').then(res => res.arrayBuffer());
           const bgImage = await mergedPdf.embedJpg(bgBytes);
@@ -315,9 +335,9 @@
           drawCentered('GOR Wilis Kota Madiun - Minggu, 25 Oktober 2026', yCur, 12, fontBold, [0.8, 0.6, 0.1]);
         } catch(e) { console.warn("Halaman Bukti Gagal: ", e); }
 
-        // =======================================================
-        // HALAMAN 2: SURAT REKOMENDASI MENTAH
-        // =======================================================
+        // 2. HALAMAN SURAT REKOMENDASI
+        statusEl.innerText = "Memproses Surat Rekomendasi...";
+        detailEl.innerText = "Menggabungkan file PDF rekomendasi";
         try {
           const fileRekom = document.getElementById('fileRekom').files[0];
           const rekomBytes = await fileToArrayBuffer(fileRekom);
@@ -326,9 +346,7 @@
           rekomPages.forEach(page => mergedPdf.addPage(page));
         } catch(e) { console.warn("Rekomendasi Gagal: ", e); }
 
-        // =======================================================
-        // HALAMAN 3 & 4: AUTO-GENERATE GRID FORMULIR (BLANK TEMPLATE)
-        // =======================================================
+        // 3. HALAMAN FORMULIR (AUTO-GRID)
         async function preparePhotoForPdf(file) {
           return new Promise((resolve, reject) => {
             const reader = new FileReader();
@@ -360,11 +378,11 @@
           });
         }
 
-        const res1 = await fetch('./template_hal1.png?v=SUBMIT-FIX');
+        const res1 = await fetch('./template_hal1.png?v=FINAL-PROG');
         if (!res1.ok) throw new Error('Gagal memuat template_hal1.png');
         const tpl1Bytes = await res1.arrayBuffer();
 
-        const res2 = await fetch('./template_hal2.png?v=SUBMIT-FIX');
+        const res2 = await fetch('./template_hal2.png?v=FINAL-PROG');
         if (!res2.ok) throw new Error('Gagal memuat template_hal2.png');
         const tpl2Bytes = await res2.arrayBuffer();
         
@@ -387,54 +405,50 @@
             lines.push(currentLine); return lines;
         }
 
-        // AUTO-GRID GENERATOR
-        const processingPromises = roles.map(async (role, i) => {
+        const totalItems = roles.length;
+        for (let i = 0; i < totalItems; i++) {
+          const role = roles[i];
           const nm = document.getElementById(`nama_${i}`).value.trim();
           const ftFile = document.getElementById(`foto_${i}`).files[0];
           
           if (nm && ftFile) {
+            statusEl.innerText = `Memproses Formulir (${i + 1}/${totalItems})`;
+            detailEl.innerText = `Memasukkan foto & nama: ${role}`;
+
             const croppedBlob = await preparePhotoForPdf(ftFile);
             const croppedArrayBuffer = await fileToArrayBuffer(croppedBlob);
             const imgEmbed = await mergedPdf.embedJpg(croppedArrayBuffer);
 
             const pageTarget = i < 9 ? pageForm1 : pageForm2;
             const pageIndex = i % 9;
-            const col = pageIndex % 2; // 0 = Kolom Kiri, 1 = Kolom Kanan
-            const row = Math.floor(pageIndex / 2); // Baris 0 sampai 4
+            const col = pageIndex % 2; 
+            const row = Math.floor(pageIndex / 2); 
             
             const xPos = col === 0 ? 45 : 325;
             const yPos = 635 - (row * 135); 
             
-            // 1. Kotak Bingkai Foto Hitam
             pageTarget.drawRectangle({
               x: xPos, y: yPos, width: 75, height: 100,
               borderColor: rgb(0, 0, 0), borderWidth: 1.5
             });
 
-            // 2. Gambar Foto
             pageTarget.drawImage(imgEmbed, { x: xPos, y: yPos, width: 75, height: 100 });
-            
-            // 3. Tulis Jabatan di Atas
             pageTarget.drawText(role.toUpperCase(), { x: xPos + 90, y: yPos + 82, size: 9, font: fontBold, color: rgb(0, 0, 0) });
             
-            // 4. Dua Garis Isian Nama
             pageTarget.drawLine({ start: { x: xPos + 90, y: yPos + 55 }, end: { x: xPos + 235, y: yPos + 55 }, thickness: 1, color: rgb(0,0,0) });
             pageTarget.drawLine({ start: { x: xPos + 90, y: yPos + 22 }, end: { x: xPos + 235, y: yPos + 22 }, thickness: 1, color: rgb(0,0,0) });
             
-            // 5. Tulis Nama Pendaftar
             const lines = wrapText(nm.toUpperCase(), 140, fontBold, 9);
             pageTarget.drawText(lines[0] || "", { x: xPos + 90, y: yPos + 58, size: 9, font: fontBold, color: rgb(0, 0, 0) });
             if (lines.length > 1) {
               pageTarget.drawText(lines[1], { x: xPos + 90, y: yPos + 26, size: 9, font: fontBold, color: rgb(0, 0, 0) });
             }
           }
-        });
+        }
 
-        await Promise.all(processingPromises);
-
-        // =======================================================
-        // HALAMAN TERAKHIR: FOTO PASUKAN
-        // =======================================================
+        // 4. HALAMAN FOTO PASUKAN
+        statusEl.innerText = "Memproses Foto Pasukan...";
+        detailEl.innerText = "Menambahkan halaman foto landscape";
         try {
           const fileFotoP = document.getElementById('fileFotoPasukan').files[0];
           const bytesP = await fileToArrayBuffer(fileFotoP);
@@ -443,9 +457,10 @@
           pageFoto.drawImage(imgP, { x: 0, y: 0, width: imgP.width, height: imgP.height });
         } catch (e) { console.warn("Foto Pasukan Gagal: ", e); }
 
-        const pdfBytes = await mergedPdf.save();
+        statusEl.innerText = "Menyimpan Berkas PDF...";
+        detailEl.innerText = "Hampir selesai, mohon tunggu sebentar";
         
-        // --- PERBAIKAN UTAMA: SIMPAN BASE64 AGAR TOMBOL KIRIM DATA BERFUNGSI ---
+        const pdfBytes = await mergedPdf.save();
         generatedPdfBase64 = await mergedPdf.saveAsBase64(); 
         
         const blob = new Blob([pdfBytes], { type: 'application/pdf' });
@@ -460,6 +475,73 @@
       } catch (err) {
         document.getElementById('loadingOverlay').style.display = 'none';
         alert("Gagal merender PDF: " + err.message);
+      }
+    }
+
+    async function processSubmit() {
+      document.getElementById('modalReview').style.display = 'none';
+      const loading = document.getElementById('loadingOverlay');
+      const status = document.getElementById('loadingStatus');
+      const detail = document.getElementById('loadingDetail');
+      loading.style.display = 'flex';
+
+      try {
+        const tkt = document.getElementById('tingkat').value;
+        const sek = document.getElementById('namaSekolah').value.trim();
+        const email = document.getElementById('email').value.trim();
+
+        status.innerText = 'Menyiapkan Direktori...';
+        detail.innerText = 'Membuat susunan folder khusus di Drive';
+        const resInit = await fetch(scriptURL, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'init_pendaftaran', tingkat: tkt, namaSekolah: sek })
+        }).then(r => r.json());
+        
+        if(resInit.result !== 'success') throw new Error(resInit.message);
+        const folders = resInit.folders; 
+        const noUrut = resInit.noUrut;
+        
+        let totalPasukanDanton = 0;
+        const filesToUpload = [];
+
+        filesToUpload.push({ folderId: folders.rekom, fileName: `Surat_Rekomendasi_${noUrut}_${sek}.pdf`, mimeType: 'application/pdf', file: document.getElementById('fileRekom').files[0] });
+        filesToUpload.push({ folderId: folders.foto, fileName: `Foto_Pasukan_${noUrut}_${sek}.jpg`, mimeType: document.getElementById('fileFotoPasukan').files[0].type || 'image/jpeg', file: document.getElementById('fileFotoPasukan').files[0] });
+
+        roles.forEach((role, idx) => {
+          const nm = document.getElementById(`nama_${idx}`).value;
+          const ft = document.getElementById(`foto_${idx}`).files[0];
+          if (nm && ft) {
+            if(idx >= 2) totalPasukanDanton++; 
+            const cleanRole = role.replace(/[^a-zA-Z0-9]/g, '_');
+            const cleanNm = nm.replace(/[^a-zA-Z0-9]/g, '_');
+            filesToUpload.push({ folderId: folders.form, fileName: `${cleanRole}_${cleanNm}.jpg`, mimeType: ft.type || 'image/jpeg', file: ft });
+          }
+        });
+
+        const totalFiles = filesToUpload.length;
+        for(let i = 0; i < totalFiles; i++) {
+          const item = filesToUpload[i];
+          status.innerText = `Mengunggah Berkas (${i+1}/${totalFiles})`;
+          detail.innerText = `File: ${item.fileName}`;
+          const b64 = await fileToBase64(item.file);
+          await fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: 'upload_file', folderId: item.folderId, fileName: item.fileName, mimeType: item.mimeType, base64Data: b64 }) });
+        }
+
+        status.innerText = 'Menyelesaikan Pendaftaran...';
+        detail.innerText = 'Mengirim Bukti Pendaftaran ke Email Anda';
+        
+        await fetch(scriptURL, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'finish_pendaftaran', tingkat: tkt, noUrut: noUrut, namaSekolah: sek, email: email, folders: folders, jmlPasukan: `${totalPasukanDanton}/16`, pdfBase64: generatedPdfBase64 })
+        });
+
+        loading.style.display = 'none';
+        document.getElementById('succNamaSekolah').innerText = sek;
+        showView('viewSuccess');
+        
+      } catch(err) {
+        alert('Terjadi kesalahan pengiriman: ' + err.message);
+        loading.style.display = 'none';
       }
     }
 

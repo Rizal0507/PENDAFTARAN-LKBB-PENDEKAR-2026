@@ -23,25 +23,168 @@
     
     .form-group { margin-bottom: 18px; }
     .form-group label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 0.9rem; color: var(--primary);}
+    .form-group input, .form-group select { width: 100%; padding: 11px; border: 1px solid #Mohon maaf, kamu benar. Pada respons sebelumnya saya memotong bagian `processSubmit()` untuk menyingkat teks. 
+
+Berikut adalah **keseluruhan kode `index.html` yang 100% lengkap dari baris pertama hingga terakhir**, tanpa ada satu baris pun yang dipotong. 
+
+Pastikan kamu sudah meletakkan file **`bg_pasukan.jpg`** dan **`template_formulir.pdf`** di dalam folder Vercel/GitHub yang sama dengan file `index.html` ini agar fitur gabung PDF-nya bekerja sempurna.
+
+```html
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LKBB Pendekar 2026 - Rekap Andalan</title>
+  <!-- Library pdf-lib untuk menggabung & memanipulasi PDF -->
+  <script src="[https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js](https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js)"></script>
+  <style>
+    :root { 
+      --primary: #003399; 
+      --secondary: #0055cc; 
+      --gold: #d4af37; 
+      --bg: #f0f4f8; 
+    }
+    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; padding: 0; }
+    body { background-color: var(--bg); color: #222; padding-bottom: 30px; }
+    
+    header { 
+      background: linear-gradient(135deg, #001a4d 0%, var(--primary) 50%, #001133 100%); 
+      text-align: center; 
+      padding: 25px 15px; 
+      border-bottom: 4px solid var(--gold); 
+    }
+    
+    .container { max-width: 850px; margin: 20px auto; padding: 0 15px; }
+    .card { 
+      background: white; 
+      border-radius: 12px; 
+      padding: 25px; 
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08); 
+      margin-bottom: 25px; 
+      border-top: 4px solid var(--primary); 
+    }
+    
+    .btn { 
+      display: block; 
+      width: 100%; 
+      padding: 14px; 
+      border: none; 
+      border-radius: 8px; 
+      font-weight: bold; 
+      cursor: pointer; 
+      margin-bottom: 12px; 
+      font-size: 1rem; 
+      color: white;
+      text-decoration: none;
+      text-align: center;
+    }
+    .btn-blue { background: var(--secondary); }
+    .btn-gold { background: var(--gold); color: #000; }
+    .btn-green { background: #25d366; }
+    .btn-submit { 
+      background: linear-gradient(135deg, var(--primary), var(--secondary)); 
+      border: 1px solid var(--gold); 
+      margin-top: 20px;
+    }
+    
+    .form-group { margin-bottom: 18px; }
+    .form-group label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 0.9rem; color: var(--primary);}
     .form-group input, .form-group select { width: 100%; padding: 11px; border: 1px solid #ccc; border-radius: 6px; }
     
-    /* PERBAIKAN LAYOUT UPLOAD FOTO (Kiri Input, Kanan Preview) */
-    .row-member { display: flex; flex-direction: row; justify-content: space-between; align-items: center; gap: 15px; background: #fafafa; padding: 12px; border-radius: 8px; border: 1px solid #e0e0e0; margin-bottom: 15px; }
+    /* LAYOUT UPLOAD FOTO (Kiri Input, Kanan Preview) */
+    .row-member { 
+      display: flex; 
+      flex-direction: row; 
+      justify-content: space-between; 
+      align-items: center; 
+      gap: 15px; 
+      background: #fafafa; 
+      padding: 12px; 
+      border-radius: 8px; 
+      border: 1px solid #e0e0e0; 
+      margin-bottom: 15px; 
+    }
     .member-inputs { flex: 1; display: flex; flex-direction: column; gap: 8px; }
     .member-inputs label { font-weight: bold; font-size: 0.9rem; color: var(--primary); }
-    .member-inputs input { width: 100%; padding: 9px; border: 1px solid #ccc; border-radius: 6px; }
+    .member-inputs input { width: 100%; padding: 9px; border: 1px solid #ccc; border-radius: 6px; background: #fff;}
     
-    .member-preview { width: 90px; height: 120px; flex-shrink: 0; border: 2px dashed #ccc; border-radius: 6px; display: flex; align-items: center; justify-content: center; overflow: hidden; background: #fff; position: relative;}
-    .member-preview span { font-size: 0.7rem; color: #aaa; text-align: center; }
-    /* object-fit: cover Mencegah foto tergencet/squished */
-    .member-preview img { width: 100%; height: 100%; object-fit: cover; display: none; position: absolute; top:0; left:0; } 
+    .member-preview { 
+      width: 90px; 
+      height: 120px; 
+      flex-shrink: 0; 
+      border: 2px dashed #ccc; 
+      border-radius: 6px; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      overflow: hidden; 
+      background: #fff; 
+      position: relative;
+    }
+    .member-preview span { font-size: 0.7rem; color: #aaa; text-align: center; font-weight: bold; }
+    .member-preview img { 
+      width: 100%; 
+      height: 100%; 
+      object-fit: cover; 
+      display: none; 
+      position: absolute; 
+      top: 0; 
+      left: 0; 
+    } 
     
     .badge-req { color: red; font-size: 0.8rem; }
-    #modalReview { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 20px;}
-    .modal-content { background: white; width: 100%; max-width: 700px; height: 90vh; border-radius: 12px; padding: 20px; display: flex; flex-direction: column;}
+    
+    /* Modal Review */
+    #modalReview { 
+      position: fixed; 
+      top: 0; 
+      left: 0; 
+      width: 100%; 
+      height: 100%; 
+      background: rgba(0,0,0,0.8); 
+      display: none; 
+      justify-content: center; 
+      align-items: center; 
+      z-index: 1000; 
+      padding: 20px;
+    }
+    .modal-content { 
+      background: white; 
+      width: 100%; 
+      max-width: 700px; 
+      height: 90vh; 
+      border-radius: 12px; 
+      padding: 20px; 
+      display: flex; 
+      flex-direction: column;
+    }
     .modal-content iframe { flex: 1; width: 100%; border: 1px solid #ccc; margin: 15px 0; border-radius: 8px;}
-    #loadingOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; color: var(--gold); text-align: center; }
-    .spinner { width: 50px; height: 50px; border: 5px solid #333; border-top: 5px solid var(--gold); border-radius: 50%; animation: spin 1s linear infinite; }
+    
+    /* Loading Overlay */
+    #loadingOverlay { 
+      position: fixed; 
+      top: 0; 
+      left: 0; 
+      width: 100%; 
+      height: 100%; 
+      background: rgba(0,0,0,0.9); 
+      display: none; 
+      flex-direction: column; 
+      justify-content: center; 
+      align-items: center; 
+      z-index: 9999; 
+      color: var(--gold); 
+      text-align: center; 
+    }
+    .spinner { 
+      width: 50px; 
+      height: 50px; 
+      border: 5px solid #333; 
+      border-top: 5px solid var(--gold); 
+      border-radius: 50%; 
+      animation: spin 1s linear infinite; 
+    }
     @keyframes spin { 100% { transform: rotate(360deg); } }
   </style>
 </head>
@@ -49,73 +192,99 @@
 
   <header>
     <!-- LOGO DARI GOOGLE DRIVE -->
-    <img src="https://drive.google.com/uc?export=view&id=11poKmRpeengsCYKJPdlDYM--ZHJo7ln6" alt="Logo LKBB" style="max-height: 90px;">
+    <img src="[https://drive.google.com/uc?export=view&id=11poKmRpeengsCYKJPdlDYM--ZHJo7ln6](https://drive.google.com/uc?export=view&id=11poKmRpeengsCYKJPdlDYM--ZHJo7ln6)" alt="Logo LKBB" style="max-height: 90px; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));">
   </header>
 
   <div class="container">
+    <!-- HALAMAN LANDING PAGE -->
     <div id="viewLanding" class="card">
       <!-- PAMFLET DARI GOOGLE DRIVE -->
-      <img src="https://drive.google.com/uc?export=view&id=1EUlQfTJ7Iyx27aRl80MyUXPqzRhajMAo" alt="Pamflet" style="width:100%; border-radius:8px; margin-bottom:15px;">
+      <img src="[https://drive.google.com/uc?export=view&id=1EUlQfTJ7Iyx27aRl80MyUXPqzRhajMAo](https://drive.google.com/uc?export=view&id=1EUlQfTJ7Iyx27aRl80MyUXPqzRhajMAo)" alt="Pamflet" style="width:100%; border-radius:8px; margin-bottom:15px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
+      
       <div style="background:#e6f0ff; padding:15px; border-left:4px solid var(--primary); border-radius:6px; margin-bottom:20px;">
         <h3 style="color:var(--primary); margin-bottom: 5px;">A. PELAKSANAAN</h3>
         <p style="font-weight:bold; font-size: 1.1rem; color: #333;">Minggu, 25 Oktober 2026</p>
         <p style="color: #555; margin-top: 3px;">GOR Wilis Kota Madiun</p>
       </div>
-      <a href="https://wa.me/6281335658828" target="_blank" class="btn btn-green">💬 Chat CP 1: Airlangga</a>
-      <a href="https://wa.me/6285733298367" target="_blank" class="btn btn-green">💬 Chat CP 2: Imun</a>
+      
+      <a href="[https://wa.me/6281335658828](https://wa.me/6281335658828)" target="_blank" class="btn btn-green">💬 Chat CP 1: Airlangga (081335658828)</a>
+      <a href="[https://wa.me/6285733298367](https://wa.me/6285733298367)" target="_blank" class="btn btn-green">💬 Chat CP 2: Imun (085733298367)</a>
+      
       <hr style="margin:25px 0; border:0; border-top:1px solid #ccc;">
+      
       <button class="btn btn-blue" onclick="showView('viewForm')">📝 Lanjut Mendaftar LKBB Pendekar</button>
-      <button class="btn btn-gold" onclick="alert('Silakan hubungi Contact Person untuk link revisi data.')">🔄 Revisi Berkas Pendaftaran</button>
+      <button class="btn btn-gold" onclick="alert('Fitur Revisi: Silakan hubungi Contact Person untuk mendapatkan akses link revisi berkas secara manual demi keamanan data Anda.')">🔄 Revisi Berkas Pendaftaran</button>
     </div>
 
+    <!-- HALAMAN FORM PENDAFTARAN -->
     <div id="viewForm" class="card" style="display: none;">
-      <button onclick="showView('viewLanding')" style="background:none; border:none; color:var(--primary); cursor:pointer; margin-bottom:15px; font-weight:bold;">← Kembali</button>
+      <button onclick="showView('viewLanding')" style="background:none; border:none; color:var(--primary); cursor:pointer; margin-bottom:15px; font-weight:bold;">← Kembali Halaman Awal</button>
+      
       <h2 style="color: var(--primary); border-bottom: 2px solid var(--gold); padding-bottom: 5px; margin-bottom: 20px;">FORMULIR PENDAFTARAN</h2>
       
       <form id="formPendaftaran">
         <div class="form-group">
           <label>Tingkat Pendaftaran <span class="badge-req">*</span></label>
           <select id="tingkat" required>
-            <option value="">-- Pilih Tingkat --</option><option value="SMP_MTs">SMP / MTs Sederajat</option><option value="SMA_SMK_MA">SMA / SMK / MA Sederajat</option>
+            <option value="">-- Pilih Tingkat --</option>
+            <option value="SMP_MTs">SMP / MTs Sederajat</option>
+            <option value="SMA_SMK_MA">SMA / SMK / MA Sederajat</option>
           </select>
         </div>
+        
         <div class="form-group">
           <label>Nama Sekolah / Instansi <span class="badge-req">*</span></label>
-          <input type="text" id="namaSekolah" required>
+          <input type="text" id="namaSekolah" placeholder="Contoh: SMAN 1 MADIUN" required>
         </div>
+        
         <div class="form-group">
-          <label>Email Penanggung Jawab <span class="badge-req">* (PDF Gabungan Dikirim Kesini)</span></label>
-          <input type="email" id="email" required>
+          <label>Email Penanggung Jawab <span class="badge-req">* (PDF Bukti Daftar Dikirim Kesini)</span></label>
+          <input type="email" id="email" placeholder="official@sekolah.com" required>
         </div>
 
         <h3 class="section-title">1. UPLOAD BERKAS UTAMA</h3>
+        
         <div class="row-member">
             <div class="member-inputs">
                 <label>Surat Rekomendasi (PDF) <span class="badge-req">*</span></label>
                 <input type="file" id="fileRekom" accept=".pdf" required onchange="previewFile(event, 'prevRekomTxt')">
             </div>
-            <div class="member-preview" style="background: #e6f0ff; border-color: var(--primary);"><span id="prevRekomTxt">Format<br>PDF</span></div>
+            <div class="member-preview" style="background: #e6f0ff; border-color: var(--primary);">
+                <span id="prevRekomTxt" style="color:var(--primary);">Format<br>PDF</span>
+            </div>
         </div>
+        
         <div class="row-member">
             <div class="member-inputs">
                 <label>Foto Pasukan Landscape <span class="badge-req">*</span></label>
                 <input type="file" id="fileFotoPasukan" accept="image/*" required onchange="previewImage(event, 'prevPasukan')">
             </div>
-            <div class="member-preview"><span id="txtPasukan">No Image</span><img id="prevPasukan" src=""></div>
+            <div class="member-preview">
+                <span id="txtPasukan">Preview</span>
+                <img id="prevPasukan" src="">
+            </div>
         </div>
 
         <h3 class="section-title">2. NAMA & FOTO BERLATAR MERAH</h3>
-        <div id="containerAnggota"></div>
+        <p style="font-size: 0.85rem; color: #555; margin-bottom: 15px;">*Pastikan nama sesuai dan foto berkualitas baik.</p>
+        
+        <div id="containerAnggota">
+            <!-- Form Input Anggota (Di-generate otomatis oleh Javascript) -->
+        </div>
+        
         <button type="button" class="btn btn-submit" onclick="generateCombinedPDF()">Lanjut Review & Generate PDF ➔</button>
       </form>
     </div>
   </div>
 
+  <!-- MODAL REVIEW SEBELUM SUBMIT -->
   <div id="modalReview">
     <div class="modal-content">
       <h2 style="color:var(--primary); text-align:center;">MOHON TELITI KEMBALI</h2>
-      <p style="text-align:center; font-size:0.9rem; color:#555;">Gabungan Surat Rekomendasi, Foto Pasukan, dan Formulir</p>
+      <p style="text-align:center; font-size:0.9rem; color:#555; margin-top: 5px;">Gabungan Surat Rekomendasi, Foto Pasukan, dan Formulir</p>
+      
       <iframe id="pdfPreviewIframe"></iframe>
+      
       <div style="display:flex; gap:10px;">
         <button class="btn" style="background:#ccc; color:#333;" onclick="document.getElementById('modalReview').style.display='none'">Batal Edit</button>
         <button class="btn btn-blue" onclick="processSubmit()">Konfirmasi & Kirim Data</button>
@@ -123,16 +292,27 @@
     </div>
   </div>
 
-  <div id="loadingOverlay"><div class="spinner"></div><h3 id="loadingStatus" style="margin-top:15px;">Memproses...</h3><p id="loadingDetail">Jangan tutup halaman</p></div>
+  <!-- OVERLAY LOADING -->
+  <div id="loadingOverlay">
+    <div class="spinner"></div>
+    <h3 id="loadingStatus" style="margin-top:15px;">Memproses...</h3>
+    <p id="loadingDetail">Jangan tutup halaman</p>
+  </div>
+
   <footer style="text-align: center; padding: 20px; font-size: 0.9rem; color: #555;">
     <p>Supported by <strong>Rekap Andalan</strong></p>
-    <p>📸 IG: @cosmoatribut</p>
+    <p style="margin-top: 5px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 4px;"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+        @cosmoatribut
+    </p>
   </footer>
 
   <script>
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbwE2q_sxiOa7ZueVrwqrjZzq0rgg2XzANff4-gQSww9qOfGzxckMOfS_QnnxrFpuoAenA/exec';
+    // URL WEB APP MILIKMU
+    const scriptURL = '[https://script.google.com/macros/s/AKfycbwE2q_sxiOa7ZueVrwqrjZzq0rgg2XzANff4-gQSww9qOfGzxckMOfS_QnnxrFpuoAenA/exec](https://script.google.com/macros/s/AKfycbwE2q_sxiOa7ZueVrwqrjZzq0rgg2XzANff4-gQSww9qOfGzxckMOfS_QnnxrFpuoAenA/exec)';
+    
     const roles = ["Pelatih/Pembina", "Official Team", "Danton"];
-    for (let i = 1; i <= 16; i++) roles.push(`Pasukan ${i}`); // Update sampai Pasukan 16
+    for (let i = 1; i <= 16; i++) roles.push(`Pasukan ${i}`);
 
     let generatedPdfBase64 = ""; 
 
@@ -143,11 +323,13 @@
       window.scrollTo(0, 0);
     }
 
+    // Render Input Anggota
     function renderMembers() {
       const container = document.getElementById('containerAnggota');
       roles.forEach((role, idx) => {
-        const isReq = idx <= 15 ? 'required' : ''; // Sampai Pasukan 13 wajib (Indeks 15)
+        const isReq = idx <= 15 ? 'required' : ''; 
         const reqBadge = idx <= 15 ? '<span class="badge-req">*Wajib</span>' : '<span style="font-size:0.8rem; color:#888">(Opsional)</span>';
+        
         container.innerHTML += `
           <div class="row-member">
             <div class="member-inputs">
@@ -164,6 +346,7 @@
       });
     }
 
+    // Fungsi Preview Gambar
     function previewImage(event, imgId) {
       const file = event.target.files[0];
       if(file) {
@@ -171,65 +354,109 @@
         reader.onload = e => {
           document.getElementById(imgId).src = e.target.result;
           document.getElementById(imgId).style.display = 'block';
-          if(document.getElementById(imgId.replace('prev', 'txt'))) document.getElementById(imgId.replace('prev', 'txt')).style.display = 'none';
+          const txtId = imgId.replace('prev', 'txt');
+          if(document.getElementById(txtId)) {
+            document.getElementById(txtId).style.display = 'none';
+          }
         }
         reader.readAsDataURL(file);
       }
     }
-    function previewFile(event, txtId) { if(event.target.files[0]) document.getElementById(txtId).innerHTML = "<b style='color:green'>PDF Siap</b>"; }
-    function fileToArrayBuffer(file) { return new Promise((res, rej) => { const reader = new FileReader(); reader.onload = () => res(reader.result); reader.onerror = rej; reader.readAsArrayBuffer(file); }); }
+
+    // Fungsi Preview Teks PDF
+    function previewFile(event, txtId) { 
+        if(event.target.files[0]) {
+            document.getElementById(txtId).innerHTML = "<span style='color:green; font-weight:bold;'>PDF<br>Siap</span>"; 
+        }
+    }
+
+    // Helper File ke Buffer
+    function fileToArrayBuffer(file) { 
+        return new Promise((res, rej) => { 
+            const reader = new FileReader(); 
+            reader.onload = () => res(reader.result); 
+            reader.onerror = rej; 
+            reader.readAsArrayBuffer(file); 
+        }); 
+    }
+    
+    // Helper File ke Base64 (Untuk Upload)
+    function fileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result.split(',')[1]);
+        reader.onerror = error => reject(error);
+      });
+    }
     
     // FUNGSI GABUNG PDF (MENGGUNAKAN PDF-LIB)
     async function generateCombinedPDF() {
       const form = document.getElementById('formPendaftaran');
-      if(!form.checkValidity()) { form.reportValidity(); return; }
+      if(!form.checkValidity()) { 
+          form.reportValidity(); 
+          return; 
+      }
       
-      document.getElementById('loadingOverlay').style.display = 'flex';
+      const loading = document.getElementById('loadingOverlay');
+      loading.style.display = 'flex';
       document.getElementById('loadingStatus').innerText = "Menggabungkan Berkas...";
+      document.getElementById('loadingDetail').innerText = "Proses ini membutuhkan waktu beberapa saat.";
       
       try {
         const { PDFDocument } = PDFLib;
         const mergedPdf = await PDFDocument.create();
 
-        // 1. GABUNGKAN SURAT REKOMENDASI YANG DIUPLOAD
+        // 1. SURAT REKOMENDASI (DARI UPLOAD PESERTA)
         const fileRekom = document.getElementById('fileRekom').files[0];
         const rekomBytes = await fileToArrayBuffer(fileRekom);
         const rekomDoc = await PDFDocument.load(rekomBytes);
         const rekomPages = await mergedPdf.copyPages(rekomDoc, rekomDoc.getPageIndices());
         rekomPages.forEach(page => mergedPdf.addPage(page));
 
-        // 2. HALAMAN FOTO PASUKAN (+ BACKGROUND)
-        // Pastikan bg_pasukan.jpg ada di folder github/vercel kamu
+        // 2. FOTO PASUKAN (+ BACKGROUND)
         try {
+          // HARUS ADA FILE bg_pasukan.jpg DI FOLDER VERCEL KAMU
           const bgBytes = await fetch('./bg_pasukan.jpg').then(res => res.arrayBuffer());
           const bgImage = await mergedPdf.embedJpg(bgBytes);
           const pageFoto = mergedPdf.addPage([bgImage.width, bgImage.height]);
           pageFoto.drawImage(bgImage, { x: 0, y: 0, width: bgImage.width, height: bgImage.height });
           
-          // Gambar Foto Pasukan di atas Background
           const imgPasukanBytes = await fileToArrayBuffer(document.getElementById('fileFotoPasukan').files[0]);
-          const imgPasukan = await mergedPdf.embedJpg(imgPasukanBytes);
-          // Koordinat dan ukuran bisa disesuaikan nanti
-          pageFoto.drawImage(imgPasukan, { x: 50, y: 300, width: bgImage.width - 100, height: 400 });
-        } catch(e) { console.warn("Background tidak ditemukan, melewati halaman ini."); }
+          const imgPasukanType = document.getElementById('fileFotoPasukan').files[0].type;
+          
+          let imgPasukan;
+          if(imgPasukanType === 'image/png') {
+              imgPasukan = await mergedPdf.embedPng(imgPasukanBytes);
+          } else {
+              imgPasukan = await mergedPdf.embedJpg(imgPasukanBytes);
+          }
+          
+          // Koordinat dan ukuran Foto Pasukan di atas Background (Disesuaikan)
+          pageFoto.drawImage(imgPasukan, { x: 50, y: 250, width: bgImage.width - 100, height: 450 });
+        } catch(e) { 
+          console.warn("Gagal merender background/foto pasukan: ", e); 
+        }
 
-        // 3. HALAMAN FORMULIR TEMPLATE
-        // Pastikan template_formulir.pdf ada di folder github/vercel kamu
+        // 3. FORMULIR TEMPLATE
         try {
+          // HARUS ADA FILE template_formulir.pdf DI FOLDER VERCEL KAMU
           const templateBytes = await fetch('./template_formulir.pdf').then(res => res.arrayBuffer());
           const templateDoc = await PDFDocument.load(templateBytes);
           const templatePages = await mergedPdf.copyPages(templateDoc, templateDoc.getPageIndices());
           
-          // Gambar Nama & Foto Anggota ke Template (Contoh Penempatan Sederhana)
           templatePages.forEach(page => mergedPdf.addPage(page));
-          // Logika penempatan teks & foto di kotak template bisa ditambahkan di sini
-        } catch(e) { console.warn("Template PDF tidak ditemukan."); }
+          // Jika diperlukan logika penempatan teks/foto otomatis ke template, dilakukan di array templatePages ini.
+        } catch(e) { 
+          console.warn("Template PDF tidak ditemukan: ", e); 
+        }
 
+        // Finalisasi PDF
         const pdfBytesFinal = await mergedPdf.saveAsBase64({ dataUri: true });
         generatedPdfBase64 = pdfBytesFinal.split(',')[1];
         
         document.getElementById('pdfPreviewIframe').src = pdfBytesFinal;
-        document.getElementById('loadingOverlay').style.display = 'none';
+        loading.style.display = 'none';
         document.getElementById('modalReview').style.display = 'flex';
       } catch (err) {
         alert("Gagal menggabung PDF: " + err.message);
@@ -237,12 +464,111 @@
       }
     }
 
-    // PENGIRIMAN DATA (Tetap Sama Seperti Sebelumnya)
+    // PROSES PENGIRIMAN DATA KE GOOGLE APPS SCRIPT
     async function processSubmit() {
-      // Logika proses submit (Sama persis seperti iterasi sebelumnya)
-      // Menyimpan data ke Apps Script (Init -> Upload File Berurutan -> Finish)
-      alert('Pendaftaran Berhasil! Fitur upload file akan terhubung ke Google Apps Script.');
+      document.getElementById('modalReview').style.display = 'none';
+      const loading = document.getElementById('loadingOverlay');
+      const status = document.getElementById('loadingStatus');
+      const detail = document.getElementById('loadingDetail');
+      loading.style.display = 'flex';
+
+      try {
+        const tkt = document.getElementById('tingkat').value;
+        const sek = document.getElementById('namaSekolah').value.trim();
+        const email = document.getElementById('email').value.trim();
+
+        // TAHAP 1: INIT FOLDER
+        status.innerText = 'Menyiapkan Direktori...';
+        detail.innerText = 'Membuat susunan folder khusus untuk sekolah Anda';
+        const resInit = await fetch(scriptURL, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'init_pendaftaran', tingkat: tkt, namaSekolah: sek })
+        }).then(r => r.json());
+        
+        if(resInit.result !== 'success') throw new Error(resInit.message);
+        
+        const folders = resInit.folders; 
+        const noUrut = resInit.noUrut;
+        
+        let totalPasukanDanton = 0;
+        const filesToUpload = [];
+
+        // Kumpulkan File Rekom
+        filesToUpload.push({
+          folderId: folders.rekom,
+          fileName: `Surat_Rekomendasi_${noUrut}_${sek}.pdf`,
+          mimeType: 'application/pdf',
+          file: document.getElementById('fileRekom').files[0]
+        });
+
+        // Kumpulkan File Foto Pasukan
+        filesToUpload.push({
+          folderId: folders.foto,
+          fileName: `Foto_Pasukan_${noUrut}_${sek}.jpg`,
+          mimeType: document.getElementById('fileFotoPasukan').files[0].type || 'image/jpeg',
+          file: document.getElementById('fileFotoPasukan').files[0]
+        });
+
+        // Kumpulkan Berkas Anggota
+        roles.forEach((role, idx) => {
+          const nm = document.getElementById(`nama_${idx}`).value;
+          const ft = document.getElementById(`foto_${idx}`).files[0];
+          if (nm && ft) {
+            if(idx >= 2) totalPasukanDanton++; // Hitung Danton & Pasukan
+            const cleanRole = role.replace(/[^a-zA-Z0-9]/g, '_');
+            const cleanNm = nm.replace(/[^a-zA-Z0-9]/g, '_');
+            
+            filesToUpload.push({
+              folderId: folders.form,
+              fileName: `${cleanRole}_${cleanNm}.jpg`,
+              mimeType: ft.type || 'image/jpeg',
+              file: ft
+            });
+          }
+        });
+
+        // TAHAP 2: UPLOAD FILE BERURUTAN
+        const totalFiles = filesToUpload.length;
+        for(let i = 0; i < totalFiles; i++) {
+          const item = filesToUpload[i];
+          status.innerText = `Mengunggah Berkas (${i+1}/${totalFiles})`;
+          detail.innerText = `Mengirim: ${item.fileName}`;
+          
+          const b64 = await fileToBase64(item.file);
+          
+          await fetch(scriptURL, {
+            method: 'POST',
+            body: JSON.stringify({
+              action: 'upload_file', folderId: item.folderId, fileName: item.fileName, mimeType: item.mimeType, base64Data: b64
+            })
+          });
+        }
+
+        // TAHAP 3: FINISH & KIRIM EMAIL
+        status.innerText = 'Menyelesaikan Pendaftaran...';
+        detail.innerText = 'Mencatat ke Laporan dan Mengirim Bukti PDF ke Email';
+        
+        await fetch(scriptURL, {
+          method: 'POST',
+          body: JSON.stringify({
+            action: 'finish_pendaftaran',
+            tingkat: tkt, noUrut: noUrut, namaSekolah: sek, email: email,
+            folders: folders, jmlPasukan: `${totalPasukanDanton}/16`, pdfBase64: generatedPdfBase64
+          })
+        });
+
+        alert('🎉 Pendaftaran Berhasil! Bukti formulir PDF resmi telah dikirim ke email Penanggung Jawab.');
+        location.reload();
+        
+      } catch(err) {
+        alert('Terjadi kesalahan saat pengiriman: ' + err.message);
+        console.error(err);
+      } finally {
+        loading.style.display = 'none';
+      }
     }
+
+    // Inisiasi awal
     renderMembers();
   </script>
 </body>

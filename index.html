@@ -277,7 +277,7 @@
       const loading = document.getElementById('loadingOverlay');
       loading.style.display = 'flex';
       document.getElementById('loadingStatus').innerText = "Membuat Berkas PDF...";
-      document.getElementById('loadingDetail').innerText = "Proses ini membutuhkan waktu beberapa saat.";
+      document.getElementById('loadingDetail').innerText = "Proses ini berlangsung cepat, mohon tunggu.";
       
       try {
         const { PDFDocument, StandardFonts, rgb } = PDFLib;
@@ -288,7 +288,7 @@
         const f4Width = 612, f4Height = 936; 
 
         // =======================================================
-        // HALAMAN 1: BUKTI PENDAFTARAN (TANPA TANDA [ ])
+        // HALAMAN 1: BUKTI PENDAFTARAN (TANPA KURUNG SIKU)
         // =======================================================
         try {
           const bgBytes = await fetch('./bg_pasukan.jpg').then(res => res.arrayBuffer());
@@ -310,7 +310,7 @@
 
           let yCur = 720; 
           drawCentered('SELAMAT KEPADA', yCur, 28, fontBold, [0,0,0]); yCur -= 35;
-          drawCentered(`${namaSekolah}`, yCur, 28, fontBold, [0, 0.2, 0.6]); yCur -= 35; // TANPA KURUNG SIKU
+          drawCentered(`${namaSekolah}`, yCur, 28, fontBold, [0, 0.2, 0.6]); yCur -= 35;
           
           drawCentered(`telah terdaftar di LKBB PENDEKAR 2026 pada ${hari}, ${tgl}`, yCur, 14, fontReg, [0,0,0]); yCur -= 20;
           drawCentered(`pukul ${jam}`, yCur, 14, fontReg, [0,0,0]); yCur -= 20;
@@ -342,15 +342,16 @@
         } catch(e) { console.warn("Rekomendasi Gagal: ", e); }
 
         // =======================================================
-        // HALAMAN 3 & 4: TEMPLATE FORMULIR BERBASIS GAMBAR (PNG/JPG)
+        // HALAMAN 3 & 4: TEMPLATE FORMULIR BERBASIS GAMBAR (PARALEL LOADING)
         // =======================================================
         try {
-          // Load gambar template hal 1 dan hal 2 dari repository GitHub
-          const tpl1Bytes = await fetch('./template_hal1.png').then(res => res.arrayBuffer());
-          const tpl2Bytes = await fetch('./template_hal2.png').then(res => res.arrayBuffer());
+          const [tpl1Bytes, tpl2Bytes] = await Promise.all([
+            fetch('./template_hal1.jpg').then(res => res.arrayBuffer()),
+            fetch('./template_hal2.jpg').then(res => res.arrayBuffer())
+          ]);
           
-          const imgTpl1 = await mergedPdf.embedPng(tpl1Bytes);
-          const imgTpl2 = await mergedPdf.embedPng(tpl2Bytes);
+          const imgTpl1 = await mergedPdf.embedJpg(tpl1Bytes);
+          const imgTpl2 = await mergedPdf.embedJpg(tpl2Bytes);
 
           const pageForm1 = mergedPdf.addPage([f4Width, f4Height]);
           pageForm1.drawImage(imgTpl1, { x: 0, y: 0, width: f4Width, height: f4Height });
@@ -358,65 +359,72 @@
           const pageForm2 = mergedPdf.addPage([f4Width, f4Height]);
           pageForm2.drawImage(imgTpl2, { x: 0, y: 0, width: f4Width, height: f4Height });
 
-          // Koordinat presisi berbasis piksel gambar F4 (Sesuai rancangan Canva-mu)
-          // Halaman 1 memuat 11 orang (Pelatih s/d Pasukan 8)
-          // Halaman 2 memuat sisa orang (Pasukan 9 s/d Pasukan 15)
+          // Peta Koordinat Presisi Berdasarkan Analisis Gambar template_hal1 dan template_hal2
           const coordinateMap = [
-            // HALAMAN 1
-            { pg: pageForm1, x: 29,  y: 740 }, // 0: Pelatih
-            { pg: pageForm1, x: 325, y: 740 }, // 1: Official
-            { pg: pageForm1, x: 29,  y: 618 }, // 2: Danton
-            { pg: pageForm1, x: 325, y: 618 }, // 3: Pasukan 1
-            { pg: pageForm1, x: 29,  y: 496 }, // 4: Pasukan 2
-            { pg: pageForm1, x: 325, y: 496 }, // 5: Pasukan 3
-            { pg: pageForm1, x: 29,  y: 374 }, // 6: Pasukan 4
-            { pg: pageForm1, x: 325, y: 374 }, // 7: Pasukan 5
-            { pg: pageForm1, x: 29,  y: 252 }, // 8: Pasukan 6
-            { pg: pageForm1, x: 325, y: 252 }, // 9: Pasukan 7
-            { pg: pageForm1, x: 29,  y: 130 }, // 10: Pasukan 8
+            // HALAMAN 1 (11 Orang: Pelatih s/d Pasukan 8)
+            { pg: pageForm1, x: 54,  y: 735 }, // 0: Pelatih
+            { pg: pageForm1, x: 335, y: 735 }, // 1: Official
+            { pg: pageForm1, x: 54,  y: 595 }, // 2: Danton
+            { pg: pageForm1, x: 335, y: 595 }, // 3: Pasukan 1
+            { pg: pageForm1, x: 54,  y: 455 }, // 4: Pasukan 2
+            { pg: pageForm1, x: 335, y: 455 }, // 5: Pasukan 3
+            { pg: pageForm1, x: 54,  y: 315 }, // 6: Pasukan 4
+            { pg: pageForm1, x: 335, y: 315 }, // 7: Pasukan 5
+            { pg: pageForm1, x: 54,  y: 175 }, // 8: Pasukan 6
 
-            // HALAMAN 2
-            { pg: pageForm2, x: 29,  y: 740 }, // 11: Pasukan 9
-            { pg: pageForm2, x: 325, y: 740 }, // 12: Pasukan 10
-            { pg: pageForm2, x: 29,  y: 618 }, // 13: Pasukan 11
-            { pg: pageForm2, x: 325, y: 618 }, // 14: Pasukan 12
-            { pg: pageForm2, x: 29,  y: 496 }, // 15: Pasukan 13
-            { pg: pageForm2, x: 325, y: 496 }, // 16: Pasukan 14
-            { pg: pageForm2, x: 29,  y: 374 }  // 17: Pasukan 15
+            // HALAMAN 2 (Pasukan 7 s/d Pasukan 15)
+            { pg: pageForm2, x: 54,  y: 735 }, // 9: Pasukan 7
+            { pg: pageForm2, x: 335, y: 735 }, // 10: Pasukan 8
+            { pg: pageForm2, x: 54,  y: 595 }, // 11: Pasukan 9
+            { pg: pageForm2, x: 335, y: 595 }, // 12: Pasukan 10
+            { pg: pageForm2, x: 54,  y: 455 }, // 13: Pasukan 11
+            { pg: pageForm2, x: 335, y: 455 }, // 14: Pasukan 12
+            { pg: pageForm2, x: 54,  y: 315 }, // 15: Pasukan 13
+            { pg: pageForm2, x: 335, y: 315 }, // 16: Pasukan 14
+            { pg: pageForm2, x: 54,  y: 175 }  // 17: Pasukan 15
           ];
           
-          const photoW = 85, photoH = 113; // Ukuran kotak foto 3x4
+          const photoW = 72, photoH = 96; // Ukuran foto persis pas di dalam kotak 3x4
           
-          for (let i = 0; i < roles.length; i++) {
-              let nm = document.getElementById(`nama_${i}`).value.trim();
-              let ftFile = document.getElementById(`foto_${i}`).files[0];
-              
-              if (nm && ftFile && coordinateMap[i]) {
-                  let imgBytes = await fileToArrayBuffer(ftFile);
-                  let imgEmbed = (ftFile.type === 'image/png') ? await mergedPdf.embedPng(imgBytes) : await mergedPdf.embedJpg(imgBytes);
-                  
-                  let targetPage = coordinateMap[i].pg;
-                  let posX = coordinateMap[i].x;
-                  let posY = coordinateMap[i].y;
-                  
-                  // Cetak Foto ke dalam kotak gambar latar belakang
-                  targetPage.drawImage(imgEmbed, { x: posX, y: posY, width: photoW, height: photoH });
-                  
-                  // Cetak Nama (Label jabatan tidak dicetak karena sudah ada di gambar latar template_hal1/hal2.png)
-                  const maxTextWidth = 175; 
-                  const fontSize = 14; 
-                  const lines = wrapText(nm, maxTextWidth, fontBold, fontSize);
-                  
-                  let textStartX = posX + photoW + 15; 
-                  let textStartY = posY + 62; 
-                  
-                  lines.forEach((lineText, lIdx) => {
-                      if (lIdx < 2) { 
-                        targetPage.drawText(lineText, { x: textStartX, y: textStartY - (lIdx * 24), size: fontSize, font: fontBold, color: rgb(0,0,0) });
-                      }
-                  });
-              }
-          }
+          // Memproses semua gambar secara paralel agar super cepat
+          const imagePromises = roles.map(async (role, i) => {
+            const nm = document.getElementById(`nama_${i}`).value.trim();
+            const ftFile = document.getElementById(`foto_${i}`).files[0];
+            if (nm && ftFile && coordinateMap[i]) {
+              const imgBytes = await fileToArrayBuffer(ftFile);
+              const imgEmbed = (ftFile.type === 'image/png') ? await mergedPdf.embedPng(imgBytes) : await mergedPdf.embedJpg(imgBytes);
+              return { i, nm, imgEmbed, map: coordinateMap[i] };
+            }
+            return null;
+          });
+
+          const results = await Promise.all(imagePromises);
+
+          results.forEach(item => {
+            if (!item) return;
+            const { i, nm, imgEmbed, map } = item;
+            let targetPage = map.pg;
+            let posX = map.x;
+            let posY = map.y;
+            
+            // Cetak Foto ke dalam kotak template
+            targetPage.drawImage(imgEmbed, { x: posX, y: posY, width: photoW, height: photoH });
+            
+            // Cetak Nama Pas di Antara Garis Isian
+            const maxTextWidth = 180; 
+            const fontSize = 13; 
+            const lines = wrapText(nm, maxTextWidth, fontBold, fontSize);
+            
+            let textStartX = posX + photoW + 15; 
+            let textStartY = posY + 55; // Posisi vertikal pas di atas garis pertama
+            
+            lines.forEach((lineText, lIdx) => {
+                if (lIdx < 2) { 
+                  targetPage.drawText(lineText, { x: textStartX, y: textStartY - (lIdx * 22), size: fontSize, font: fontBold, color: rgb(0,0,0) });
+                }
+            });
+          });
+
         } catch(e) { console.warn("Template Gambar Formulir Gagal: ", e); }
 
         // =======================================================

@@ -274,7 +274,7 @@
         const f4Width = 612, f4Height = 936; 
 
         // =======================================================
-        // HALAMAN 1: BUKTI PENDAFTARAN (TANPA KURUNG SIKU)
+        // HALAMAN 1: BUKTI PENDAFTARAN
         // =======================================================
         try {
           const bgBytes = await fetch('./bg_pasukan.jpg').then(res => res.arrayBuffer());
@@ -313,7 +313,6 @@
           yCur -= 40;
           drawCentered('SELAMAT BERLATIH DAN SAMPAI JUMPA DI LKBB PENDEKAR 2026', yCur, 16, fontBold, [0.8, 0.6, 0.1]); yCur -= 20;
           drawCentered('GOR Wilis Kota Madiun - Minggu, 25 Oktober 2026', yCur, 12, fontBold, [0.8, 0.6, 0.1]);
-
         } catch(e) { console.warn("Halaman Bukti Gagal: ", e); }
 
         // =======================================================
@@ -328,7 +327,7 @@
         } catch(e) { console.warn("Rekomendasi Gagal: ", e); }
 
         // =======================================================
-        // HALAMAN 3 & 4: TEMPLATE FORMULIR BERBASIS PNG (HAL 1 & HAL 2)
+        // HALAMAN 3 & 4: AUTO-GENERATE GRID FORMULIR (DARI BLANK TEMPLATE)
         // =======================================================
         async function preparePhotoForPdf(file) {
           return new Promise((resolve, reject) => {
@@ -337,62 +336,36 @@
               const img = new Image();
               img.onload = () => {
                 const targetAspect = 3 / 4;
-                let srcW = img.width;
-                let srcH = img.height;
+                let srcW = img.width, srcH = img.height;
                 let srcAspect = srcW / srcH;
-
                 let cropW, cropH, cropX, cropY;
 
                 if (srcAspect > targetAspect) {
-                  cropH = srcH;
-                  cropW = srcH * targetAspect;
-                  cropX = (srcW - cropW) / 2;
-                  cropY = 0;
+                  cropH = srcH; cropW = srcH * targetAspect;
+                  cropX = (srcW - cropW) / 2; cropY = 0;
                 } else {
-                  cropW = srcW;
-                  cropH = srcW / targetAspect;
-                  cropX = 0;
-                  cropY = (srcH - cropH) / 2;
+                  cropW = srcW; cropH = srcW / targetAspect;
+                  cropX = 0; cropY = (srcH - cropH) / 2;
                 }
 
                 const canvas = document.createElement('canvas');
-                canvas.width = 300;
-                canvas.height = 400;
+                canvas.width = 300; canvas.height = 400;
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(img, cropX, cropY, cropW, cropH, 0, 0, canvas.width, canvas.height);
-
-                canvas.toBlob((blob) => {
-                  if (blob) resolve(blob);
-                  else reject(new Error('Gagal memproses gambar crop.'));
-                }, 'image/jpeg', 0.95);
+                canvas.toBlob((blob) => { if (blob) resolve(blob); else reject(new Error('Gagal crop')); }, 'image/jpeg', 0.95);
               };
-              img.onerror = reject;
-              img.src = e.target.result;
+              img.onerror = reject; img.src = e.target.result;
             };
-            reader.onerror = reject;
-            reader.readAsDataURL(file);
+            reader.onerror = reject; reader.readAsDataURL(file);
           });
         }
 
-        function calculateNameFontSize(text, font) {
-          let fontSize = 13;
-          const maxWidth = 180;
-          while (fontSize > 8) {
-            const width = font.widthOfTextAtSize(text, fontSize);
-            if (width <= maxWidth) {
-              break;
-            }
-            fontSize -= 0.5;
-          }
-          return fontSize;
-        }
-
-        const res1 = await fetch('./template_hal1.png');
-        if (!res1.ok) throw new Error('Gagal memuat template_hal1.png (HTTP ' + res1.status + ').');
+        const res1 = await fetch('./template_hal1.png?v=BLANK-AUTO');
+        if (!res1.ok) throw new Error('Gagal memuat template_hal1.png');
         const tpl1Bytes = await res1.arrayBuffer();
 
-        const res2 = await fetch('./template_hal2.png');
-        if (!res2.ok) throw new Error('Gagal memuat template_hal2.png (HTTP ' + res2.status + ').');
+        const res2 = await fetch('./template_hal2.png?v=BLANK-AUTO');
+        if (!res2.ok) throw new Error('Gagal memuat template_hal2.png');
         const tpl2Bytes = await res2.arrayBuffer();
         
         const imgTpl1 = await mergedPdf.embedPng(tpl1Bytes);
@@ -404,87 +377,64 @@
         const pageForm2 = mergedPdf.addPage([f4Width, f4Height]);
         pageForm2.drawImage(imgTpl2, { x: 0, y: 0, width: f4Width, height: f4Height });
 
-// KOORDINAT FOTO FINAL: DIHITUNG DENGAN MATEMATIKA PRESISI DARI SKALA 3977x6250 KE 612x936
-        const photoCoordinateMap = [
-          // HALAMAN 1 
-          { pg: pageForm1, x: 30.5,  y: 625.5, w: 86.6, h: 113.2 }, // 0: Pelatih
-          { pg: pageForm1, x: 312.7, y: 626.6, w: 86.6, h: 111.1 }, // 1: Official
-          { pg: pageForm1, x: 32.2,  y: 496.6, w: 84.3, h: 110.1 }, // 2: Danton
-          { pg: pageForm1, x: 314.4, y: 496.6, w: 83.3, h: 109.0 }, // 3: Pasukan 1
-          { pg: pageForm1, x: 30.5,  y: 364.1, w: 84.9, h: 112.0 }, // 4: Pasukan 2
-          { pg: pageForm1, x: 313.3, y: 364.1, w: 84.9, h: 110.5 }, // 5: Pasukan 3
-          { pg: pageForm1, x: 31.7,  y: 232.0, w: 83.7, h: 112.2 }, // 6: Pasukan 4
-          { pg: pageForm1, x: 313.3, y: 234.1, w: 83.7, h: 110.1 }, // 7: Pasukan 5
-          { pg: pageForm1, x: 32.2,  y: 102.1, w: 83.9, h: 109.9 }, // 8: Pasukan 6
+        function wrapText(text, maxWidth, font, fontSize) {
+            const words = text.split(' '); let lines = [], currentLine = words[0] || '';
+            for (let i = 1; i < words.length; i++) {
+                const width = font.widthOfTextAtSize(currentLine + " " + words[i], fontSize);
+                if (width < maxWidth) { currentLine += " " + words[i]; } 
+                else { lines.push(currentLine); currentLine = words[i]; }
+            }
+            lines.push(currentLine); return lines;
+        }
 
-          // HALAMAN 2 (Dicopy identik dari Halaman 1 agar simetris)
-          { pg: pageForm2, x: 30.5,  y: 625.5, w: 86.6, h: 113.2 }, // 9: Pasukan 7
-          { pg: pageForm2, x: 312.7, y: 626.6, w: 86.6, h: 111.1 }, // 10: Pasukan 8
-          { pg: pageForm2, x: 32.2,  y: 496.6, w: 84.3, h: 110.1 }, // 11: Pasukan 9
-          { pg: pageForm2, x: 314.4, y: 496.6, w: 83.3, h: 109.0 }, // 12: Pasukan 10
-          { pg: pageForm2, x: 30.5,  y: 364.1, w: 84.9, h: 112.0 }, // 13: Pasukan 11
-          { pg: pageForm2, x: 313.3, y: 364.1, w: 84.9, h: 110.5 }, // 14: Pasukan 12
-          { pg: pageForm2, x: 31.7,  y: 232.0, w: 83.7, h: 112.2 }, // 15: Pasukan 13
-          { pg: pageForm2, x: 313.3, y: 234.1, w: 83.7, h: 110.1 }, // 16: Pasukan 14
-          { pg: pageForm2, x: 32.2,  y: 102.1, w: 83.9, h: 109.9 }  // 17: Pasukan 15
-        ];
-        // JANGAN UBAH nameCoordinateMap INI KARENA TEKSNYA SUDAH PAS DI ATAS GARIS HITAM
-        const nameCoordinateMap = [
-          // HALAMAN 1 
-          { pg: pageForm1, x: 138, y: 698 }, // 0: Pelatih
-          { pg: pageForm1, x: 396, y: 698 }, // 1: Official
-          { pg: pageForm1, x: 138, y: 563 }, // 2: Danton
-          { pg: pageForm1, x: 396, y: 563 }, // 3: Pasukan 1
-          { pg: pageForm1, x: 138, y: 428 }, // 4: Pasukan 2
-          { pg: pageForm1, x: 396, y: 428 }, // 5: Pasukan 3
-          { pg: pageForm1, x: 138, y: 293 }, // 6: Pasukan 4
-          { pg: pageForm1, x: 396, y: 293 }, // 7: Pasukan 5
-          { pg: pageForm1, x: 138, y: 158 }, // 8: Pasukan 6
-
-          // HALAMAN 2
-          { pg: pageForm2, x: 138, y: 698 }, // 9: Pasukan 7
-          { pg: pageForm2, x: 396, y: 698 }, // 10: Pasukan 8
-          { pg: pageForm2, x: 138, y: 563 }, // 11: Pasukan 9
-          { pg: pageForm2, x: 396, y: 563 }, // 12: Pasukan 10
-          { pg: pageForm2, x: 138, y: 428 }, // 13: Pasukan 11
-          { pg: pageForm2, x: 396, y: 428 }, // 14: Pasukan 12
-          { pg: pageForm2, x: 138, y: 293 }, // 15: Pasukan 13
-          { pg: pageForm2, x: 396, y: 293 }, // 16: Pasukan 14
-          { pg: pageForm2, x: 138, y: 158 }  // 17: Pasukan 15
-        ];
+        // AUTO-GRID GENERATOR (Presisi 100% Menggambar Kotak & Teks Sendiri)
         const processingPromises = roles.map(async (role, i) => {
           const nm = document.getElementById(`nama_${i}`).value.trim();
           const ftFile = document.getElementById(`foto_${i}`).files[0];
           
-          if (nm && ftFile && photoCoordinateMap[i] && nameCoordinateMap[i]) {
+          if (nm && ftFile) {
             const croppedBlob = await preparePhotoForPdf(ftFile);
             const croppedArrayBuffer = await fileToArrayBuffer(croppedBlob);
             const imgEmbed = await mergedPdf.embedJpg(croppedArrayBuffer);
 
-            const photoMap = photoCoordinateMap[i];
-            photoMap.pg.drawImage(imgEmbed, {
-              x: photoMap.x,
-              y: photoMap.y,
-              width: photoMap.w,
-              height: photoMap.h
+            const pageTarget = i < 9 ? pageForm1 : pageForm2;
+            const pageIndex = i % 9;
+            const col = pageIndex % 2; // 0 = Kiri, 1 = Kanan
+            const row = Math.floor(pageIndex / 2); // Baris 0 sampai 4
+            
+            // KOORDINAT MUTLAK
+            const xPos = col === 0 ? 50 : 330;
+            const yPos = 635 - (row * 135); 
+            
+            // 1. Kotak Bingkai Foto Hitam
+            pageTarget.drawRectangle({
+              x: xPos, y: yPos, width: 75, height: 100,
+              borderColor: rgb(0, 0, 0), borderWidth: 1.5
             });
 
-            const nameMap = nameCoordinateMap[i];
-            const dynamicFontSize = calculateNameFontSize(nm, fontBold);
-            nameMap.pg.drawText(nm, {
-              x: nameMap.x,
-              y: nameMap.y,
-              size: dynamicFontSize,
-              font: fontBold,
-              color: rgb(0, 0, 0)
-            });
+            // 2. Gambar Foto
+            pageTarget.drawImage(imgEmbed, { x: xPos, y: yPos, width: 75, height: 100 });
+            
+            // 3. Tulis Jabatan
+            pageTarget.drawText(role.toUpperCase(), { x: xPos + 90, y: yPos + 82, size: 10, font: fontBold, color: rgb(0, 0, 0) });
+            
+            // 4. Garis Isian Nama (2 Baris)
+            pageTarget.drawLine({ start: { x: xPos + 90, y: yPos + 55 }, end: { x: xPos + 250, y: yPos + 55 }, thickness: 1, color: rgb(0,0,0) });
+            pageTarget.drawLine({ start: { x: xPos + 90, y: yPos + 25 }, end: { x: xPos + 250, y: yPos + 25 }, thickness: 1, color: rgb(0,0,0) });
+            
+            // 5. Tulis Nama Pendaftar (Otomatis Wrap)
+            const lines = wrapText(nm.toUpperCase(), 155, fontBold, 10);
+            pageTarget.drawText(lines[0] || "", { x: xPos + 90, y: yPos + 58, size: 10, font: fontBold, color: rgb(0, 0, 0) });
+            if (lines.length > 1) {
+              pageTarget.drawText(lines[1], { x: xPos + 90, y: yPos + 28, size: 10, font: fontBold, color: rgb(0, 0, 0) });
+            }
           }
         });
 
         await Promise.all(processingPromises);
 
         // =======================================================
-        // HALAMAN TERAKHIR: FOTO PASUKAN LANDSCAPE
+        // HALAMAN TERAKHIR: FOTO PASUKAN
         // =======================================================
         try {
           const fileFotoP = document.getElementById('fileFotoPasukan').files[0];
@@ -512,72 +462,6 @@
       }
     }
 
-    async function processSubmit() {
-      document.getElementById('modalReview').style.display = 'none';
-      const loading = document.getElementById('loadingOverlay');
-      const status = document.getElementById('loadingStatus');
-      const detail = document.getElementById('loadingDetail');
-      loading.style.display = 'flex';
-
-      try {
-        const tkt = document.getElementById('tingkat').value;
-        const sek = document.getElementById('namaSekolah').value.trim();
-        const email = document.getElementById('email').value.trim();
-
-        status.innerText = 'Menyiapkan Direktori...';
-        detail.innerText = 'Membuat susunan folder khusus';
-        const resInit = await fetch(scriptURL, {
-          method: 'POST',
-          body: JSON.stringify({ action: 'init_pendaftaran', tingkat: tkt, namaSekolah: sek })
-        }).then(r => r.json());
-        
-        if(resInit.result !== 'success') throw new Error(resInit.message);
-        const folders = resInit.folders; 
-        const noUrut = resInit.noUrut;
-        
-        let totalPasukanDanton = 0;
-        const filesToUpload = [];
-
-        filesToUpload.push({ folderId: folders.rekom, fileName: `Surat_Rekomendasi_${noUrut}_${sek}.pdf`, mimeType: 'application/pdf', file: document.getElementById('fileRekom').files[0] });
-        filesToUpload.push({ folderId: folders.foto, fileName: `Foto_Pasukan_${noUrut}_${sek}.jpg`, mimeType: document.getElementById('fileFotoPasukan').files[0].type || 'image/jpeg', file: document.getElementById('fileFotoPasukan').files[0] });
-
-        roles.forEach((role, idx) => {
-          const nm = document.getElementById(`nama_${idx}`).value;
-          const ft = document.getElementById(`foto_${idx}`).files[0];
-          if (nm && ft) {
-            if(idx >= 2) totalPasukanDanton++; 
-            const cleanRole = role.replace(/[^a-zA-Z0-9]/g, '_');
-            const cleanNm = nm.replace(/[^a-zA-Z0-9]/g, '_');
-            filesToUpload.push({ folderId: folders.form, fileName: `${cleanRole}_${cleanNm}.jpg`, mimeType: ft.type || 'image/jpeg', file: ft });
-          }
-        });
-
-        const totalFiles = filesToUpload.length;
-        for(let i = 0; i < totalFiles; i++) {
-          const item = filesToUpload[i];
-          status.innerText = `Mengunggah Berkas (${i+1}/${totalFiles})`;
-          detail.innerText = `File: ${item.fileName}`;
-          const b64 = await fileToBase64(item.file);
-          await fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: 'upload_file', folderId: item.folderId, fileName: item.fileName, mimeType: item.mimeType, base64Data: b64 }) });
-        }
-
-        status.innerText = 'Menyelesaikan Pendaftaran...';
-        detail.innerText = 'Menulis Laporan dan Mengirim Email Bukti Daftar';
-        
-        await fetch(scriptURL, {
-          method: 'POST',
-          body: JSON.stringify({ action: 'finish_pendaftaran', tingkat: tkt, noUrut: noUrut, namaSekolah: sek, email: email, folders: folders, jmlPasukan: `${totalPasukanDanton}/16`, pdfBase64: generatedPdfBase64 })
-        });
-
-        loading.style.display = 'none';
-        document.getElementById('succNamaSekolah').innerText = sek;
-        showView('viewSuccess');
-        
-      } catch(err) {
-        alert('Terjadi kesalahan pengiriman: ' + err.message + '\n\nPastikan URL Deployment yang baru sudah benar.');
-        loading.style.display = 'none';
-      }
-    }
     renderMembers();
   </script>
 </body>

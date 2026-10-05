@@ -3,552 +3,420 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LKBB Pendekar Piala Walikota Madiun 2026 - Rekap Andalan</title>
+  <title>LKBB Pendekar 2026 - Rekap Andalan</title>
+  <!-- Library jsPDF untuk generate PDF otomatis di sisi client -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     :root {
-      --primary-red: #8b0000;
-      --secondary-red: #d32f2f;
+      --primary-blue: #003399;
+      --secondary-blue: #0055cc;
       --gold: #d4af37;
-      --gold-dark: #b8860b;
-      --bg-dark: #121212;
-      --card-bg: #ffffff;
-      --text-main: #222222;
+      --bg-light: #f0f4f8;
+      --text-main: #222;
     }
-
-    * {
-      box-sizing: border-box;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      background-color: #f4f4f5;
-      color: var(--text-main);
-      padding-bottom: 50px;
-    }
-
+    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, sans-serif; margin: 0; padding: 0; }
+    body { background-color: var(--bg-light); color: var(--text-main); padding-bottom: 30px; }
+    
     header {
-      background: linear-gradient(135deg, #4a0000 0%, var(--primary-red) 50%, #200000 100%);
-      color: white;
-      text-align: center;
-      padding: 30px 15px;
-      border-bottom: 4px solid var(--gold);
-      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      background: linear-gradient(135deg, #001a4d 0%, var(--primary-blue) 50%, #001133 100%);
+      color: white; text-align: center; padding: 25px 15px; border-bottom: 4px solid var(--gold);
     }
+    .container { max-width: 850px; margin: 20px auto; padding: 0 15px; }
+    .card { background: white; border-radius: 12px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); margin-bottom: 25px; border-top: 4px solid var(--primary-blue); }
+    
+    .text-center { text-align: center; }
+    .hidden { display: none !important; }
 
-    header h1 {
-      font-size: 1.8rem;
-      letter-spacing: 1px;
-      color: #ffffff;
-      text-shadow: 2px 2px 4px rgba(0,0,0,0.6);
-    }
+    .btn { display: block; width: 100%; padding: 14px; border: none; border-radius: 8px; font-weight: bold; text-align: center; cursor: pointer; margin-bottom: 12px; text-decoration: none; font-size: 1rem; color: white;}
+    .btn-blue { background: var(--secondary-blue); }
+    .btn-gold { background: var(--gold); color: #000; }
+    .btn-green { background: #25d366; }
+    .btn-submit { background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue)); border: 1px solid var(--gold); margin-top: 20px;}
+    
+    .form-group { margin-bottom: 18px; }
+    .form-group label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 0.9rem; color: var(--primary-blue);}
+    .form-group input, .form-group select { width: 100%; padding: 11px; border: 1px solid #ccc; border-radius: 6px; font-size: 0.95rem;}
+    
+    .section-title { font-size: 1.1rem; color: var(--primary-blue); border-bottom: 2px solid var(--gold); padding-bottom: 5px; margin: 25px 0 15px 0; }
+    
+    /* Layout Preview Foto & Dokumen */
+    .row-member { display: flex; gap: 15px; align-items: flex-start; margin-bottom: 15px; background: #fafafa; padding: 12px; border-radius: 8px; border: 1px solid #e0e0e0; }
+    .member-inputs { flex: 1; }
+    .member-preview { width: 100px; height: 120px; border: 2px dashed #ccc; border-radius: 6px; display: flex; align-items: center; justify-content: center; overflow: hidden; background: #fff;}
+    .member-preview img { width: 100%; height: 100%; object-fit: cover; display: none; }
+    .badge-req { color: red; font-size: 0.8rem; }
+    
+    /* Modal Review Sebelum Upload */
+    #modalReview { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 20px;}
+    .modal-content { background: white; width: 100%; max-width: 700px; height: 90vh; border-radius: 12px; padding: 20px; display: flex; flex-direction: column;}
+    .modal-content iframe { flex: 1; width: 100%; border: 1px solid #ccc; margin: 15px 0; border-radius: 8px;}
+    
+    /* Overlay Loading */
+    #loadingOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; color: var(--gold); text-align: center; }
+    .spinner { width: 50px; height: 50px; border: 5px solid #333; border-top: 5px solid var(--gold); border-radius: 50%; animation: spin 1s linear infinite; }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
 
-    header p {
-      font-size: 0.95rem;
-      color: var(--gold);
-      margin-top: 5px;
-      font-weight: 600;
-    }
-
-    .container {
-      max-width: 850px;
-      margin: 20px auto;
-      padding: 0 15px;
-    }
-
-    .card {
-      background: var(--card-bg);
-      border-radius: 12px;
-      padding: 25px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-      margin-bottom: 25px;
-      border-top: 4px solid var(--primary-red);
-    }
-
-    .poster-header {
-      width: 100%;
-      border-radius: 8px;
-      margin-bottom: 20px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-    }
-
-    .event-info {
-      background: #fff8f0;
-      border-left: 4px solid var(--gold);
-      padding: 15px;
-      border-radius: 6px;
-      margin-bottom: 20px;
-      font-size: 0.9rem;
-      line-height: 1.6;
-    }
-
-    .event-info h3 {
-      color: var(--primary-red);
-      margin-bottom: 8px;
-    }
-
-    .btn {
-      display: inline-block;
-      width: 100%;
-      padding: 14px;
-      border: none;
-      border-radius: 8px;
-      font-weight: bold;
-      text-align: center;
-      cursor: pointer;
-      text-decoration: none;
-      transition: all 0.2s ease;
-      font-size: 1rem;
-    }
-
-    .btn-whatsapp {
-      background: #25d366;
-      color: white;
-      margin-bottom: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-    }
-
-    .btn-whatsapp:hover {
-      background: #1ebc57;
-    }
-
-    .btn-submit {
-      background: linear-gradient(135deg, var(--primary-red), var(--secondary-red));
-      color: white;
-      border: 1px solid var(--gold);
-      margin-top: 20px;
-    }
-
-    .btn-submit:hover {
-      background: linear-gradient(135deg, #600000, var(--primary-red));
-    }
-
-    .section-title {
-      font-size: 1.1rem;
-      color: var(--primary-red);
-      border-bottom: 2px solid var(--gold);
-      padding-bottom: 5px;
-      margin: 25px 0 15px 0;
-    }
-
-    .form-group {
-      margin-bottom: 18px;
-    }
-
-    .form-group label {
-      display: block;
-      font-weight: 600;
-      margin-bottom: 6px;
-      font-size: 0.9rem;
-    }
-
-    .form-group input[type="text"],
-    .form-group input[type="email"],
-    .form-group input[type="file"] {
-      width: 100%;
-      padding: 11px;
-      border: 1px solid #cccccc;
-      border-radius: 6px;
-      font-size: 0.95rem;
-    }
-
-    .form-group input[type="file"] {
-      background: #f9f9f9;
-    }
-
-    .row-member {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-      margin-bottom: 12px;
-      background: #fdfdfd;
-      padding: 10px;
-      border-radius: 8px;
-      border: 1px solid #eeeeee;
-      flex-wrap: wrap;
-    }
-
-    .row-member label {
-      width: 100%;
-      font-weight: bold;
-      font-size: 0.85rem;
-      color: var(--primary-red);
-      margin-bottom: 2px;
-    }
-
-    .row-member input[type="text"] {
-      flex: 1;
-      min-width: 180px;
-      padding: 9px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-    }
-
-    .row-member input[type="file"] {
-      flex: 1;
-      min-width: 200px;
-      padding: 7px;
-      background: #fff;
-    }
-
-    .badge-required {
-      color: red;
-      font-size: 0.8rem;
-    }
-
-    .badge-optional {
-      color: #666666;
-      font-size: 0.8rem;
-    }
-
-    /* Loading Overlay Styles */
-    #loadingOverlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.85);
-      display: none;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      z-index: 9999;
-      color: white;
-      text-align: center;
-      padding: 20px;
-    }
-
-    .spinner {
-      width: 60px;
-      height: 60px;
-      border: 6px solid #444;
-      border-top: 6px solid var(--gold);
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin-bottom: 20px;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    #loadingStatus {
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: var(--gold);
-      margin-top: 10px;
-    }
-
-    #loadingDetail {
-      font-size: 0.9rem;
-      color: #dddddd;
-      margin-top: 5px;
-    }
-
-    @media (max-width: 600px) {
-      header h1 { font-size: 1.4rem; }
-      .row-member { flex-direction: column; align-items: stretch; }
-    }
+    /* Footer Custom */
+    footer { text-align: center; padding: 20px; font-size: 0.9rem; color: #555; }
+    .footer-content { display: flex; flex-direction: column; align-items: center; gap: 5px; }
   </style>
 </head>
 <body>
 
+  <!-- HEADER LOGO -->
   <header>
-    <h1>LKBB PENDEKAR PIALA WALIKOTA MADIUN 2026</h1>
-    <p>Sistem Pendaftaran Resmi - Rekap Andalan</p>
+    <img src="https://i.ibb.co.com/84j7qK0b/logo-lkbb.png" alt="Logo LKBB Pendekar" style="max-height: 90px; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));">
   </header>
 
   <div class="container">
-    <div class="card">
-      <img src="https://via.placeholder.com/800x400/8b0000/ffffff?text=LKBB+PENDEKAR+2026" alt="Poster LKBB Pendekar 2026" class="poster-header">
-
-      <div class="event-info">
-        <h3>A. JADWAL PELAKSANAAN</h3>
-        <p><strong>Waktu Pelaksanaan:</strong> Minggu, 25 Oktober 2026 (06.00 WIB - Selesai)</p>
-        <p><strong>Tempat:</strong> GOR Wilis Kota Madiun</p>
-        <p><strong>Technical Meeting:</strong> Sabtu, 17 Oktober 2026 di Hall Stadion Wilis</p>
+    <!-- VIEW 1: HALAMAN LANDING PAGE (Pamflet, Jadwal, Tombol CP) -->
+    <div id="viewLanding" class="card">
+      <img src="https://i.ibb.co.com/jPkhzF7D/poster-lkbb.jpg" alt="Poster LKBB Pendekar" style="width:100%; border-radius:8px; margin-bottom:15px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
+      
+      <div style="background:#e6f0ff; padding:15px; border-left:4px solid var(--primary-blue); border-radius:6px; margin-bottom:20px;">
+        <h3 style="color:var(--primary-blue); margin-bottom: 5px;">A. PELAKSANAAN</h3>
+        <p style="font-weight:bold; font-size: 1.1rem; color: #333;">Minggu, 25 Oktober 2026</p>
+        <p style="color: #555; margin-top: 3px;">GOR Wilis Kota Madiun</p>
       </div>
-
-      <h3 style="margin-bottom: 10px; font-size: 1rem; color: #333;">Layanan Informasi & Contact Person:</h3>
-      <a href="https://wa.me/6281335658828?text=Halo%20Airlangga,%20saya%20ingin%20bertanya%20seputar%20pendaftaran%20LKBB%20Pendekar%202026" target="_blank" class="btn btn-whatsapp">
-        Chat CP 1: Airlangga (081335658828)
-      </a>
-      <a href="https://wa.me/6285733298367?text=Halo%20Imun,%20saya%20ingin%20bertanya%20seputar%20pendaftaran%20LKBB%20Pendekar%202026" target="_blank" class="btn btn-whatsapp">
-        Chat CP 2: Imun (085733298367)
-      </a>
+      
+      <a href="https://wa.me/6281335658828" target="_blank" class="btn btn-green">💬 Chat CP 1: Airlangga (081335658828)</a>
+      <a href="https://wa.me/6285733298367" target="_blank" class="btn btn-green">💬 Chat CP 2: Imun (085733298367)</a>
+      
+      <hr style="margin:25px 0; border:0; border-top:1px solid #ccc;">
+      
+      <button class="btn btn-blue" onclick="showView('viewForm')">📝 Lanjut Mendaftar LKBB Pendekar</button>
+      <button class="btn btn-gold" onclick="alert('Fitur Revisi: Silakan hubungi Contact Person untuk mendapatkan akses link revisi berkas secara manual demi keamanan data Anda.')">🔄 Revisi Berkas Pendaftaran</button>
     </div>
 
-    <div class="card">
-      <h2 style="color: var(--primary-red); border-bottom: 2px solid var(--gold); padding-bottom: 8px; margin-bottom: 20px;">
-        FORMULIR PENDAFTARAN LOMBA
-      </h2>
-
-      <form id="pendaftaranForm">
+    <!-- VIEW 2: HALAMAN FORM PENDAFTARAN -->
+    <div id="viewForm" class="card" style="display: none;">
+      <button onclick="showView('viewLanding')" style="background:none; border:none; color:var(--primary-blue); cursor:pointer; margin-bottom:15px; font-weight:bold;">← Kembali Halaman Awal</button>
+      
+      <h2 style="color: var(--primary-blue); border-bottom: 2px solid var(--gold); padding-bottom: 5px; margin-bottom: 20px;">FORMULIR PENDAFTARAN</h2>
+      
+      <form id="formPendaftaran">
         <!-- Informasi Umum -->
         <div class="form-group">
-          <label>Nama Sekolah / Instansi <span class="badge-required">*Wajib</span></label>
-          <input type="text" id="namaSekolah" placeholder="Contoh: SMAN 1 MADIUN" required oninput="saveDraft()">
+          <label>Tingkat Pendaftaran <span class="badge-req">*Wajib</span></label>
+          <select id="tingkat" required>
+            <option value="">-- Pilih Tingkat --</option>
+            <option value="SMP_MTs">SMP / MTs Sederajat</option>
+            <option value="SMA_SMK_MA">SMA / SMK / MA Sederajat</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label>Nama Sekolah / Instansi <span class="badge-req">*Wajib</span></label>
+          <input type="text" id="namaSekolah" placeholder="Contoh: SMAN 1 MADIUN" required>
+        </div>
+        
+        <div class="form-group">
+          <label>Email Penanggung Jawab <span class="badge-req">*Wajib (PDF Hasil Generate Dikirim Kesini)</span></label>
+          <input type="email" id="email" placeholder="official@sekolah.com" required>
         </div>
 
-        <div class="form-group">
-          <label>Email Penanggung Jawab <span class="badge-required">*Wajib (Untuk bukti konfirmasi)</span></label>
-          <input type="email" id="email" placeholder="contoh: official@gmail.com" required oninput="saveDraft()">
+        <!-- Berkas Utama -->
+        <h3 class="section-title">1. UPLOAD BERKAS UTAMA</h3>
+        
+        <div class="row-member" style="background: #fff; padding: 0; border: none;">
+            <div class="member-inputs">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label>Surat Rekomendasi / Scan Kartu Pelajar (PDF) <span class="badge-req">*</span></label>
+                    <input type="file" id="fileRekom" accept=".pdf" required onchange="previewFile(event, 'prevRekomTxt')">
+                </div>
+            </div>
+            <div class="member-preview" style="border-color: var(--primary-blue); background: #e6f0ff;">
+                <span id="prevRekomTxt" style="font-size:0.7rem; color:var(--primary-blue); font-weight: bold; text-align: center;">Format<br>PDF</span>
+            </div>
         </div>
 
-        <!-- Berkas Persyaratan Utama -->
-        <div class="section-title">1. UPLOAD BERKAS UTAMA</div>
-
-        <div class="form-group">
-          <label>Surat Rekomendasi Sekolah ATAU Scan Kartu Pelajar (PDF) <span class="badge-required">*Wajib</span></label>
-          <input type="file" id="berkasPersyaratan" accept=".pdf" required>
-        </div>
-
-        <div class="form-group">
-          <label>Foto Pasukan Landscape (Untuk Vote Pasukan Favorit) <span class="badge-required">*Wajib</span></label>
-          <input type="file" id="fotoPasukan" accept="image/*" required>
+        <div class="row-member" style="background: #fff; padding: 0; border: none; margin-top: 15px;">
+            <div class="member-inputs">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label>Foto Pasukan Landscape <span class="badge-req">*</span></label>
+                    <input type="file" id="fileFotoPasukan" accept="image/*" required onchange="previewImage(event, 'prevPasukan')">
+                </div>
+            </div>
+            <div class="member-preview">
+                <span id="txtPasukan" style="font-size:0.7rem; color:#aaa;">No Image</span>
+                <img id="prevPasukan" src="">
+            </div>
         </div>
 
         <!-- Berkas Anggota -->
-        <div class="section-title">2. DATA NAMA & FOTO BERLATAR MERAH</div>
-        <p style="font-size: 0.85rem; color: #555; margin-bottom: 15px;">
-          *Silakan isi nama dan pilih foto asli berkualitas baik tanpa dikompresi.
-        </p>
+        <h3 class="section-title">2. NAMA & FOTO BERLATAR MERAH</h3>
+        <p style="font-size: 0.85rem; color: #555; margin-bottom: 15px;">*Pastikan nama sesuai dan foto berkualitas baik (tidak buram).</p>
 
         <div id="containerAnggota">
-          <!-- Di-generate otomatis oleh JavaScript -->
+            <!-- Form Input Anggota (Di-generate otomatis oleh Javascript) -->
         </div>
 
-        <button type="submit" class="btn btn-submit">
-          🚀 SUBMIT & KIRIM BERKAS PENDAFTARAN
-        </button>
+        <button type="button" class="btn btn-submit" onclick="generatePreviewPDF()">Lanjut Review & Submit ➔</button>
       </form>
     </div>
   </div>
 
-  <!-- Loading Overlay -->
-  <div id="loadingOverlay">
-    <div class="spinner"></div>
-    <div id="loadingStatus">Sedang Memproses Pendaftaran...</div>
-    <div id="loadingDetail">Mohon jangan tutup halaman ini sampai selesai.</div>
+  <!-- MODAL REVIEW (Tampilan PDF Preview) -->
+  <div id="modalReview">
+    <div class="modal-content">
+      <h2 style="color:var(--primary-blue); text-align:center;">MOHON TELITI KEMBALI SEBELUM UPLOAD</h2>
+      <p style="text-align:center; font-size:0.9rem; color:#555; margin-top: 5px;">Berikut adalah pratinjau formulir yang akan dibuat dan dikirimkan ke email Anda.</p>
+      
+      <iframe id="pdfPreviewIframe"></iframe>
+      
+      <div style="display:flex; gap:10px;">
+        <button class="btn" style="background:#ccc; color:#333;" onclick="document.getElementById('modalReview').style.display='none'">Batal / Edit Lagi</button>
+        <button class="btn btn-blue" onclick="processSubmit()">Konfirmasi & Kirim Data</button>
+      </div>
+    </div>
   </div>
 
+  <!-- LOADING OVERLAY -->
+  <div id="loadingOverlay">
+    <div class="spinner"></div>
+    <h3 id="loadingStatus" style="margin-top:15px;">Memproses...</h3>
+    <p id="loadingDetail">Mohon jangan tutup halaman</p>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-content">
+        <p>Supported by <strong>Rekap Andalan</strong></p>
+        <p style="display:flex; justify-content:center; align-items:center; color: #333;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px;"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+            @cosmoatribut
+        </p>
+    </div>
+  </footer>
+
   <script>
+    // URL WEB APP MILIKMU YANG LAMA TAPI TETAP BERFUNGSI JIKA SUDAH DI DEPLOY 'NEW VERSION'
     const scriptURL = 'https://script.google.com/macros/s/AKfycbwE2q_sxiOa7ZueVrwqrjZzq0rgg2XzANff4-gQSww9qOfGzxckMOfS_QnnxrFpuoAenA/exec';
 
-    const roles = ["Pelatih / Pembina", "Official Team", "Danton"];
-    for (let i = 1; i <= 15; i++) {
-      roles.push(`Pasukan ${i}`);
+    const roles = ["Pelatih/Pembina", "Official Team", "Danton"];
+    for (let i = 1; i <= 15; i++) roles.push(`Pasukan ${i}`);
+
+    let generatedPdfBase64 = ""; 
+
+    function showView(id) {
+      document.getElementById('viewLanding').style.display = 'none';
+      document.getElementById('viewForm').style.display = 'none';
+      document.getElementById(id).style.display = 'block';
+      window.scrollTo(0, 0);
     }
 
-    // Render Baris Input Anggota
-    function renderMemberFields() {
+    // Fungsi Render Form Input Anggota beserta Kotak Preview Foto
+    function renderMembers() {
       const container = document.getElementById('containerAnggota');
-      container.innerHTML = '';
-
       roles.forEach((role, idx) => {
-        // Minimal Wajib: Pelatih, Official, Danton, & Pasukan 1-13 (Indeks 0 s.d 15)
-        const isRequired = idx <= 15; 
-        const statusBadge = isRequired ? '<span class="badge-required">*Wajib</span>' : '<span class="badge-optional">(Opsional)</span>';
-
+        // Mewajibkan Pelatih, Official, Danton, dan Pasukan 1 - 12 (Indeks 0 s/d 14 = Total 15 Orang Minimal)
+        const isReq = idx <= 14 ? 'required' : '';
+        const reqBadge = idx <= 14 ? '<span class="badge-req">*Wajib</span>' : '<span style="font-size:0.8rem; color:#888">(Opsional)</span>';
+        
         container.innerHTML += `
           <div class="row-member">
-            <label>${role} ${statusBadge}</label>
-            <input type="text" id="nama_${idx}" placeholder="Nama Lengkap ${role}" ${isRequired ? 'required' : ''} oninput="saveDraft()">
-            <input type="file" id="foto_${idx}" accept="image/*" ${isRequired ? 'required' : ''}>
+            <div class="member-inputs">
+              <label>${role} ${reqBadge}</label>
+              <input type="text" id="nama_${idx}" placeholder="Nama Lengkap ${role}" style="margin-bottom:10px;" ${isReq}>
+              <input type="file" id="foto_${idx}" accept="image/*" ${isReq} onchange="previewImage(event, 'prev_${idx}')">
+            </div>
+            <div class="member-preview">
+              <span id="txt_${idx}" style="font-size:0.7rem; color:#aaa;">Preview<br>Foto</span>
+              <img id="prev_${idx}" src="">
+            </div>
           </div>
         `;
       });
     }
 
-    // Helper Merubah File ke String Base64 secara Valid
+    // Live Preview Image
+    function previewImage(event, imgId) {
+      const file = event.target.files[0];
+      if(file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const img = document.getElementById(imgId);
+          img.src = e.target.result;
+          img.style.display = 'block';
+          const txtId = imgId.replace('prev', 'txt');
+          if(document.getElementById(txtId)) {
+            document.getElementById(txtId).style.display = 'none';
+          }
+        }
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function previewFile(event, txtId) {
+        const file = event.target.files[0];
+        if (file) {
+            document.getElementById(txtId).innerHTML = "<b>File Dipilih:</b><br><span style='color:green;font-size:0.8rem;'>PDF Siap Upload</span>";
+        }
+    }
+
+    // Generate Sementara PDF Form (Preview) sebelum dikirim
+    function generatePreviewPDF() {
+      const form = document.getElementById('formPendaftaran');
+      if(!form.checkValidity()) {
+        form.reportValidity(); // Memunculkan peringatan jika ada input merah/kosong
+        return;
+      }
+
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      
+      const tk = document.getElementById('tingkat').value;
+      const sk = document.getElementById('namaSekolah').value.toUpperCase();
+      const em = document.getElementById('email').value;
+
+      doc.setFontSize(16);
+      doc.setTextColor(0, 51, 153);
+      doc.text("FORMULIR PENDAFTARAN", 105, 20, {align: "center"});
+      doc.text("LKBB PENDEKAR PIALA WALIKOTA MADIUN 2026", 105, 28, {align: "center"});
+      
+      doc.setFontSize(11);
+      doc.setTextColor(0, 0, 0);
+      doc.text(`Tingkat Sekolah : ${tk.replace(/_/g, ' ')}`, 15, 45);
+      doc.text(`Nama Sekolah/Instansi : ${sk}`, 15, 52);
+      doc.text(`Email Penanggung Jawab : ${em}`, 15, 59);
+
+      doc.setLineWidth(0.5);
+      doc.line(15, 63, 195, 63);
+
+      let y = 70;
+      doc.setFontSize(10);
+      roles.forEach((role, idx) => {
+        const nameInput = document.getElementById(`nama_${idx}`).value;
+        if(nameInput.trim() !== '') {
+          doc.text(`${idx+1}. ${role} : ${nameInput}`, 15, y);
+          y += 7;
+          if (y > 280) { doc.addPage(); y = 20; }
+        }
+      });
+
+      const pdfDataUri = doc.output('datauristring');
+      generatedPdfBase64 = pdfDataUri.split(',')[1];
+      
+      // Tampilkan Modal Review
+      document.getElementById('pdfPreviewIframe').src = pdfDataUri;
+      document.getElementById('modalReview').style.display = 'flex';
+    }
+
     function fileToBase64(file) {
       return new Promise((resolve, reject) => {
-        if (!file) {
-          reject(new Error("File tidak ada atau belum dipilih."));
-          return;
-        }
         const reader = new FileReader();
         reader.readAsDataURL(file);
-        reader.onload = () => {
-          const resultStr = reader.result;
-          if (resultStr && resultStr.includes(',')) {
-            resolve(resultStr.split(',')[1]); // Ambil string Base64 murni setelah koma
-          } else {
-            reject(new Error("Gagal membaca format Base64 file."));
-          }
-        };
+        reader.onload = () => resolve(reader.result.split(',')[1]);
         reader.onerror = error => reject(error);
       });
     }
 
-    // Simpan & Muat Draft Isian Teks
-    function saveDraft() {
-      const draft = {
-        namaSekolah: document.getElementById('namaSekolah').value,
-        email: document.getElementById('email').value
-      };
-      roles.forEach((_, idx) => {
-        const el = document.getElementById(`nama_${idx}`);
-        if (el) draft[`nama_${idx}`] = el.value;
-      });
-      localStorage.setItem('rekapandalan_draft_lkbb', JSON.stringify(draft));
-    }
-
-    function loadDraft() {
-      const draft = JSON.parse(localStorage.getItem('rekapandalan_draft_lkbb'));
-      if (draft) {
-        if (draft.namaSekolah) document.getElementById('namaSekolah').value = draft.namaSekolah;
-        if (draft.email) document.getElementById('email').value = draft.email;
-        roles.forEach((_, idx) => {
-          const el = document.getElementById(`nama_${idx}`);
-          if (el && draft[`nama_${idx}`]) el.value = draft[`nama_${idx}`];
-        });
-      }
-    }
-
-    // Form Submit Handler (Upload Berurutan / Sequential Batch)
-    document.getElementById('pendaftaranForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-
-      const loadingOverlay = document.getElementById('loadingOverlay');
-      const loadingStatus = document.getElementById('loadingStatus');
-      const loadingDetail = document.getElementById('loadingDetail');
-
-      loadingOverlay.style.display = 'flex';
+    // PROSES PENGIRIMAN DATA KE GOOGLE APPS SCRIPT
+    async function processSubmit() {
+      document.getElementById('modalReview').style.display = 'none';
+      const loading = document.getElementById('loadingOverlay');
+      const status = document.getElementById('loadingStatus');
+      const detail = document.getElementById('loadingDetail');
+      loading.style.display = 'flex';
 
       try {
-        const namaSekolah = document.getElementById('namaSekolah').value.trim();
+        const tkt = document.getElementById('tingkat').value;
+        const sek = document.getElementById('namaSekolah').value.trim();
         const email = document.getElementById('email').value.trim();
 
-        // 1. Inisialisasi Folder Pendaftaran
-        loadingStatus.innerText = 'Menyiapkan Folder Pendaftaran...';
-        loadingDetail.innerText = 'Membuat direktori penyimpanan di Google Drive...';
-
-        const initResponse = await fetch(scriptURL, {
+        // 1. INIT FOLDER
+        status.innerText = 'Menyiapkan Direktori...';
+        detail.innerText = 'Membuat susunan folder khusus untuk sekolah Anda';
+        const resInit = await fetch(scriptURL, {
           method: 'POST',
-          body: JSON.stringify({
-            action: 'init_pendaftaran',
-            namaSekolah: namaSekolah,
-            email: email
-          })
-        });
-
-        const initResult = await initResponse.json();
-        if (initResult.result !== 'success') {
-          throw new Error(initResult.message || 'Gagal menginisialisasi folder pendaftaran.');
-        }
-
-        const folderId = initResult.folderId;
-
-        // 2. Kumpulkan Semua Berkas yang Akan Diunggah
+          body: JSON.stringify({ action: 'init_pendaftaran', tingkat: tkt, namaSekolah: sek })
+        }).then(r => r.json());
+        
+        if(resInit.result !== 'success') throw new Error(resInit.message);
+        
+        const folders = resInit.folders; 
+        const noUrut = resInit.noUrut;
+        
+        let totalPasukanDanton = 0;
         const filesToUpload = [];
 
-        // File A: Surat Rekomendasi/Kartu Pelajar PDF
-        const rekomFile = document.getElementById('berkasPersyaratan').files[0];
-        if (rekomFile) {
-          filesToUpload.push({
-            fileName: 'Surat_Rekomendasi_' + namaSekolah + '.pdf',
-            mimeType: 'application/pdf',
-            file: rekomFile
-          });
-        }
+        // File A: PDF Rekomendasi
+        filesToUpload.push({
+          folderId: folders.rekom,
+          fileName: `Surat_Rekomendasi_${noUrut}_${sek}.pdf`,
+          mimeType: 'application/pdf',
+          file: document.getElementById('fileRekom').files[0]
+        });
 
-        // File B: Foto Pasukan Landscape
-        const fotoPasukanFile = document.getElementById('fotoPasukan').files[0];
-        if (fotoPasukanFile) {
-          filesToUpload.push({
-            fileName: 'Foto_Pasukan_' + namaSekolah + '.jpg',
-            mimeType: fotoPasukanFile.type || 'image/jpeg',
-            file: fotoPasukanFile
-          });
-        }
+        // File B: Foto Pasukan (Landscape)
+        filesToUpload.push({
+          folderId: folders.foto,
+          fileName: `Foto_Pasukan_${noUrut}_${sek}.jpg`,
+          mimeType: document.getElementById('fileFotoPasukan').files[0].type || 'image/jpeg',
+          file: document.getElementById('fileFotoPasukan').files[0]
+        });
 
-        // File C: Foto Latar Merah Anggota (Pelatih, Official, Danton, Pasukan 1-15)
+        // File C: Berkas Anggota (Masuk Folder Formulir)
         roles.forEach((role, idx) => {
-          const namaInput = document.getElementById(`nama_${idx}`);
-          const fotoInput = document.getElementById(`foto_${idx}`);
-          if (namaInput && fotoInput && fotoInput.files && fotoInput.files[0]) {
-            const cleanRoleName = role.replace(/[^a-zA-Z0-9]/g, '_');
-            const cleanPersonName = (namaInput.value.trim() || `Anggota_${idx}`).replace(/[^a-zA-Z0-9]/g, '_');
+          const nm = document.getElementById(`nama_${idx}`).value;
+          const ft = document.getElementById(`foto_${idx}`).files[0];
+          if (nm && ft) {
+            if(idx >= 2) totalPasukanDanton++; // Indeks 2 adalah Danton. Hitung Danton + Pasukan 1-15
+            
+            const cleanRole = role.replace(/[^a-zA-Z0-9]/g, '_');
+            const cleanNm = nm.replace(/[^a-zA-Z0-9]/g, '_');
+            
             filesToUpload.push({
-              fileName: `${cleanRoleName}_${cleanPersonName}.jpg`,
-              mimeType: fotoInput.files[0].type || 'image/jpeg',
-              file: fotoInput.files[0]
+              folderId: folders.form,
+              fileName: `${cleanRole}_${cleanNm}.jpg`,
+              mimeType: ft.type || 'image/jpeg',
+              file: ft
             });
           }
         });
 
-        // 3. Pengiriman File Satu Per Satu (Sequential Batching)
+        // 2. UPLOAD FILE BERURUTAN
         const totalFiles = filesToUpload.length;
-        for (let i = 0; i < totalFiles; i++) {
+        for(let i = 0; i < totalFiles; i++) {
           const item = filesToUpload[i];
-          loadingStatus.innerText = `Mengunggah Berkas (${i + 1} dari ${totalFiles})`;
-          loadingDetail.innerText = `File: ${item.fileName}`;
-
-          // Ambil Base64 File
-          const base64Data = await fileToBase64(item.file);
-
-          if (!base64Data || base64Data.trim() === '') {
-            throw new Error(`File ${item.fileName} tidak memiliki data/kosong.`);
-          }
-
-          const uploadResponse = await fetch(scriptURL, {
+          status.innerText = `Mengunggah Berkas (${i+1}/${totalFiles})`;
+          detail.innerText = `Mengirim: ${item.fileName}`;
+          
+          const b64 = await fileToBase64(item.file);
+          
+          await fetch(scriptURL, {
             method: 'POST',
             body: JSON.stringify({
-              action: 'upload_file',
-              folderId: folderId,
-              fileName: item.fileName,
-              mimeType: item.mimeType,
-              base64Data: base64Data
+              action: 'upload_file', folderId: item.folderId, fileName: item.fileName, mimeType: item.mimeType, base64Data: b64
             })
           });
-
-          const uploadResult = await uploadResponse.json();
-          if (uploadResult.result !== 'success') {
-            throw new Error(`Gagal mengunggah ${item.fileName}: ${uploadResult.message}`);
-          }
         }
 
-        // 4. Selesaikan Pendaftaran & Kirim Email Konfirmasi
-        loadingStatus.innerText = 'Mencatat Pendaftaran & Mengirim Email...';
-        loadingDetail.innerText = 'Menyelesaikan proses akhir...';
-
-        const finishResponse = await fetch(scriptURL, {
+        // 3. FINISH (Simpan Sheet & Kirim Email PDF)
+        status.innerText = 'Menyelesaikan Pendaftaran...';
+        detail.innerText = 'Mencatat ke Laporan dan Mengirim Bukti PDF ke Email';
+        
+        await fetch(scriptURL, {
           method: 'POST',
           body: JSON.stringify({
             action: 'finish_pendaftaran',
-            folderId: folderId,
-            namaSekolah: namaSekolah,
-            email: email
+            tingkat: tkt, noUrut: noUrut, namaSekolah: sek, email: email,
+            folders: folders, jmlPasukan: `${totalPasukanDanton}/16`, pdfBase64: generatedPdfBase64
           })
         });
 
-        const finishResult = await finishResponse.json();
-        if (finishResult.result !== 'success') {
-          throw new Error(finishResult.message || 'Gagal menyelesaikan proses pendaftaran.');
-        }
-
-        alert('🎉 Selamat! Pendaftaran LKBB Pendekar 2026 berhasil terkirim utuh.');
-        localStorage.removeItem('rekapandalan_draft_lkbb');
+        alert('🎉 Pendaftaran Berhasil! Bukti formulir PDF resmi telah dikirim ke email Penanggung Jawab.');
         location.reload();
-
-      } catch (err) {
+        
+      } catch(err) {
         alert('Terjadi kesalahan saat pengiriman: ' + err.message);
         console.error(err);
       } finally {
-        loadingOverlay.style.display = 'none';
+        loading.style.display = 'none';
       }
-    });
+    }
 
-    // Jalankan Render saat Halaman Dimuat
-    renderMemberFields();
-    loadDraft();
+    renderMembers();
   </script>
 </body>
 </html>

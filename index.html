@@ -339,7 +339,7 @@
         rekomPages.forEach(page => mergedPdf.addPage(page));
 
         // =======================================================
-        // HALAMAN 3 & 4: TEMPLATE FORMULIR (DISESUAIKAN PRESISI 3x4)
+        // HALAMAN 3 & 4: TEMPLATE FORMULIR (PRESISI BERDASARKAN KANVA X=29, Y=740)
         // =======================================================
         try {
           const templateBytes = await fetch('./template_formulir.pdf').then(res => res.arrayBuffer());
@@ -349,33 +349,33 @@
           const pageF1 = mergedPdf.addPage(templatePages[0]);
           const pageF2 = mergedPdf.addPage(templatePages[1]);
 
-          // Peta Koordinat Presisi untuk Kotak 3x4 & Garis Isian Nama
+          // Peta Koordinat Presisi Sesuai Satuan Canva (X=29 -> 29pt, Y=6.93cm atas -> 740pt bawah)
           const coordinateMap = [
             // HALAMAN 1 (11 Kotak: 6 Kiri, 5 Kanan)
-            { pg: pageF1, x: 42,  y: 728 }, // 0: Pelatih
-            { pg: pageF1, x: 317, y: 728 }, // 1: Official
-            { pg: pageF1, x: 42,  y: 608 }, // 2: Danton
-            { pg: pageF1, x: 317, y: 608 }, // 3: Pasukan 1
-            { pg: pageF1, x: 42,  y: 488 }, // 4: Pasukan 2
-            { pg: pageF1, x: 317, y: 488 }, // 5: Pasukan 3
-            { pg: pageF1, x: 42,  y: 368 }, // 6: Pasukan 4
-            { pg: pageF1, x: 317, y: 368 }, // 7: Pasukan 5
-            { pg: pageF1, x: 42,  y: 248 }, // 8: Pasukan 6
-            { pg: pageF1, x: 317, y: 248 }, // 9: Pasukan 7
-            { pg: pageF1, x: 42,  y: 128 }, // 10: Pasukan 8
+            { pg: pageF1, x: 29,  y: 740 }, // 0: Pelatih
+            { pg: pageF1, x: 325, y: 740 }, // 1: Official
+            { pg: pageF1, x: 29,  y: 618 }, // 2: Danton
+            { pg: pageF1, x: 325, y: 618 }, // 3: Pasukan 1
+            { pg: pageF1, x: 29,  y: 496 }, // 4: Pasukan 2
+            { pg: pageF1, x: 325, y: 496 }, // 5: Pasukan 3
+            { pg: pageF1, x: 29,  y: 374 }, // 6: Pasukan 4
+            { pg: pageF1, x: 325, y: 374 }, // 7: Pasukan 5
+            { pg: pageF1, x: 29,  y: 252 }, // 8: Pasukan 6
+            { pg: pageF1, x: 325, y: 252 }, // 9: Pasukan 7
+            { pg: pageF1, x: 29,  y: 130 }, // 10: Pasukan 8
 
             // HALAMAN 2 (Pasukan 9 s/d Pasukan 15)
-            { pg: pageF2, x: 42,  y: 728 }, // 11: Pasukan 9
-            { pg: pageF2, x: 317, y: 728 }, // 12: Pasukan 10
-            { pg: pageF2, x: 42,  y: 608 }, // 13: Pasukan 11
-            { pg: pageF2, x: 317, y: 608 }, // 14: Pasukan 12
-            { pg: pageF2, x: 42,  y: 488 }, // 15: Pasukan 13
-            { pg: pageF2, x: 317, y: 488 }, // 16: Pasukan 14
-            { pg: pageF2, x: 42,  y: 368 }  // 17: Pasukan 15
+            { pg: pageF2, x: 29,  y: 740 }, // 11: Pasukan 9
+            { pg: pageF2, x: 325, y: 740 }, // 12: Pasukan 10
+            { pg: pageF2, x: 29,  y: 618 }, // 13: Pasukan 11
+            { pg: pageF2, x: 325, y: 618 }, // 14: Pasukan 12
+            { pg: pageF2, x: 29,  y: 496 }, // 15: Pasukan 13
+            { pg: pageF2, x: 325, y: 496 }, // 16: Pasukan 14
+            { pg: pageF2, x: 29,  y: 374 }  // 17: Pasukan 15
           ];
           
-          // Ukuran Foto diperkecil agar pas persis di dalam kotak 3x4 (Rasio Lebar x Tinggi)
-          const photoW = 75, photoH = 100; 
+          // Ukuran Foto 3x4 persis (85 x 113 points)
+          const photoW = 85, photoH = 113; 
           
           for (let i = 0; i < roles.length; i++) {
               let nm = document.getElementById(`nama_${i}`).value.trim();
@@ -389,20 +389,20 @@
                   let posX = coordinateMap[i].x;
                   let posY = coordinateMap[i].y;
                   
-                  // Cetak Foto di Dalam Kotak
+                  // Cetak Foto Pas Di Dalam Kotak 3x4 Template
                   targetPage.drawImage(imgEmbed, { x: posX, y: posY, width: photoW, height: photoH });
                   
-                  // Pengaturan Teks agar jatuh tepat di atas garis isian
-                  const maxTextWidth = 195; 
-                  const fontSize = 15; // Ukuran font proporsional untuk 2 garis
+                  // Cetak Nama Saja (Label Jabatan sudah ada di template PDF)
+                  const maxTextWidth = 175; 
+                  const fontSize = 14; // Ukuran proporsional pas di atas garis isian
                   const lines = wrapText(nm, maxTextWidth, fontBold, fontSize);
                   
-                  let textStartX = posX + photoW + 12; // Posisi X di sebelah kanan foto
-                  let textStartY = posY + 52; // Posisi Y pas di atas garis pertama
+                  let textStartX = posX + photoW + 15; // Posisi X di sebelah kanan foto
+                  let textStartY = posY + 62; // Posisi Y pas jatuh di antara garis isian nama
                   
                   lines.forEach((lineText, lIdx) => {
                       if (lIdx < 2) { 
-                        targetPage.drawText(lineText, { x: textStartX, y: textStartY - (lIdx * 25), size: fontSize, font: fontBold, color: rgb(0,0,0) });
+                        targetPage.drawText(lineText, { x: textStartX, y: textStartY - (lIdx * 24), size: fontSize, font: fontBold, color: rgb(0,0,0) });
                       }
                   });
               }

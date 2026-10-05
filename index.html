@@ -285,14 +285,15 @@
         const fontBold = await mergedPdf.embedFont(StandardFonts.HelveticaBold);
         const fontReg = await mergedPdf.embedFont(StandardFonts.Helvetica);
 
+        const f4Width = 612, f4Height = 936; 
+
         // =======================================================
-        // HALAMAN 1: BUKTI PENDAFTARAN (F4 612x936)
+        // HALAMAN 1: BUKTI PENDAFTARAN (TANPA TANDA [ ])
         // =======================================================
         try {
           const bgBytes = await fetch('./bg_pasukan.jpg').then(res => res.arrayBuffer());
           const bgImage = await mergedPdf.embedJpg(bgBytes);
           
-          const f4Width = 612, f4Height = 936; 
           const pageBukti = mergedPdf.addPage([f4Width, f4Height]);
           pageBukti.drawImage(bgImage, { x: 0, y: 0, width: f4Width, height: f4Height });
           
@@ -309,7 +310,7 @@
 
           let yCur = 720; 
           drawCentered('SELAMAT KEPADA', yCur, 28, fontBold, [0,0,0]); yCur -= 35;
-          drawCentered(`[${namaSekolah}]`, yCur, 28, fontBold, [0, 0.2, 0.6]); yCur -= 35;
+          drawCentered(`${namaSekolah}`, yCur, 28, fontBold, [0, 0.2, 0.6]); yCur -= 35; // TANPA KURUNG SIKU
           
           drawCentered(`telah terdaftar di LKBB PENDEKAR 2026 pada ${hari}, ${tgl}`, yCur, 14, fontReg, [0,0,0]); yCur -= 20;
           drawCentered(`pukul ${jam}`, yCur, 14, fontReg, [0,0,0]); yCur -= 20;
@@ -332,50 +333,59 @@
         // =======================================================
         // HALAMAN 2: SURAT REKOMENDASI MENTAH
         // =======================================================
-        const fileRekom = document.getElementById('fileRekom').files[0];
-        const rekomBytes = await fileToArrayBuffer(fileRekom);
-        const rekomDoc = await PDFDocument.load(rekomBytes);
-        const rekomPages = await mergedPdf.copyPages(rekomDoc, rekomDoc.getPageIndices());
-        rekomPages.forEach(page => mergedPdf.addPage(page));
+        try {
+          const fileRekom = document.getElementById('fileRekom').files[0];
+          const rekomBytes = await fileToArrayBuffer(fileRekom);
+          const rekomDoc = await PDFDocument.load(rekomBytes);
+          const rekomPages = await mergedPdf.copyPages(rekomDoc, rekomDoc.getPageIndices());
+          rekomPages.forEach(page => mergedPdf.addPage(page));
+        } catch(e) { console.warn("Rekomendasi Gagal: ", e); }
 
         // =======================================================
-        // HALAMAN 3 & 4: TEMPLATE FORMULIR (PRESISI BERDASARKAN KANVA X=29, Y=740)
+        // HALAMAN 3 & 4: TEMPLATE FORMULIR BERBASIS GAMBAR (PNG/JPG)
         // =======================================================
         try {
-          const templateBytes = await fetch('./template_formulir.pdf').then(res => res.arrayBuffer());
-          const templateDoc = await PDFDocument.load(templateBytes);
-          const templatePages = await mergedPdf.copyPages(templateDoc, templateDoc.getPageIndices());
+          // Load gambar template hal 1 dan hal 2 dari repository GitHub
+          const tpl1Bytes = await fetch('./template_hal1.png').then(res => res.arrayBuffer());
+          const tpl2Bytes = await fetch('./template_hal2.png').then(res => res.arrayBuffer());
           
-          const pageF1 = mergedPdf.addPage(templatePages[0]);
-          const pageF2 = mergedPdf.addPage(templatePages[1]);
+          const imgTpl1 = await mergedPdf.embedPng(tpl1Bytes);
+          const imgTpl2 = await mergedPdf.embedPng(tpl2Bytes);
 
-          // Peta Koordinat Presisi Sesuai Satuan Canva (X=29 -> 29pt, Y=6.93cm atas -> 740pt bawah)
+          const pageForm1 = mergedPdf.addPage([f4Width, f4Height]);
+          pageForm1.drawImage(imgTpl1, { x: 0, y: 0, width: f4Width, height: f4Height });
+
+          const pageForm2 = mergedPdf.addPage([f4Width, f4Height]);
+          pageForm2.drawImage(imgTpl2, { x: 0, y: 0, width: f4Width, height: f4Height });
+
+          // Koordinat presisi berbasis piksel gambar F4 (Sesuai rancangan Canva-mu)
+          // Halaman 1 memuat 11 orang (Pelatih s/d Pasukan 8)
+          // Halaman 2 memuat sisa orang (Pasukan 9 s/d Pasukan 15)
           const coordinateMap = [
-            // HALAMAN 1 (11 Kotak: 6 Kiri, 5 Kanan)
-            { pg: pageF1, x: 29,  y: 740 }, // 0: Pelatih
-            { pg: pageF1, x: 325, y: 740 }, // 1: Official
-            { pg: pageF1, x: 29,  y: 618 }, // 2: Danton
-            { pg: pageF1, x: 325, y: 618 }, // 3: Pasukan 1
-            { pg: pageF1, x: 29,  y: 496 }, // 4: Pasukan 2
-            { pg: pageF1, x: 325, y: 496 }, // 5: Pasukan 3
-            { pg: pageF1, x: 29,  y: 374 }, // 6: Pasukan 4
-            { pg: pageF1, x: 325, y: 374 }, // 7: Pasukan 5
-            { pg: pageF1, x: 29,  y: 252 }, // 8: Pasukan 6
-            { pg: pageF1, x: 325, y: 252 }, // 9: Pasukan 7
-            { pg: pageF1, x: 29,  y: 130 }, // 10: Pasukan 8
+            // HALAMAN 1
+            { pg: pageForm1, x: 29,  y: 740 }, // 0: Pelatih
+            { pg: pageForm1, x: 325, y: 740 }, // 1: Official
+            { pg: pageForm1, x: 29,  y: 618 }, // 2: Danton
+            { pg: pageForm1, x: 325, y: 618 }, // 3: Pasukan 1
+            { pg: pageForm1, x: 29,  y: 496 }, // 4: Pasukan 2
+            { pg: pageForm1, x: 325, y: 496 }, // 5: Pasukan 3
+            { pg: pageForm1, x: 29,  y: 374 }, // 6: Pasukan 4
+            { pg: pageForm1, x: 325, y: 374 }, // 7: Pasukan 5
+            { pg: pageForm1, x: 29,  y: 252 }, // 8: Pasukan 6
+            { pg: pageForm1, x: 325, y: 252 }, // 9: Pasukan 7
+            { pg: pageForm1, x: 29,  y: 130 }, // 10: Pasukan 8
 
-            // HALAMAN 2 (Pasukan 9 s/d Pasukan 15)
-            { pg: pageF2, x: 29,  y: 740 }, // 11: Pasukan 9
-            { pg: pageF2, x: 325, y: 740 }, // 12: Pasukan 10
-            { pg: pageF2, x: 29,  y: 618 }, // 13: Pasukan 11
-            { pg: pageF2, x: 325, y: 618 }, // 14: Pasukan 12
-            { pg: pageF2, x: 29,  y: 496 }, // 15: Pasukan 13
-            { pg: pageF2, x: 325, y: 496 }, // 16: Pasukan 14
-            { pg: pageF2, x: 29,  y: 374 }  // 17: Pasukan 15
+            // HALAMAN 2
+            { pg: pageForm2, x: 29,  y: 740 }, // 11: Pasukan 9
+            { pg: pageForm2, x: 325, y: 740 }, // 12: Pasukan 10
+            { pg: pageForm2, x: 29,  y: 618 }, // 13: Pasukan 11
+            { pg: pageForm2, x: 325, y: 618 }, // 14: Pasukan 12
+            { pg: pageForm2, x: 29,  y: 496 }, // 15: Pasukan 13
+            { pg: pageForm2, x: 325, y: 496 }, // 16: Pasukan 14
+            { pg: pageForm2, x: 29,  y: 374 }  // 17: Pasukan 15
           ];
           
-          // Ukuran Foto 3x4 persis (85 x 113 points)
-          const photoW = 85, photoH = 113; 
+          const photoW = 85, photoH = 113; // Ukuran kotak foto 3x4
           
           for (let i = 0; i < roles.length; i++) {
               let nm = document.getElementById(`nama_${i}`).value.trim();
@@ -389,16 +399,16 @@
                   let posX = coordinateMap[i].x;
                   let posY = coordinateMap[i].y;
                   
-                  // Cetak Foto Pas Di Dalam Kotak 3x4 Template
+                  // Cetak Foto ke dalam kotak gambar latar belakang
                   targetPage.drawImage(imgEmbed, { x: posX, y: posY, width: photoW, height: photoH });
                   
-                  // Cetak Nama Saja (Label Jabatan sudah ada di template PDF)
+                  // Cetak Nama (Label jabatan tidak dicetak karena sudah ada di gambar latar template_hal1/hal2.png)
                   const maxTextWidth = 175; 
-                  const fontSize = 14; // Ukuran proporsional pas di atas garis isian
+                  const fontSize = 14; 
                   const lines = wrapText(nm, maxTextWidth, fontBold, fontSize);
                   
-                  let textStartX = posX + photoW + 15; // Posisi X di sebelah kanan foto
-                  let textStartY = posY + 62; // Posisi Y pas jatuh di antara garis isian nama
+                  let textStartX = posX + photoW + 15; 
+                  let textStartY = posY + 62; 
                   
                   lines.forEach((lineText, lIdx) => {
                       if (lIdx < 2) { 
@@ -407,10 +417,10 @@
                   });
               }
           }
-        } catch(e) { console.warn("Formulir Template Gagal: ", e); }
+        } catch(e) { console.warn("Template Gambar Formulir Gagal: ", e); }
 
         // =======================================================
-        // HALAMAN TERAKHIR: FOTO PASUKAN
+        // HALAMAN TERAKHIR: FOTO PASUKAN LANDSCAPE
         // =======================================================
         try {
           const fileFotoP = document.getElementById('fileFotoPasukan').files[0];

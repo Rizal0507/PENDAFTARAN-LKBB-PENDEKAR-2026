@@ -3,26 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LKBB Pendekar 2026 - Rekap Andalan</title>
+  <title>LKBB Pendekar 2026 - Pendaftaran</title>
   <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
   <style>
-    :root { --primary: #002266; --secondary: #0044cc; --gold: #d4af37; --bg: #f0f4f8; }
+    :root { --primary: #001a4d; --secondary: #0044cc; --gold: #d4af37; --bg: #f0f4f8; }
     * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; padding: 0; }
     body { background-color: var(--bg); color: #222; padding-bottom: 30px; }
     
     header { 
-      background: linear-gradient(135deg, #001133 0%, var(--primary) 50%, #00081a 100%); 
-      padding: 15px 20px; 
-      border-bottom: 4px solid var(--gold); 
+      background: linear-gradient(135deg, #000c24 0%, var(--primary) 50%, #000511 100%); 
+      padding: 15px 20px; border-bottom: 4px solid var(--gold); 
       display: flex; justify-content: space-between; align-items: center; gap: 10px;
     }
-    
     .header-logo { 
       width: 65px; height: 65px; background: #fff; border-radius: 50%; 
       display: flex; align-items: center; justify-content: center; padding: 4px; box-shadow: 0 0 8px rgba(0,0,0,0.5);
     }
     .header-logo img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 50%; }
-    
     .header-title { text-align: center; flex: 1; color: white; }
     .header-title span:first-child { display: block; font-size: 1.1rem; letter-spacing: 1px; font-weight: 500;}
     .header-title span:last-child { display: block; font-size: 1.5rem; font-weight: bold; color: var(--gold); text-shadow: 1px 1px 2px #000;}
@@ -171,7 +168,6 @@
         </p>
         <button class="btn btn-blue" style="max-width: 300px; margin: 0 auto;" onclick="showView('viewLanding')">Kembali ke Beranda</button>
     </div>
-
   </div>
 
   <div id="modalReview">
@@ -206,7 +202,10 @@
   </footer>
 
   <script>
+    // MASUKKAN URL WEB APP YANG BARU DI SINI
     const scriptURL = 'https://script.google.com/macros/s/AKfycbwE2q_sxiOa7ZueVrwqrjZzq0rgg2XzANff4-gQSww9qOfGzxckMOfS_QnnxrFpuoAenA/exec';
+    
+    // Susunan 18 Orang (Pelatih s/d Pasukan 15)
     const roles = ["Pelatih/Pembina", "Official Team", "Danton"];
     for (let i = 1; i <= 15; i++) roles.push(`Pasukan ${i}`);
 
@@ -259,6 +258,7 @@
     function fileToArrayBuffer(file) { return new Promise((res, rej) => { const reader = new FileReader(); reader.onload = () => res(reader.result); reader.onerror = rej; reader.readAsArrayBuffer(file); }); }
     function fileToBase64(file) { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.readAsDataURL(file); reader.onload = () => resolve(reader.result.split(',')[1]); reader.onerror = error => reject(error); }); }
     
+    // Fungsi untuk memotong teks 2 baris
     function wrapText(text, maxWidth, font, fontSize) {
         const words = text.split(' ');
         let lines = [];
@@ -289,13 +289,18 @@
         const fontReg = await mergedPdf.embedFont(StandardFonts.Helvetica);
 
         // =======================================================
-        // HALAMAN 1: BUKTI PENDAFTARAN (DIPERBESAR FONTYA)
+        // HALAMAN 1: BUKTI PENDAFTARAN (DIKUNCI KE UKURAN F4 612x936)
         // =======================================================
         try {
           const bgBytes = await fetch('./bg_pasukan.jpg').then(res => res.arrayBuffer());
           const bgImage = await mergedPdf.embedJpg(bgBytes);
-          const pageBukti = mergedPdf.addPage([bgImage.width, bgImage.height]);
-          pageBukti.drawImage(bgImage, { x: 0, y: 0, width: bgImage.width, height: bgImage.height });
+          
+          // Memaksa Halaman 1 berukuran presisi F4
+          const f4Width = 612, f4Height = 936; 
+          const pageBukti = mergedPdf.addPage([f4Width, f4Height]);
+          
+          // Menggambar Background menyesuaikan ukuran kertas F4
+          pageBukti.drawImage(bgImage, { x: 0, y: 0, width: f4Width, height: f4Height });
           
           const namaSekolah = document.getElementById('namaSekolah').value.toUpperCase();
           const now = new Date();
@@ -305,34 +310,35 @@
 
           const drawCentered = (txt, yPos, size, useFont, colorArr) => {
               const txtW = useFont.widthOfTextAtSize(txt, size);
-              pageBukti.drawText(txt, { x: (pageBukti.getWidth() - txtW) / 2, y: yPos, size: size, font: useFont, color: rgb(...colorArr) });
+              pageBukti.drawText(txt, { x: (f4Width - txtW) / 2, y: yPos, size: size, font: useFont, color: rgb(...colorArr) });
           };
 
-          let yCur = pageBukti.getHeight() - 100;
-          drawCentered('SELAMAT KEPADA', yCur, 40, fontBold, [0,0,0]); yCur -= 45;
-          drawCentered(`[${namaSekolah}]`, yCur, 42, fontBold, [0, 0.2, 0.6]); yCur -= 50;
+          // Y=936 adalah titik paling atas kertas, kita mulai nulis sedikit di bawah Header Image.
+          let yCur = 720; 
           
-          drawCentered(`telah terdaftar di LKBB PENDEKAR 2026 pada ${hari}, ${tgl}`, yCur, 18, fontReg, [0,0,0]); yCur -= 25;
-          drawCentered(`pukul ${jam}`, yCur, 18, fontReg, [0,0,0]); yCur -= 25;
-          drawCentered(`dengan komposisi pasukan sebagai berikut:`, yCur, 18, fontReg, [0,0,0]); yCur -= 40;
+          drawCentered('SELAMAT KEPADA', yCur, 28, fontBold, [0,0,0]); yCur -= 35;
+          drawCentered(`[${namaSekolah}]`, yCur, 28, fontBold, [0, 0.2, 0.6]); yCur -= 35;
+          
+          drawCentered(`telah terdaftar di LKBB PENDEKAR 2026 pada ${hari}, ${tgl}`, yCur, 14, fontReg, [0,0,0]); yCur -= 20;
+          drawCentered(`pukul ${jam}`, yCur, 14, fontReg, [0,0,0]); yCur -= 20;
+          drawCentered(`dengan komposisi pasukan sebagai berikut:`, yCur, 14, fontReg, [0,0,0]); yCur -= 30;
 
-          // Daftar Anggota Tengah (Font diperbesar dari 16 ke 20)
           roles.forEach((role, idx) => {
              const nm = document.getElementById(`nama_${idx}`).value.trim();
              if(nm) {
-                 drawCentered(`${role} : ${nm}`, yCur, 20, fontReg, [0,0,0]);
-                 yCur -= 26; 
+                 drawCentered(`${role} : ${nm}`, yCur, 14, fontBold, [0,0,0]);
+                 yCur -= 20;
              }
           });
 
-          yCur -= 45;
-          drawCentered('SELAMAT BERLATIH DAN SAMPAI JUMPA DI LKBB PENDEKAR 2026', yCur, 20, fontBold, [0.8, 0.6, 0.1]); yCur -= 25;
-          drawCentered('GOR Wilis Kota Madiun - Minggu, 25 Oktober 2026', yCur, 16, fontBold, [0.8, 0.6, 0.1]);
+          yCur -= 40;
+          drawCentered('SELAMAT BERLATIH DAN SAMPAI JUMPA DI LKBB PENDEKAR 2026', yCur, 16, fontBold, [0.8, 0.6, 0.1]); yCur -= 20;
+          drawCentered('GOR Wilis Kota Madiun - Minggu, 25 Oktober 2026', yCur, 12, fontBold, [0.8, 0.6, 0.1]);
 
         } catch(e) { console.warn("Halaman Bukti Gagal: ", e); }
 
         // =======================================================
-        // HALAMAN 2: SURAT REKOMENDASI MENTAH
+        // HALAMAN 2: SURAT REKOMENDASI (Dibiarkan apa adanya)
         // =======================================================
         const fileRekom = document.getElementById('fileRekom').files[0];
         const rekomBytes = await fileToArrayBuffer(fileRekom);
@@ -341,7 +347,7 @@
         rekomPages.forEach(page => mergedPdf.addPage(page));
 
         // =======================================================
-        // HALAMAN 3 & 4: FORMULIR TEMPLATE (KOORDINAT DISESUAIKAN)
+        // HALAMAN 3 & 4: TEMPLATE FORMULIR DENGAN TITIK KOORDINAT TEPAT
         // =======================================================
         try {
           const templateBytes = await fetch('./template_formulir.pdf').then(res => res.arrayBuffer());
@@ -351,42 +357,58 @@
           const pageF1 = mergedPdf.addPage(templatePages[0]);
           const pageF2 = mergedPdf.addPage(templatePages[1]);
 
-          // PERUBAHAN KOORDINAT FOTO Y-AXIS (DITURUNKAN KE BAWAH)
-          const photoW = 90, photoH = 120;
-          const colX = [70, 340]; // Posisi X (Kiri, Kanan)
-          const rowY = [590, 410, 230, 50]; // Posisi Y (Baris 1 sampai 4, nilai makin kecil = makin ke bawah)
+          // Peta Koordinat Pasti (Hardcoded) untuk ke-18 Role 
+          // (0,0 ada di Pojok Kiri Bawah PDF).
+          const coordinateMap = [
+            // HALAMAN 1 (11 Kotak: 6 Kiri, 5 Kanan)
+            { pg: pageF1, x: 60,  y: 730 }, // 0: Pelatih
+            { pg: pageF1, x: 335, y: 730 }, // 1: Official
+            { pg: pageF1, x: 60,  y: 610 }, // 2: Danton
+            { pg: pageF1, x: 335, y: 610 }, // 3: Pasukan 1
+            { pg: pageF1, x: 60,  y: 490 }, // 4: Pasukan 2
+            { pg: pageF1, x: 335, y: 490 }, // 5: Pasukan 3
+            { pg: pageF1, x: 60,  y: 370 }, // 6: Pasukan 4
+            { pg: pageF1, x: 335, y: 370 }, // 7: Pasukan 5
+            { pg: pageF1, x: 60,  y: 250 }, // 8: Pasukan 6
+            { pg: pageF1, x: 335, y: 250 }, // 9: Pasukan 7
+            { pg: pageF1, x: 60,  y: 130 }, // 10: Pasukan 8
+
+            // HALAMAN 2 (Pasukan 9 s/d Pasukan 15)
+            { pg: pageF2, x: 60,  y: 730 }, // 11: Pasukan 9
+            { pg: pageF2, x: 335, y: 730 }, // 12: Pasukan 10
+            { pg: pageF2, x: 60,  y: 610 }, // 13: Pasukan 11
+            { pg: pageF2, x: 335, y: 610 }, // 14: Pasukan 12
+            { pg: pageF2, x: 60,  y: 490 }, // 15: Pasukan 13
+            { pg: pageF2, x: 335, y: 490 }, // 16: Pasukan 14
+            { pg: pageF2, x: 60,  y: 370 }  // 17: Pasukan 15
+          ];
+          
+          const photoW = 85, photoH = 113; // Ratio 3:4
           
           for (let i = 0; i < roles.length; i++) {
               let nm = document.getElementById(`nama_${i}`).value.trim();
               let ftFile = document.getElementById(`foto_${i}`).files[0];
               
-              if (nm && ftFile) {
+              if (nm && ftFile && coordinateMap[i]) {
                   let imgBytes = await fileToArrayBuffer(ftFile);
                   let imgEmbed = (ftFile.type === 'image/png') ? await mergedPdf.embedPng(imgBytes) : await mergedPdf.embedJpg(imgBytes);
                   
-                  let targetPage = (i < 8) ? pageF1 : pageF2;
-                  let localIdx = (i < 8) ? i : (i - 8);
+                  let targetPage = coordinateMap[i].pg;
+                  let posX = coordinateMap[i].x;
+                  let posY = coordinateMap[i].y;
                   
-                  let c = localIdx % 2; // 0 = kiri, 1 = kanan
-                  let r = Math.floor(localIdx / 2);
-                  
-                  let posX = colX[c];
-                  let posY = rowY[r];
-                  
-                  // Tempel Foto
                   targetPage.drawImage(imgEmbed, { x: posX, y: posY, width: photoW, height: photoH });
                   
-                  // Teks lebih presisi dekat garis bawah foto
                   const maxTextWidth = 175; 
-                  const fontSize = 18; 
+                  const fontSize = 17; 
                   const lines = wrapText(nm, maxTextWidth, fontBold, fontSize);
                   
-                  let textStartX = posX + photoW + 10; 
-                  let textStartY = posY + 25; 
+                  let textStartX = posX + photoW + 15; 
+                  let textStartY = posY + 35; // Jarak teks dari dasar foto, jatuh pas di atas garis
                   
                   lines.forEach((lineText, lIdx) => {
                       if (lIdx < 2) { 
-                        targetPage.drawText(lineText, { x: textStartX, y: textStartY - (lIdx * 28), size: fontSize, font: fontBold, color: rgb(0,0,0) });
+                        targetPage.drawText(lineText, { x: textStartX, y: textStartY - (lIdx * 30), size: fontSize, font: fontBold, color: rgb(0,0,0) });
                       }
                   });
               }
@@ -484,7 +506,7 @@
         showView('viewSuccess');
         
       } catch(err) {
-        alert('Terjadi kesalahan pengiriman: ' + err.message + '\n\nPastikan Deployment Google Apps Script disetel ke "Anyone" (Siapa saja).');
+        alert('Terjadi kesalahan pengiriman: ' + err.message + '\n\nPastikan URL Deployment yang baru sudah benar.');
         loading.style.display = 'none';
       }
     }

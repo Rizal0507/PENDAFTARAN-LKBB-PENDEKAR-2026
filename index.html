@@ -79,7 +79,7 @@
     
     .section-title { font-size: 1.1rem; color: var(--primary); border-bottom: 2px solid var(--gold); padding-bottom: 5px; margin: 25px 0 15px 0; }
     
-    /* PERBAIKAN LAYOUT UPLOAD FOTO */
+    /* LAYOUT UPLOAD FOTO */
     .row-member { 
       display: flex; 
       flex-direction: row; 
@@ -226,14 +226,14 @@
 <body>
 
   <header>
-    <!-- LOGO (Pastikan file logo.png ada di Vercel) -->
+    <!-- LOGO DARI GITHUB/VERCEL -->
     <img src="./logo.png" alt="Logo LKBB" style="max-height: 90px; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));">
   </header>
 
   <div class="container">
     <!-- HALAMAN LANDING PAGE -->
     <div id="viewLanding" class="card">
-      <!-- PAMFLET (Pastikan file pamflet.jpg ada di Vercel) -->
+      <!-- PAMFLET DARI GITHUB/VERCEL -->
       <img src="./pamflet.jpg" alt="Pamflet" style="width:100%; border-radius:8px; margin-bottom:15px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
       
       <!-- JADWAL PELAKSANAAN -->
@@ -317,6 +317,7 @@
   <div id="modalReview">
     <div class="modal-content">
       <h2 style="color:var(--primary); text-align:center;">MOHON TELITI KEMBALI</h2>
+      <p id="errorPdfMsg" style="text-align:center; font-size:0.9rem; color:red; margin-top: 5px; display: none;"></p>
       <p style="text-align:center; font-size:0.9rem; color:#555; margin-top: 5px;">Gabungan Surat Rekomendasi, Foto Pasukan, dan Formulir</p>
       
       <iframe id="pdfPreviewIframe"></iframe>
@@ -347,8 +348,9 @@
     // URL WEB APP MILIKMU
     const scriptURL = 'https://script.google.com/macros/s/AKfycbwE2q_sxiOa7ZueVrwqrjZzq0rgg2XzANff4-gQSww9qOfGzxckMOfS_QnnxrFpuoAenA/exec';
     
+    // Perbaikan: Maksimal 15 Pasukan. 
     const roles = ["Pelatih/Pembina", "Official Team", "Danton"];
-    for (let i = 1; i <= 16; i++) roles.push(`Pasukan ${i}`);
+    for (let i = 1; i <= 15; i++) roles.push(`Pasukan ${i}`);
 
     let generatedPdfBase64 = ""; 
 
@@ -363,8 +365,9 @@
     function renderMembers() {
       const container = document.getElementById('containerAnggota');
       roles.forEach((role, idx) => {
-        const isReq = idx <= 15 ? 'required' : ''; 
-        const reqBadge = idx <= 15 ? '<span class="badge-req">*Wajib</span>' : '<span style="font-size:0.8rem; color:#888">(Opsional)</span>';
+        // Wajib Isi Hanya Sampai Pasukan 12 (Indeks ke-14)
+        const isReq = idx <= 14 ? 'required' : ''; 
+        const reqBadge = idx <= 14 ? '<span class="badge-req">*Wajib</span>' : '<span style="font-size:0.8rem; color:#888">(Opsional)</span>';
         
         container.innerHTML += `
           <div class="row-member">
@@ -426,7 +429,7 @@
       });
     }
     
-    // FUNGSI GABUNG PDF (MENGGUNAKAN PDF-LIB)
+    // FUNGSI GABUNG PDF
     async function generateCombinedPDF() {
       const form = document.getElementById('formPendaftaran');
       if(!form.checkValidity()) { 
@@ -438,6 +441,7 @@
       loading.style.display = 'flex';
       document.getElementById('loadingStatus').innerText = "Menggabungkan Berkas...";
       document.getElementById('loadingDetail').innerText = "Proses ini membutuhkan waktu beberapa saat.";
+      document.getElementById('errorPdfMsg').style.display = 'none';
       
       try {
         const { PDFDocument } = PDFLib;
@@ -469,7 +473,7 @@
           
           pageFoto.drawImage(imgPasukan, { x: 50, y: 250, width: bgImage.width - 100, height: 450 });
         } catch(e) { 
-          console.warn("Gagal merender background/foto pasukan: ", e); 
+          console.warn("Background tidak ditemukan: ", e); 
         }
 
         // 3. FORMULIR TEMPLATE
@@ -477,7 +481,6 @@
           const templateBytes = await fetch('./template_formulir.pdf').then(res => res.arrayBuffer());
           const templateDoc = await PDFDocument.load(templateBytes);
           const templatePages = await mergedPdf.copyPages(templateDoc, templateDoc.getPageIndices());
-          
           templatePages.forEach(page => mergedPdf.addPage(page));
         } catch(e) { 
           console.warn("Template PDF tidak ditemukan: ", e); 
@@ -487,12 +490,15 @@
         const pdfBytesFinal = await mergedPdf.saveAsBase64({ dataUri: true });
         generatedPdfBase64 = pdfBytesFinal.split(',')[1];
         
-        document.getElementById('pdfPreviewIframe').src = 'data:application/pdf;base64,' + pdfBytesFinal;
+        // Perbaikan format Iframe agar preview PDF tampil dengan benar
+        document.getElementById('pdfPreviewIframe').src = pdfBytesFinal; 
         loading.style.display = 'none';
         document.getElementById('modalReview').style.display = 'flex';
       } catch (err) {
-        alert("Gagal menggabung PDF: Pastikan file PDF Surat Rekomendasi Anda tidak di-password. (" + err.message + ")");
         document.getElementById('loadingOverlay').style.display = 'none';
+        document.getElementById('errorPdfMsg').innerText = "Catatan: Fitur Pratinjau Gagal Memuat (" + err.message + "). Anda tetap bisa melanjutkan Klik Konfirmasi & Kirim Data di bawah.";
+        document.getElementById('errorPdfMsg').style.display = 'block';
+        document.getElementById('modalReview').style.display = 'flex';
       }
     }
 
@@ -545,8 +551,12 @@
         roles.forEach((role, idx) => {
           const nm = document.getElementById(`nama_${idx}`).value;
           const ft = document.getElementById(`foto_${idx}`).files[0];
+          
+          // Memastikan hanya baris yang diisi namanya DAN dipilih fotonya yang akan dikirim
           if (nm && ft) {
+            // Indeks ke-2 adalah Danton. Mulai dari indeks 2 dan seterusnya dihitung sebagai (Danton + Pasukan)
             if(idx >= 2) totalPasukanDanton++; 
+            
             const cleanRole = role.replace(/[^a-zA-Z0-9]/g, '_');
             const cleanNm = nm.replace(/[^a-zA-Z0-9]/g, '_');
             

@@ -202,10 +202,8 @@
   </footer>
 
   <script>
-    // MASUKKAN URL WEB APP YANG BARU DI SINI
     const scriptURL = 'https://script.google.com/macros/s/AKfycbwE2q_sxiOa7ZueVrwqrjZzq0rgg2XzANff4-gQSww9qOfGzxckMOfS_QnnxrFpuoAenA/exec';
     
-    // Susunan 18 Orang (Pelatih s/d Pasukan 15)
     const roles = ["Pelatih/Pembina", "Official Team", "Danton"];
     for (let i = 1; i <= 15; i++) roles.push(`Pasukan ${i}`);
 
@@ -258,7 +256,6 @@
     function fileToArrayBuffer(file) { return new Promise((res, rej) => { const reader = new FileReader(); reader.onload = () => res(reader.result); reader.onerror = rej; reader.readAsArrayBuffer(file); }); }
     function fileToBase64(file) { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.readAsDataURL(file); reader.onload = () => resolve(reader.result.split(',')[1]); reader.onerror = error => reject(error); }); }
     
-    // Fungsi untuk memotong teks 2 baris
     function wrapText(text, maxWidth, font, fontSize) {
         const words = text.split(' ');
         let lines = [];
@@ -289,17 +286,14 @@
         const fontReg = await mergedPdf.embedFont(StandardFonts.Helvetica);
 
         // =======================================================
-        // HALAMAN 1: BUKTI PENDAFTARAN (DIKUNCI KE UKURAN F4 612x936)
+        // HALAMAN 1: BUKTI PENDAFTARAN (F4 612x936)
         // =======================================================
         try {
           const bgBytes = await fetch('./bg_pasukan.jpg').then(res => res.arrayBuffer());
           const bgImage = await mergedPdf.embedJpg(bgBytes);
           
-          // Memaksa Halaman 1 berukuran presisi F4
           const f4Width = 612, f4Height = 936; 
           const pageBukti = mergedPdf.addPage([f4Width, f4Height]);
-          
-          // Menggambar Background menyesuaikan ukuran kertas F4
           pageBukti.drawImage(bgImage, { x: 0, y: 0, width: f4Width, height: f4Height });
           
           const namaSekolah = document.getElementById('namaSekolah').value.toUpperCase();
@@ -313,9 +307,7 @@
               pageBukti.drawText(txt, { x: (f4Width - txtW) / 2, y: yPos, size: size, font: useFont, color: rgb(...colorArr) });
           };
 
-          // Y=936 adalah titik paling atas kertas, kita mulai nulis sedikit di bawah Header Image.
           let yCur = 720; 
-          
           drawCentered('SELAMAT KEPADA', yCur, 28, fontBold, [0,0,0]); yCur -= 35;
           drawCentered(`[${namaSekolah}]`, yCur, 28, fontBold, [0, 0.2, 0.6]); yCur -= 35;
           
@@ -338,7 +330,7 @@
         } catch(e) { console.warn("Halaman Bukti Gagal: ", e); }
 
         // =======================================================
-        // HALAMAN 2: SURAT REKOMENDASI (Dibiarkan apa adanya)
+        // HALAMAN 2: SURAT REKOMENDASI MENTAH
         // =======================================================
         const fileRekom = document.getElementById('fileRekom').files[0];
         const rekomBytes = await fileToArrayBuffer(fileRekom);
@@ -347,7 +339,7 @@
         rekomPages.forEach(page => mergedPdf.addPage(page));
 
         // =======================================================
-        // HALAMAN 3 & 4: TEMPLATE FORMULIR DENGAN TITIK KOORDINAT TEPAT
+        // HALAMAN 3 & 4: TEMPLATE FORMULIR (DISESUAIKAN PRESISI 3x4)
         // =======================================================
         try {
           const templateBytes = await fetch('./template_formulir.pdf').then(res => res.arrayBuffer());
@@ -357,33 +349,33 @@
           const pageF1 = mergedPdf.addPage(templatePages[0]);
           const pageF2 = mergedPdf.addPage(templatePages[1]);
 
-          // Peta Koordinat Pasti (Hardcoded) untuk ke-18 Role 
-          // (0,0 ada di Pojok Kiri Bawah PDF).
+          // Peta Koordinat Presisi untuk Kotak 3x4 & Garis Isian Nama
           const coordinateMap = [
             // HALAMAN 1 (11 Kotak: 6 Kiri, 5 Kanan)
-            { pg: pageF1, x: 60,  y: 730 }, // 0: Pelatih
-            { pg: pageF1, x: 335, y: 730 }, // 1: Official
-            { pg: pageF1, x: 60,  y: 610 }, // 2: Danton
-            { pg: pageF1, x: 335, y: 610 }, // 3: Pasukan 1
-            { pg: pageF1, x: 60,  y: 490 }, // 4: Pasukan 2
-            { pg: pageF1, x: 335, y: 490 }, // 5: Pasukan 3
-            { pg: pageF1, x: 60,  y: 370 }, // 6: Pasukan 4
-            { pg: pageF1, x: 335, y: 370 }, // 7: Pasukan 5
-            { pg: pageF1, x: 60,  y: 250 }, // 8: Pasukan 6
-            { pg: pageF1, x: 335, y: 250 }, // 9: Pasukan 7
-            { pg: pageF1, x: 60,  y: 130 }, // 10: Pasukan 8
+            { pg: pageF1, x: 42,  y: 728 }, // 0: Pelatih
+            { pg: pageF1, x: 317, y: 728 }, // 1: Official
+            { pg: pageF1, x: 42,  y: 608 }, // 2: Danton
+            { pg: pageF1, x: 317, y: 608 }, // 3: Pasukan 1
+            { pg: pageF1, x: 42,  y: 488 }, // 4: Pasukan 2
+            { pg: pageF1, x: 317, y: 488 }, // 5: Pasukan 3
+            { pg: pageF1, x: 42,  y: 368 }, // 6: Pasukan 4
+            { pg: pageF1, x: 317, y: 368 }, // 7: Pasukan 5
+            { pg: pageF1, x: 42,  y: 248 }, // 8: Pasukan 6
+            { pg: pageF1, x: 317, y: 248 }, // 9: Pasukan 7
+            { pg: pageF1, x: 42,  y: 128 }, // 10: Pasukan 8
 
             // HALAMAN 2 (Pasukan 9 s/d Pasukan 15)
-            { pg: pageF2, x: 60,  y: 730 }, // 11: Pasukan 9
-            { pg: pageF2, x: 335, y: 730 }, // 12: Pasukan 10
-            { pg: pageF2, x: 60,  y: 610 }, // 13: Pasukan 11
-            { pg: pageF2, x: 335, y: 610 }, // 14: Pasukan 12
-            { pg: pageF2, x: 60,  y: 490 }, // 15: Pasukan 13
-            { pg: pageF2, x: 335, y: 490 }, // 16: Pasukan 14
-            { pg: pageF2, x: 60,  y: 370 }  // 17: Pasukan 15
+            { pg: pageF2, x: 42,  y: 728 }, // 11: Pasukan 9
+            { pg: pageF2, x: 317, y: 728 }, // 12: Pasukan 10
+            { pg: pageF2, x: 42,  y: 608 }, // 13: Pasukan 11
+            { pg: pageF2, x: 317, y: 608 }, // 14: Pasukan 12
+            { pg: pageF2, x: 42,  y: 488 }, // 15: Pasukan 13
+            { pg: pageF2, x: 317, y: 488 }, // 16: Pasukan 14
+            { pg: pageF2, x: 42,  y: 368 }  // 17: Pasukan 15
           ];
           
-          const photoW = 85, photoH = 113; // Ratio 3:4
+          // Ukuran Foto diperkecil agar pas persis di dalam kotak 3x4 (Rasio Lebar x Tinggi)
+          const photoW = 75, photoH = 100; 
           
           for (let i = 0; i < roles.length; i++) {
               let nm = document.getElementById(`nama_${i}`).value.trim();
@@ -397,18 +389,20 @@
                   let posX = coordinateMap[i].x;
                   let posY = coordinateMap[i].y;
                   
+                  // Cetak Foto di Dalam Kotak
                   targetPage.drawImage(imgEmbed, { x: posX, y: posY, width: photoW, height: photoH });
                   
-                  const maxTextWidth = 175; 
-                  const fontSize = 17; 
+                  // Pengaturan Teks agar jatuh tepat di atas garis isian
+                  const maxTextWidth = 195; 
+                  const fontSize = 15; // Ukuran font proporsional untuk 2 garis
                   const lines = wrapText(nm, maxTextWidth, fontBold, fontSize);
                   
-                  let textStartX = posX + photoW + 15; 
-                  let textStartY = posY + 35; // Jarak teks dari dasar foto, jatuh pas di atas garis
+                  let textStartX = posX + photoW + 12; // Posisi X di sebelah kanan foto
+                  let textStartY = posY + 52; // Posisi Y pas di atas garis pertama
                   
                   lines.forEach((lineText, lIdx) => {
                       if (lIdx < 2) { 
-                        targetPage.drawText(lineText, { x: textStartX, y: textStartY - (lIdx * 30), size: fontSize, font: fontBold, color: rgb(0,0,0) });
+                        targetPage.drawText(lineText, { x: textStartX, y: textStartY - (lIdx * 25), size: fontSize, font: fontBold, color: rgb(0,0,0) });
                       }
                   });
               }

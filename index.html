@@ -330,158 +330,159 @@
         // =======================================================
         // HALAMAN 3 & 4: TEMPLATE FORMULIR BERBASIS PNG (HAL 1 & HAL 2)
         // =======================================================
-        try {
-          async function preparePhotoForPdf(file) {
-            return new Promise((resolve, reject) => {
-              const reader = new FileReader();
-              reader.onload = (e) => {
-                const img = new Image();
-                img.onload = () => {
-                  const targetAspect = 3 / 4;
-                  let srcW = img.width;
-                  let srcH = img.height;
-                  let srcAspect = srcW / srcH;
+        async function preparePhotoForPdf(file) {
+          return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+              const img = new Image();
+              img.onload = () => {
+                const targetAspect = 3 / 4;
+                let srcW = img.width;
+                let srcH = img.height;
+                let srcAspect = srcW / srcH;
 
-                  let cropW, cropH, cropX, cropY;
+                let cropW, cropH, cropX, cropY;
 
-                  if (srcAspect > targetAspect) {
-                    cropH = srcH;
-                    cropW = srcH * targetAspect;
-                    cropX = (srcW - cropW) / 2;
-                    cropY = 0;
-                  } else {
-                    cropW = srcW;
-                    cropH = srcW / targetAspect;
-                    cropX = 0;
-                    cropY = (srcH - cropH) / 2;
-                  }
+                if (srcAspect > targetAspect) {
+                  cropH = srcH;
+                  cropW = srcH * targetAspect;
+                  cropX = (srcW - cropW) / 2;
+                  cropY = 0;
+                } else {
+                  cropW = srcW;
+                  cropH = srcW / targetAspect;
+                  cropX = 0;
+                  cropY = (srcH - cropH) / 2;
+                }
 
-                  const canvas = document.createElement('canvas');
-                  canvas.width = 300;
-                  canvas.height = 400;
-                  const ctx = canvas.getContext('2d');
-                  ctx.drawImage(img, cropX, cropY, cropW, cropH, 0, 0, canvas.width, canvas.height);
+                const canvas = document.createElement('canvas');
+                canvas.width = 300;
+                canvas.height = 400;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, cropX, cropY, cropW, cropH, 0, 0, canvas.width, canvas.height);
 
-                  canvas.toBlob((blob) => {
-                    if (blob) resolve(blob);
-                    else reject(new Error('Gagal memproses gambar crop.'));
-                  }, 'image/jpeg', 0.95);
-                };
-                img.onerror = reject;
-                img.src = e.target.result;
+                canvas.toBlob((blob) => {
+                  if (blob) resolve(blob);
+                  else reject(new Error('Gagal memproses gambar crop.'));
+                }, 'image/jpeg', 0.95);
               };
-              reader.onerror = reject;
-              reader.readAsDataURL(file);
+              img.onerror = reject;
+              img.src = e.target.result;
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+          });
+        }
+
+        function calculateNameFontSize(text, font) {
+          let fontSize = 13;
+          const maxWidth = 180;
+          while (fontSize > 8) {
+            const width = font.widthOfTextAtSize(text, fontSize);
+            if (width <= maxWidth) {
+              break;
+            }
+            fontSize -= 0.5;
+          }
+          return fontSize;
+        }
+
+        // Fetch template PNG dengan pengecekan respons mutlak
+        const res1 = await fetch('./template_hal1.png');
+        if (!res1.ok) throw new Error('Gagal memuat template_hal1.png (HTTP ' + res1.status + '). Pastikan file PNG ada di root repository.');
+        const tpl1Bytes = await res1.arrayBuffer();
+
+        const res2 = await fetch('./template_hal2.png');
+        if (!res2.ok) throw new Error('Gagal memuat template_hal2.png (HTTP ' + res2.status + '). Pastikan file PNG ada di root repository.');
+        const tpl2Bytes = await res2.arrayBuffer();
+        
+        const imgTpl1 = await mergedPdf.embedPng(tpl1Bytes);
+        const imgTpl2 = await mergedPdf.embedPng(tpl2Bytes);
+
+        const pageForm1 = mergedPdf.addPage([f4Width, f4Height]);
+        pageForm1.drawImage(imgTpl1, { x: 0, y: 0, width: f4Width, height: f4Height });
+
+        const pageForm2 = mergedPdf.addPage([f4Width, f4Height]);
+        pageForm2.drawImage(imgTpl2, { x: 0, y: 0, width: f4Width, height: f4Height });
+
+        const photoCoordinateMap = [
+          // HALAMAN 1
+          { pg: pageForm1, x: 54,  y: 735, w: 72, h: 96 }, // 0: Pelatih
+          { pg: pageForm1, x: 335, y: 735, w: 72, h: 96 }, // 1: Official
+          { pg: pageForm1, x: 54,  y: 595, w: 72, h: 96 }, // 2: Danton
+          { pg: pageForm1, x: 335, y: 595, w: 72, h: 96 }, // 3: Pasukan 1
+          { pg: pageForm1, x: 54,  y: 455, w: 72, h: 96 }, // 4: Pasukan 2
+          { pg: pageForm1, x: 335, y: 455, w: 72, h: 96 }, // 5: Pasukan 3
+          { pg: pageForm1, x: 54,  y: 315, w: 72, h: 96 }, // 6: Pasukan 4
+          { pg: pageForm1, x: 335, y: 315, w: 72, h: 96 }, // 7: Pasukan 5
+          { pg: pageForm1, x: 54,  y: 175, w: 72, h: 96 }, // 8: Pasukan 6
+
+          // HALAMAN 2
+          { pg: pageForm2, x: 54,  y: 735, w: 72, h: 96 }, // 9: Pasukan 7
+          { pg: pageForm2, x: 335, y: 735, w: 72, h: 96 }, // 10: Pasukan 8
+          { pg: pageForm2, x: 54,  y: 595, w: 72, h: 96 }, // 11: Pasukan 9
+          { pg: pageForm2, x: 335, y: 595, w: 72, h: 96 }, // 12: Pasukan 10
+          { pg: pageForm2, x: 54,  y: 455, w: 72, h: 96 }, // 13: Pasukan 11
+          { pg: pageForm2, x: 335, y: 455, w: 72, h: 96 }, // 14: Pasukan 12
+          { pg: pageForm2, x: 54,  y: 315, w: 72, h: 96 }, // 15: Pasukan 13
+          { pg: pageForm2, x: 335, y: 315, w: 72, h: 96 }, // 16: Pasukan 14
+          { pg: pageForm2, x: 54,  y: 175, w: 72, h: 96 }  // 17: Pasukan 15
+        ];
+
+        const nameCoordinateMap = [
+          // HALAMAN 1
+          { pg: pageForm1, x: 136, y: 791 }, // 0: Pelatih
+          { pg: pageForm1, x: 417, y: 791 }, // 1: Official
+          { pg: pageForm1, x: 136, y: 651 }, // 2: Danton
+          { pg: pageForm1, x: 417, y: 651 }, // 3: Pasukan 1
+          { pg: pageForm1, x: 136, y: 511 }, // 4: Pasukan 2
+          { pg: pageForm1, x: 417, y: 511 }, // 5: Pasukan 3
+          { pg: pageForm1, x: 136, y: 371 }, // 6: Pasukan 4
+          { pg: pageForm1, x: 417, y: 371 }, // 7: Pasukan 5
+          { pg: pageForm1, x: 136, y: 231 }, // 8: Pasukan 6
+
+          // HALAMAN 2
+          { pg: pageForm2, x: 136, y: 791 }, // 9: Pasukan 7
+          { pg: pageForm2, x: 417, y: 791 }, // 10: Pasukan 8
+          { pg: pageForm2, x: 136, y: 651 }, // 11: Pasukan 9
+          { pg: pageForm2, x: 417, y: 651 }, // 12: Pasukan 10
+          { pg: pageForm2, x: 136, y: 511 }, // 13: Pasukan 11
+          { pg: pageForm2, x: 417, y: 511 }, // 14: Pasukan 12
+          { pg: pageForm2, x: 136, y: 371 }, // 15: Pasukan 13
+          { pg: pageForm2, x: 417, y: 371 }, // 16: Pasukan 14
+          { pg: pageForm2, x: 136, y: 231 }  // 17: Pasukan 15
+        ];
+
+        const processingPromises = roles.map(async (role, i) => {
+          const nm = document.getElementById(`nama_${i}`).value.trim();
+          const ftFile = document.getElementById(`foto_${i}`).files[0];
+          
+          if (nm && ftFile && photoCoordinateMap[i] && nameCoordinateMap[i]) {
+            const croppedBlob = await preparePhotoForPdf(ftFile);
+            const croppedArrayBuffer = await fileToArrayBuffer(croppedBlob);
+            const imgEmbed = await mergedPdf.embedJpg(croppedArrayBuffer);
+
+            const photoMap = photoCoordinateMap[i];
+            photoMap.pg.drawImage(imgEmbed, {
+              x: photoMap.x,
+              y: photoMap.y,
+              width: photoMap.w,
+              height: photoMap.h
+            });
+
+            const nameMap = nameCoordinateMap[i];
+            const dynamicFontSize = calculateNameFontSize(nm, fontBold);
+            nameMap.pg.drawText(nm, {
+              x: nameMap.x,
+              y: nameMap.y,
+              size: dynamicFontSize,
+              font: fontBold,
+              color: rgb(0, 0, 0)
             });
           }
+        });
 
-          function calculateNameFontSize(text, font) {
-            let fontSize = 13;
-            const maxWidth = 180;
-            while (fontSize > 8) {
-              const width = font.widthOfTextAtSize(text, fontSize);
-              if (width <= maxWidth) {
-                break;
-              }
-              fontSize -= 0.5;
-            }
-            return fontSize;
-          }
-
-          const [tpl1Bytes, tpl2Bytes] = await Promise.all([
-            fetch('./template_hal1.png').then(res => res.arrayBuffer()),
-            fetch('./template_hal2.png').then(res => res.arrayBuffer())
-          ]);
-          
-          const imgTpl1 = await mergedPdf.embedPng(tpl1Bytes);
-          const imgTpl2 = await mergedPdf.embedPng(tpl2Bytes);
-
-          const pageForm1 = mergedPdf.addPage([f4Width, f4Height]);
-          pageForm1.drawImage(imgTpl1, { x: 0, y: 0, width: f4Width, height: f4Height });
-
-          const pageForm2 = mergedPdf.addPage([f4Width, f4Height]);
-          pageForm2.drawImage(imgTpl2, { x: 0, y: 0, width: f4Width, height: f4Height });
-
-          const photoCoordinateMap = [
-            // HALAMAN 1
-            { pg: pageForm1, x: 54,  y: 735, w: 72, h: 96 }, // 0: Pelatih
-            { pg: pageForm1, x: 335, y: 735, w: 72, h: 96 }, // 1: Official
-            { pg: pageForm1, x: 54,  y: 595, w: 72, h: 96 }, // 2: Danton
-            { pg: pageForm1, x: 335, y: 595, w: 72, h: 96 }, // 3: Pasukan 1
-            { pg: pageForm1, x: 54,  y: 455, w: 72, h: 96 }, // 4: Pasukan 2
-            { pg: pageForm1, x: 335, y: 455, w: 72, h: 96 }, // 5: Pasukan 3
-            { pg: pageForm1, x: 54,  y: 315, w: 72, h: 96 }, // 6: Pasukan 4
-            { pg: pageForm1, x: 335, y: 315, w: 72, h: 96 }, // 7: Pasukan 5
-            { pg: pageForm1, x: 54,  y: 175, w: 72, h: 96 }, // 8: Pasukan 6
-
-            // HALAMAN 2
-            { pg: pageForm2, x: 54,  y: 735, w: 72, h: 96 }, // 9: Pasukan 7
-            { pg: pageForm2, x: 335, y: 735, w: 72, h: 96 }, // 10: Pasukan 8
-            { pg: pageForm2, x: 54,  y: 595, w: 72, h: 96 }, // 11: Pasukan 9
-            { pg: pageForm2, x: 335, y: 595, w: 72, h: 96 }, // 12: Pasukan 10
-            { pg: pageForm2, x: 54,  y: 455, w: 72, h: 96 }, // 13: Pasukan 11
-            { pg: pageForm2, x: 335, y: 455, w: 72, h: 96 }, // 14: Pasukan 12
-            { pg: pageForm2, x: 54,  y: 315, w: 72, h: 96 }, // 15: Pasukan 13
-            { pg: pageForm2, x: 335, y: 315, w: 72, h: 96 }, // 16: Pasukan 14
-            { pg: pageForm2, x: 54,  y: 175, w: 72, h: 96 }  // 17: Pasukan 15
-          ];
-
-          const nameCoordinateMap = [
-            // HALAMAN 1
-            { pg: pageForm1, x: 136, y: 791 }, // 0: Pelatih
-            { pg: pageForm1, x: 417, y: 791 }, // 1: Official
-            { pg: pageForm1, x: 136, y: 651 }, // 2: Danton
-            { pg: pageForm1, x: 417, y: 651 }, // 3: Pasukan 1
-            { pg: pageForm1, x: 136, y: 511 }, // 4: Pasukan 2
-            { pg: pageForm1, x: 417, y: 511 }, // 5: Pasukan 3
-            { pg: pageForm1, x: 136, y: 371 }, // 6: Pasukan 4
-            { pg: pageForm1, x: 417, y: 371 }, // 7: Pasukan 5
-            { pg: pageForm1, x: 136, y: 231 }, // 8: Pasukan 6
-
-            // HALAMAN 2
-            { pg: pageForm2, x: 136, y: 791 }, // 9: Pasukan 7
-            { pg: pageForm2, x: 417, y: 791 }, // 10: Pasukan 8
-            { pg: pageForm2, x: 136, y: 651 }, // 11: Pasukan 9
-            { pg: pageForm2, x: 417, y: 651 }, // 12: Pasukan 10
-            { pg: pageForm2, x: 136, y: 511 }, // 13: Pasukan 11
-            { pg: pageForm2, x: 417, y: 511 }, // 14: Pasukan 12
-            { pg: pageForm2, x: 136, y: 371 }, // 15: Pasukan 13
-            { pg: pageForm2, x: 417, y: 371 }, // 16: Pasukan 14
-            { pg: pageForm2, x: 136, y: 231 }  // 17: Pasukan 15
-          ];
-
-          const processingPromises = roles.map(async (role, i) => {
-            const nm = document.getElementById(`nama_${i}`).value.trim();
-            const ftFile = document.getElementById(`foto_${i}`).files[0];
-            
-            if (nm && ftFile && photoCoordinateMap[i] && nameCoordinateMap[i]) {
-              const croppedBlob = await preparePhotoForPdf(ftFile);
-              const croppedArrayBuffer = await fileToArrayBuffer(croppedBlob);
-              const imgEmbed = await mergedPdf.embedJpg(croppedArrayBuffer);
-
-              const photoMap = photoCoordinateMap[i];
-              photoMap.pg.drawImage(imgEmbed, {
-                x: photoMap.x,
-                y: photoMap.y,
-                width: photoMap.w,
-                height: photoMap.h
-              });
-
-              const nameMap = nameCoordinateMap[i];
-              const dynamicFontSize = calculateNameFontSize(nm, fontBold);
-              nameMap.pg.drawText(nm, {
-                x: nameMap.x,
-                y: nameMap.y,
-                size: dynamicFontSize,
-                font: fontBold,
-                color: rgb(0, 0, 0)
-              });
-            }
-          });
-
-          await Promise.all(processingPromises);
-
-        } catch(e) { console.warn("Template Gambar Formulir Gagal: ", e); }
+        await Promise.all(processingPromises);
 
         // =======================================================
         // HALAMAN TERAKHIR: FOTO PASUKAN LANDSCAPE

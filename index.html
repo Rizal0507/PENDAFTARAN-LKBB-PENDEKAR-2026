@@ -18,7 +18,7 @@
     
     /* EFEK SHINING / KILAU PADA LOGO TANPA BORDER */
     .header-logo { 
-      width: 70px; height: 70px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; border-radius: 50%;
+      width: 75px; height: 75px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; border-radius: 50%;
     }
     .header-logo img { 
       max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 50%; 
@@ -33,8 +33,8 @@
     @keyframes shine { 0% { transform: rotate(30deg) translateY(-100%); } 20% { transform: rotate(30deg) translateY(100%); } 100% { transform: rotate(30deg) translateY(100%); } }
 
     .header-title { text-align: center; flex: 1; color: white; }
-    .header-title span:first-child { display: block; font-size: 1rem; letter-spacing: 1.5px; font-weight: 500;}
-    .header-title span:last-child { display: block; font-size: 1.8rem; font-weight: bold; color: var(--gold); text-shadow: 2px 2px 4px rgba(0,0,0,0.6); }
+    .header-title span:first-child { display: block; font-size: 1.1rem; letter-spacing: 1.5px; font-weight: 500;}
+    .header-title span:last-child { display: block; font-size: 2rem; font-weight: bold; color: var(--gold); text-shadow: 2px 2px 4px rgba(0,0,0,0.6); }
     
     .container { max-width: 850px; margin: 20px auto; padding: 0 15px; }
     
@@ -50,6 +50,7 @@
     .btn-blue { background: var(--secondary); }
     .btn-gold { background: var(--gold); color: #000; }
     .btn-green { background: #25d366; }
+    .btn-purple { background: #8e44ad; }
     .btn-submit { background: linear-gradient(135deg, var(--primary), var(--secondary)); border: 1px solid var(--gold); margin-top: 20px; }
     
     .form-group { margin-bottom: 18px; }
@@ -115,8 +116,14 @@
         <p style="color: #444; margin-top: 3px; font-size: 1rem;">GOR Wilis Kota Madiun</p>
       </div>
       
-      <a href="https://wa.me/6281335658828" target="_blank" class="btn btn-green">💬 Chat CP 1: Airlangga (081335658828)</a>
-      <a href="https://wa.me/6285733298367" target="_blank" class="btn btn-green">💬 Chat CP 2: Imun (085733298367)</a>
+      <!-- TOMBOL JUKNIS & WA TEMPLATE -->
+      <a href="#LINK_DRIVE_JUKNIS_DISINI" target="_blank" class="btn btn-purple">
+        📥 Download Juknis LKBB Pendekar<br>
+        <span style="font-size: 0.85rem; font-weight: normal;">(Update: 06 Oktober 2026)</span>
+      </a>
+      
+      <a href="https://wa.me/6281335658828?text=Halo%20Kak%20Airlangga,%20saya%20ingin%20bertanya%20perihal%20LKBB%20Pendekar..." target="_blank" class="btn btn-green">💬 Chat CP 1: Airlangga (081335658828)</a>
+      <a href="https://wa.me/6285733298367?text=Halo%20Kak%20Imun,%20saya%20ingin%20bertanya%20perihal%20LKBB%20Pendekar..." target="_blank" class="btn btn-green">💬 Chat CP 2: Imun (085733298367)</a>
       
       <hr style="margin:25px 0; border:0; border-top:1px solid #ccc;">
       
@@ -145,7 +152,7 @@
         </div>
         
         <div class="form-group">
-          <label>Email Penanggung Jawab <span class="badge-req">* (Bukti pendaftaran akan dikirim kesini)</span></label>
+          <label>Email Penanggung Jawab <span class="badge-req">* (Bukti pendaftaran dikirim kesini)</span></label>
           <input type="email" id="email" placeholder="official@sekolah.com" required>
         </div>
 
@@ -173,7 +180,7 @@
         <h3 class="section-title">2. NAMA & FOTO BERLATAR MERAH</h3>
         <p style="font-size: 0.85rem; color: #555; margin-bottom: 15px;">*Pastikan nama sesuai dan foto berkualitas baik.</p>
         <div id="containerAnggota"></div>
-        <button type="button" class="btn btn-submit" onclick="generateCombinedPDF()">Daftar ➔</button>
+        <button type="button" class="btn btn-submit" onclick="generateCombinedPDF()">Buat Berkas Pendaftaran ➔</button>
       </form>
     </div>
 
@@ -197,7 +204,7 @@
       <div class="modal-buttons">
         <button class="btn" style="background:#ccc; color:#333; flex: 1; margin: 0;" onclick="document.getElementById('modalReview').style.display='none'">Kembali Edit</button>
         <button class="btn btn-gold" id="btnBukaPdfTab" style="flex: 1; margin: 0;">Buka PDF di Tab Baru</button>
-        <button class="btn btn-blue" style="flex: 1; margin: 0;" onclick="processSubmit()">Kirim Data ➔</button>
+        <button class="btn btn-blue" style="flex: 1; margin: 0;" onclick="processSubmit()">Kirim Data ke Panitia ➔</button>
       </div>
     </div>
   </div>
@@ -293,7 +300,6 @@
 
         const f4Width = 612, f4Height = 936; 
 
-        // 1. HALAMAN BUKTI PENDAFTARAN
         statusEl.innerText = "Membuat Halaman Bukti Pendaftaran...";
         detailEl.innerText = "Menyusun data sekolah & pasukan";
         try {
@@ -335,7 +341,6 @@
           drawCentered('GOR Wilis Kota Madiun - Minggu, 25 Oktober 2026', yCur, 12, fontBold, [0.8, 0.6, 0.1]);
         } catch(e) { console.warn("Halaman Bukti Gagal: ", e); }
 
-        // 2. HALAMAN SURAT REKOMENDASI
         statusEl.innerText = "Memproses Surat Rekomendasi...";
         detailEl.innerText = "Menggabungkan file PDF rekomendasi";
         try {
@@ -346,7 +351,6 @@
           rekomPages.forEach(page => mergedPdf.addPage(page));
         } catch(e) { console.warn("Rekomendasi Gagal: ", e); }
 
-        // 3. HALAMAN FORMULIR (AUTO-GRID)
         async function preparePhotoForPdf(file) {
           return new Promise((resolve, reject) => {
             const reader = new FileReader();
@@ -378,11 +382,11 @@
           });
         }
 
-        const res1 = await fetch('./template_hal1.png?v=FINAL-PROG');
+        const res1 = await fetch('./template_hal1.png?v=FINAL');
         if (!res1.ok) throw new Error('Gagal memuat template_hal1.png');
         const tpl1Bytes = await res1.arrayBuffer();
 
-        const res2 = await fetch('./template_hal2.png?v=FINAL-PROG');
+        const res2 = await fetch('./template_hal2.png?v=FINAL');
         if (!res2.ok) throw new Error('Gagal memuat template_hal2.png');
         const tpl2Bytes = await res2.arrayBuffer();
         
@@ -446,7 +450,6 @@
           }
         }
 
-        // 4. HALAMAN FOTO PASUKAN
         statusEl.innerText = "Memproses Foto Pasukan...";
         detailEl.innerText = "Menambahkan halaman foto landscape";
         try {
@@ -519,12 +522,21 @@
         });
 
         const totalFiles = filesToUpload.length;
-        for(let i = 0; i < totalFiles; i++) {
-          const item = filesToUpload[i];
-          status.innerText = `Mengunggah Berkas (${i+1}/${totalFiles})`;
-          detail.innerText = `File: ${item.fileName}`;
-          const b64 = await fileToBase64(item.file);
-          await fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: 'upload_file', folderId: item.folderId, fileName: item.fileName, mimeType: item.mimeType, base64Data: b64 }) });
+        const chunkSize = 5; // PROSES PARALEL CEPAT (5 FILE SEKALIGUS)
+        
+        for (let i = 0; i < totalFiles; i += chunkSize) {
+            const chunk = filesToUpload.slice(i, i + chunkSize);
+            status.innerText = `Mengunggah Berkas (${Math.min(i + chunkSize, totalFiles)}/${totalFiles})...`;
+            detail.innerText = `Kecepatan turbo sedang berjalan. Tolong jangan tutup halaman ini.`;
+            
+            const chunkPromises = chunk.map(async (item) => {
+                const b64 = await fileToBase64(item.file);
+                return fetch(scriptURL, { 
+                    method: 'POST', 
+                    body: JSON.stringify({ action: 'upload_file', folderId: item.folderId, fileName: item.fileName, mimeType: item.mimeType, base64Data: b64 }) 
+                });
+            });
+            await Promise.all(chunkPromises); // Eksekusi 5 file berbarengan!
         }
 
         status.innerText = 'Menyelesaikan Pendaftaran...';

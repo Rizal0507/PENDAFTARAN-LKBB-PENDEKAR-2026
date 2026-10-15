@@ -282,6 +282,35 @@
     function fileToArrayBuffer(file) { return new Promise((res, rej) => { const reader = new FileReader(); reader.onload = () => res(reader.result); reader.onerror = rej; reader.readAsArrayBuffer(file); }); }
     function fileToBase64(file) { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.readAsDataURL(file); reader.onload = () => resolve(reader.result.split(',')[1]); reader.onerror = error => reject(error); }); }
     
+    // --- FITUR BARU: KOMPRESI FOTO PASUKAN LANDSCAPE ---
+    async function compressLandscapePhoto(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const MAX_WIDTH = 1200; // Dibatasi maksimal lebar 1200px agar ringan
+            let width = img.width;
+            let height = img.height;
+
+            if (width > MAX_WIDTH) {
+              height = Math.round((height * MAX_WIDTH) / width);
+              width = MAX_WIDTH;
+            }
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            // Kualitas diturunkan ke 70%
+            canvas.toBlob((blob) => { if (blob) resolve(blob); else reject(new Error('Gagal kompres foto pasukan')); }, 'image/jpeg', 0.70);
+          };
+          img.onerror = reject; img.src = e.target.result;
+        };
+        reader.onerror = reject; reader.readAsDataURL(file);
+      });
+    }
+
     async function generateCombinedPDF() {
       const form = document.getElementById('formPendaftaran');
       if(!form.checkValidity()) { form.reportValidity(); return; }
@@ -353,6 +382,7 @@
           rekomPages.forEach(page => mergedPdf.addPage(page));
         } catch(e) { console.warn("Rekomendasi Gagal: ", e); }
 
+        // --- FITUR KOMPRESI FOTO ANGGOTA DITINGKATKAN ---
         async function preparePhotoForPdf(file) {
           return new Promise((resolve, reject) => {
             const reader = new FileReader();
@@ -376,7 +406,9 @@
                 canvas.width = 300; canvas.height = 400;
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(img, cropX, cropY, cropW, cropH, 0, 0, canvas.width, canvas.height);
-                canvas.toBlob((blob) => { if (blob) resolve(blob); else reject(new Error('Gagal crop')); }, 'image/jpeg', 0.95);
+                
+                // Kualitas diturunkan dari 95% ke 70% agar super ringan tanpa mengurangi ketajaman
+                canvas.toBlob((blob) => { if (blob) resolve(blob); else reject(new Error('Gagal crop')); }, 'image/jpeg', 0.70);
               };
               img.onerror = reject; img.src = e.target.result;
             };
@@ -453,11 +485,13 @@
         }
 
         statusEl.innerText = "Memproses Foto Pasukan...";
-        detailEl.innerText = "Menambahkan halaman foto landscape";
+        detailEl.innerText = "Mengkompres dan menyatukan foto landscape";
         try {
           const fileFotoP = document.getElementById('fileFotoPasukan').files[0];
-          const bytesP = await fileToArrayBuffer(fileFotoP);
-          const imgP = (fileFotoP.type === 'image/png') ? await mergedPdf.embedPng(bytesP) : await mergedPdf.embedJpg(bytesP);
+          // Gunakan fungsi kompresi baru agar ukuran PDF tidak membengkak
+          const compressedBlobP = await compressLandscapePhoto(fileFotoP);
+          const bytesP = await fileToArrayBuffer(compressedBlobP);
+          const imgP = await mergedPdf.embedJpg(bytesP); 
           const pageFoto = mergedPdf.addPage([imgP.width, imgP.height]);
           pageFoto.drawImage(imgP, { x: 0, y: 0, width: imgP.width, height: imgP.height });
         } catch (e) { console.warn("Foto Pasukan Gagal: ", e); }
@@ -483,11 +517,6 @@
       }
     }
 
-    // =========================================================================
-    // MODIFIKASI: BAGIAN PROSES SUBMIT KE SERVER
-    // - Teks loading "Mengirim ke Email" dihapus.
-    // - Peringatan detail ditambahkan jika file berhasil diunggah tapi PDF gagal dibuat.
-    // =========================================================================
     async function processSubmit() {
       document.getElementById('modalReview').style.display = 'none';
       const loading = document.getElementById('loadingOverlay');
@@ -549,7 +578,6 @@
             await Promise.all(chunkPromises); 
         }
 
-        // Teks ini yang sebelumnya "Mengirim Bukti Pendaftaran ke Email Anda"
         status.innerText = 'Menyelesaikan Pendaftaran...';
         detail.innerText = 'Membuat Formulir PDF dan Menyimpan ke Database Panitia';
         
@@ -558,9 +586,8 @@
           body: JSON.stringify({ action: 'finish_pendaftaran', tingkat: tkt, noUrut: noUrut, namaSekolah: sek, email: email, folders: folders, jmlPasukan: `${totalPasukanDanton}/16`, pdfBase64: generatedPdfBase64 })
         }).then(r => r.json());
 
-        // Penanganan Error Spesifik saat File Berhasil tapi PDF Gagal
         if(finalResponse.result !== 'success') {
-             throw new Error("Data foto berhasil diunggah ke folder, NAMUN sistem gagal mencetak formulir PDF ke database. Pesan server: " + finalResponse.message);
+             throw new Error("Data foto berhasil diunggah, NAMUN sistem gagal mencetak formulir PDF ke database. Pesan server: " + finalResponse.message);
         }
 
         loading.style.display = 'none';
@@ -569,8 +596,7 @@
         
       } catch(err) {
         loading.style.display = 'none';
-        // Peringatan yang lebih informatif jika ada yang error di tahap akhir
-        alert('PERHATIAN! Terjadi kendala pada sistem:\n\n' + err.message + '\n\nSilakan lapor ke Contact Person Panitia untuk memastikan status pendaftaran Anda.');
+        alert('PERHATIAN! Terjadi kendala pada sistem:\n\n' + err.message + '\n\nSilakan coba klik tombol kirim lagi, atau lapor ke Panitia.');
       }
     }
 

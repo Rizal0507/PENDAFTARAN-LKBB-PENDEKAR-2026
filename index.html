@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
+  <!-- [KODE HEAD DAN CSS SAMA SEPERTI SEBELUMNYA - TIDAK DIUBAH] -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
  <title>LKBB Pendekar 2026 - Pendaftaran</title>
@@ -95,6 +96,7 @@
 </head>
 <body>
 
+  <!-- [BAGIAN BODY HTML SAMA SEPERTI SEBELUMNYA - HANYA MENGUBAH TEKS PESAN SUKSES] -->
   <header>
     <div class="header-logo">
       <img src="./logo.png" alt="Logo LKBB">
@@ -152,7 +154,7 @@
         </div>
         
         <div class="form-group">
-          <label>Email Penanggung Jawab <span class="badge-req">* (Bukti pendaftaran dikirim kesini)</span></label>
+          <label>Email Penanggung Jawab <span class="badge-req">*</span></label>
           <input type="email" id="email" placeholder="official@sekolah.com" required>
         </div>
 
@@ -187,10 +189,10 @@
     <div id="viewSuccess" class="card" style="display: none; text-align: center; padding: 40px 20px;">
         <h1 style="color: var(--primary); margin-bottom: 20px; font-size: 2.5rem;">🎉 Selamat!</h1>
         <p style="font-size: 1.15rem; color: #333; margin-bottom: 15px; line-height: 1.6;">
-            Selamat <strong id="succNamaSekolah" style="color: var(--secondary);">[Nama Sekolah]</strong> telah terdaftar.<br>
-            Silakan cek email untuk melihat bukti pendaftaran.
+            Selamat <strong id="succNamaSekolah" style="color: var(--secondary);">[Nama Sekolah]</strong> telah terdaftar.
         </p>
         <p style="font-size: 1rem; color: #555; margin-bottom: 30px;">
+            Data pendaftaran dan formulir PDF sekolah Anda berhasil dikirim dan tersimpan di sistem Panitia.<br>
             Selamat berlatih dan sampai jumpa di <strong>LKBB PENDEKAR 2026</strong>.
         </p>
         <button class="btn btn-blue" style="max-width: 300px; margin: 0 auto;" onclick="showView('viewLanding')">Kembali ke Beranda</button>
@@ -481,6 +483,11 @@
       }
     }
 
+    // =========================================================================
+    // MODIFIKASI: BAGIAN PROSES SUBMIT KE SERVER
+    // - Teks loading "Mengirim ke Email" dihapus.
+    // - Peringatan detail ditambahkan jika file berhasil diunggah tapi PDF gagal dibuat.
+    // =========================================================================
     async function processSubmit() {
       document.getElementById('modalReview').style.display = 'none';
       const loading = document.getElementById('loadingOverlay');
@@ -500,7 +507,8 @@
           body: JSON.stringify({ action: 'init_pendaftaran', tingkat: tkt, namaSekolah: sek })
         }).then(r => r.json());
         
-        if(resInit.result !== 'success') throw new Error(resInit.message);
+        if(resInit.result !== 'success') throw new Error("Gagal membuat folder di Drive: " + resInit.message);
+        
         const folders = resInit.folders; 
         const noUrut = resInit.noUrut;
         
@@ -522,38 +530,47 @@
         });
 
         const totalFiles = filesToUpload.length;
-        const chunkSize = 5; // PROSES PARALEL CEPAT (5 FILE SEKALIGUS)
+        const chunkSize = 5; 
         
         for (let i = 0; i < totalFiles; i += chunkSize) {
             const chunk = filesToUpload.slice(i, i + chunkSize);
             status.innerText = `Mengunggah Berkas (${Math.min(i + chunkSize, totalFiles)}/${totalFiles})...`;
-            detail.innerText = `Kecepatan turbo sedang berjalan. Tolong jangan tutup halaman ini.`;
+            detail.innerText = `Mengamankan foto ke folder pendaftaran.`;
             
             const chunkPromises = chunk.map(async (item) => {
                 const b64 = await fileToBase64(item.file);
                 return fetch(scriptURL, { 
                     method: 'POST', 
                     body: JSON.stringify({ action: 'upload_file', folderId: item.folderId, fileName: item.fileName, mimeType: item.mimeType, base64Data: b64 }) 
+                }).then(res => res.json()).then(data => {
+                    if(data.result !== 'success') throw new Error(`Gagal mengunggah file ${item.fileName}`);
                 });
             });
-            await Promise.all(chunkPromises); // Eksekusi 5 file berbarengan!
+            await Promise.all(chunkPromises); 
         }
 
+        // Teks ini yang sebelumnya "Mengirim Bukti Pendaftaran ke Email Anda"
         status.innerText = 'Menyelesaikan Pendaftaran...';
-        detail.innerText = 'Mengirim Bukti Pendaftaran ke Email Anda';
+        detail.innerText = 'Membuat Formulir PDF dan Menyimpan ke Database Panitia';
         
-        await fetch(scriptURL, {
+        const finalResponse = await fetch(scriptURL, {
           method: 'POST',
           body: JSON.stringify({ action: 'finish_pendaftaran', tingkat: tkt, noUrut: noUrut, namaSekolah: sek, email: email, folders: folders, jmlPasukan: `${totalPasukanDanton}/16`, pdfBase64: generatedPdfBase64 })
-        });
+        }).then(r => r.json());
+
+        // Penanganan Error Spesifik saat File Berhasil tapi PDF Gagal
+        if(finalResponse.result !== 'success') {
+             throw new Error("Data foto berhasil diunggah ke folder, NAMUN sistem gagal mencetak formulir PDF ke database. Pesan server: " + finalResponse.message);
+        }
 
         loading.style.display = 'none';
         document.getElementById('succNamaSekolah').innerText = sek;
         showView('viewSuccess');
         
       } catch(err) {
-        alert('Terjadi kesalahan pengiriman: ' + err.message);
         loading.style.display = 'none';
+        // Peringatan yang lebih informatif jika ada yang error di tahap akhir
+        alert('PERHATIAN! Terjadi kendala pada sistem:\n\n' + err.message + '\n\nSilakan lapor ke Contact Person Panitia untuk memastikan status pendaftaran Anda.');
       }
     }
 

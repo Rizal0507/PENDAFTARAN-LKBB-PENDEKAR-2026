@@ -278,11 +278,12 @@
         reader.readAsDataURL(file);
       }
     }
-    function previewFile(event, txtId) { if(event.target.files[0]) document.getElementById(txtId).innerHTML = "<span style='color:green; font-weight:bold;'>PDF<br>Siap</span>"; }
-    function fileToArrayBuffer(file) { return new Promise((res, rej) => { const reader = new FileReader(); reader.onload = () => res(reader.result); reader.onerror = rej; reader.readAsArrayBuffer(file); }); }
-    function fileToBase64(file) { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.readAsDataURL(file); reader.onload = () => resolve(reader.result.split(',')[1]); reader.onerror = error => reject(error); }); }
     
-    // --- FITUR BARU: KOMPRESI FOTO PASUKAN LANDSCAPE ---
+    function previewFile(event, txtId) { if(event.target.files[0]) document.getElementById(txtId).innerHTML = "<span style='color:green; font-weight:bold;'>PDF<br>Siap</span>"; }
+    function fileToArrayBuffer(file) { return new Promise((res, rej) => { const reader = new FileReader(); reader.onload = () => res(reader.result); reader.onerror = () => rej(new Error("Gagal membaca file buffer.")); reader.readAsArrayBuffer(file); }); }
+    function fileToBase64(file) { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.readAsDataURL(file); reader.onload = () => resolve(reader.result.split(',')[1]); reader.onerror = () => reject(new Error("Gagal konversi file. Pastikan penyimpanan HP tidak penuh.")); }); }
+    
+    // FUNGSI KOMPRESI (HANYA UNTUK FILE PDF)
     async function compressLandscapePhoto(file) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -290,7 +291,7 @@
           const img = new Image();
           img.onload = () => {
             const canvas = document.createElement('canvas');
-            const MAX_WIDTH = 1200; // Dibatasi maksimal lebar 1200px agar ringan
+            const MAX_WIDTH = 1200; 
             let width = img.width;
             let height = img.height;
 
@@ -302,12 +303,11 @@
             canvas.height = height;
             const ctx = canvas.getContext('2d');
             ctx.drawImage(img, 0, 0, width, height);
-            // Kualitas diturunkan ke 70%
             canvas.toBlob((blob) => { if (blob) resolve(blob); else reject(new Error('Gagal kompres foto pasukan')); }, 'image/jpeg', 0.70);
           };
-          img.onerror = reject; img.src = e.target.result;
+          img.onerror = () => reject(new Error("File gambar rusak atau tidak didukung.")); img.src = e.target.result;
         };
-        reader.onerror = reject; reader.readAsDataURL(file);
+        reader.onerror = () => reject(new Error("Gagal membaca file foto.")); reader.readAsDataURL(file);
       });
     }
 
@@ -382,7 +382,6 @@
           rekomPages.forEach(page => mergedPdf.addPage(page));
         } catch(e) { console.warn("Rekomendasi Gagal: ", e); }
 
-        // --- FITUR KOMPRESI FOTO ANGGOTA DITINGKATKAN ---
         async function preparePhotoForPdf(file) {
           return new Promise((resolve, reject) => {
             const reader = new FileReader();
@@ -406,13 +405,11 @@
                 canvas.width = 300; canvas.height = 400;
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(img, cropX, cropY, cropW, cropH, 0, 0, canvas.width, canvas.height);
-                
-                // Kualitas diturunkan dari 95% ke 70% agar super ringan tanpa mengurangi ketajaman
                 canvas.toBlob((blob) => { if (blob) resolve(blob); else reject(new Error('Gagal crop')); }, 'image/jpeg', 0.70);
               };
-              img.onerror = reject; img.src = e.target.result;
+              img.onerror = () => reject(new Error("Format foto tidak didukung")); img.src = e.target.result;
             };
-            reader.onerror = reject; reader.readAsDataURL(file);
+            reader.onerror = () => reject(new Error("Gagal membaca file anggota")); reader.readAsDataURL(file);
           });
         }
 
@@ -488,13 +485,12 @@
         detailEl.innerText = "Mengkompres dan menyatukan foto landscape";
         try {
           const fileFotoP = document.getElementById('fileFotoPasukan').files[0];
-          // Gunakan fungsi kompresi baru agar ukuran PDF tidak membengkak
           const compressedBlobP = await compressLandscapePhoto(fileFotoP);
           const bytesP = await fileToArrayBuffer(compressedBlobP);
           const imgP = await mergedPdf.embedJpg(bytesP); 
           const pageFoto = mergedPdf.addPage([imgP.width, imgP.height]);
           pageFoto.drawImage(imgP, { x: 0, y: 0, width: imgP.width, height: imgP.height });
-        } catch (e) { console.warn("Foto Pasukan Gagal: ", e); }
+        } catch (e) { console.warn("Foto Pasukan Gagal di PDF: ", e); }
 
         statusEl.innerText = "Menyimpan Berkas PDF...";
         detailEl.innerText = "Hampir selesai, mohon tunggu sebentar";
@@ -513,7 +509,7 @@
         document.getElementById('modalReview').style.display = 'flex';
       } catch (err) {
         document.getElementById('loadingOverlay').style.display = 'none';
-        alert("Gagal merender PDF: " + err.message);
+        alert("Gagal merender PDF: " + (err.message || err.toString()));
       }
     }
 
@@ -544,6 +540,7 @@
         let totalPasukanDanton = 0;
         const filesToUpload = [];
 
+        // FILE ASLI (TANPA KOMPRESI) DIKIRIM KE DRIVE DI SINI
         filesToUpload.push({ folderId: folders.rekom, fileName: `Surat_Rekomendasi_${noUrut}_${sek}.pdf`, mimeType: 'application/pdf', file: document.getElementById('fileRekom').files[0] });
         filesToUpload.push({ folderId: folders.foto, fileName: `Foto_Pasukan_${noUrut}_${sek}.jpg`, mimeType: document.getElementById('fileFotoPasukan').files[0].type || 'image/jpeg', file: document.getElementById('fileFotoPasukan').files[0] });
 
@@ -554,7 +551,7 @@
             if(idx >= 2) totalPasukanDanton++; 
             const cleanRole = role.replace(/[^a-zA-Z0-9]/g, '_');
             const cleanNm = nm.replace(/[^a-zA-Z0-9]/g, '_');
-            filesToUpload.push({ folderId: folders.form, fileName: `${cleanRole}_${cleanNm}.jpg`, mimeType: ft.type || 'image/jpeg', file: ft });
+            filesToUpload.push({ folderId: folders.form, fileName: `${cleanRole}_${cleanNm}.jpg`, mimeType: ft.type || 'image/jpeg', file: ft }); // FOTO ANGGOTA ASLI
           }
         });
 
@@ -564,7 +561,7 @@
         for (let i = 0; i < totalFiles; i += chunkSize) {
             const chunk = filesToUpload.slice(i, i + chunkSize);
             status.innerText = `Mengunggah Berkas (${Math.min(i + chunkSize, totalFiles)}/${totalFiles})...`;
-            detail.innerText = `Mengamankan foto ke folder pendaftaran.`;
+            detail.innerText = `Mengamankan foto original ke folder pendaftaran.`;
             
             const chunkPromises = chunk.map(async (item) => {
                 const b64 = await fileToBase64(item.file);
@@ -596,7 +593,12 @@
         
       } catch(err) {
         loading.style.display = 'none';
-        alert('PERHATIAN! Terjadi kendala pada sistem:\n\n' + err.message + '\n\nSilakan coba klik tombol kirim lagi, atau lapor ke Panitia.');
+        // PERBAIKAN BUG UNDEFINED SAAT KONEKSI TERPUTUS/TIMEOUT
+        let errorMsg = err.message || err.toString();
+        if (errorMsg === "undefined" || errorMsg.includes("[object")) {
+            errorMsg = "Koneksi internet terputus atau timeout saat proses upload. Pastikan sinyal stabil.";
+        }
+        alert('PERHATIAN! Terjadi kendala pada sistem:\n\n' + errorMsg + '\n\nSilakan coba klik tombol kirim lagi atau lapor ke Panitia.');
       }
     }
 

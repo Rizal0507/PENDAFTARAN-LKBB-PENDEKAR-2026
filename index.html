@@ -334,26 +334,35 @@
 
         async function preparePhotoForPdf(file) {
           return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-              const img = new Image();
-              img.onload = () => {
-                const targetAspect = 3 / 4;
-                let srcW = img.width, srcH = img.height, srcAspect = srcW / srcH;
-                let cropW, cropH, cropX, cropY;
+            const img = new Image();
+            // Meringankan RAM: Buat link langsung ke file fisik, JANGAN muat file ke memori (Base64)
+            const objectUrl = URL.createObjectURL(file);
+            
+            img.onload = () => {
+              const targetAspect = 3 / 4;
+              let srcW = img.width, srcH = img.height, srcAspect = srcW / srcH;
+              let cropW, cropH, cropX, cropY;
 
-                if (srcAspect > targetAspect) { cropH = srcH; cropW = srcH * targetAspect; cropX = (srcW - cropW) / 2; cropY = 0; } 
-                else { cropW = srcW; cropH = srcW / targetAspect; cropX = 0; cropY = (srcH - cropH) / 2; }
+              if (srcAspect > targetAspect) { cropH = srcH; cropW = srcH * targetAspect; cropX = (srcW - cropW) / 2; cropY = 0; } 
+              else { cropW = srcW; cropH = srcW / targetAspect; cropX = 0; cropY = (srcH - cropH) / 2; }
 
-                const canvas = document.createElement('canvas');
-                canvas.width = 300; canvas.height = 400; 
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, cropX, cropY, cropW, cropH, 0, 0, canvas.width, canvas.height);
-                canvas.toBlob((blob) => { if (blob) resolve(blob); else reject(new Error('Gagal crop foto.')); }, 'image/jpeg', 0.70);
-              };
-              img.onerror = () => reject(new Error("Format foto tidak didukung.")); img.src = e.target.result;
+              const canvas = document.createElement('canvas');
+              canvas.width = 300; canvas.height = 400; 
+              const ctx = canvas.getContext('2d');
+              ctx.drawImage(img, cropX, cropY, cropW, cropH, 0, 0, canvas.width, canvas.height);
+              
+              canvas.toBlob((blob) => { 
+                URL.revokeObjectURL(objectUrl); // WAJIB: Hapus link untuk mengosongkan RAM kembali
+                if (blob) resolve(blob); else reject(new Error('Gagal crop foto.')); 
+              }, 'image/jpeg', 0.70);
             };
-            reader.onerror = () => reject(new Error("Gagal membaca file anggota.")); reader.readAsDataURL(file);
+            
+            img.onerror = () => {
+              URL.revokeObjectURL(objectUrl);
+              reject(new Error("Format foto tidak didukung atau HP gagal membaca file."));
+            };
+            
+            img.src = objectUrl;
           });
         }
 

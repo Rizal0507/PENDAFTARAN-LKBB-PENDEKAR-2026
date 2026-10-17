@@ -5,9 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>LKBB Pendekar 2026 - Pendaftaran</title>
   <link rel="icon" type="image/png" href="logo_rekap.png">
-  <!-- Library untuk membuat PDF -->
   <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
-  <!-- Library untuk Pop-up Error / Alert Modern -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   
   <style>
@@ -21,13 +19,8 @@
       display: flex; justify-content: space-between; align-items: center; gap: 15px;
     }
     
-    .header-logo { 
-      width: 75px; height: 75px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; border-radius: 50%;
-    }
-    .header-logo img { 
-      max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 50%; 
-      filter: drop-shadow(0 2px 5px rgba(0,0,0,0.5));
-    }
+    .header-logo { width: 75px; height: 75px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; border-radius: 50%; }
+    .header-logo img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 50%; filter: drop-shadow(0 2px 5px rgba(0,0,0,0.5)); }
     .header-logo::after {
       content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
       background: linear-gradient(0deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0) 100%);
@@ -42,10 +35,7 @@
     
     .container { max-width: 850px; margin: 20px auto; padding: 0 15px; }
     
-    .card { 
-      background: white; border-radius: 12px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); margin-bottom: 25px; border-top: 4px solid var(--primary);
-      animation: fadeIn 0.4s ease-in-out;
-    }
+    .card { background: white; border-radius: 12px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); margin-bottom: 25px; border-top: 4px solid var(--primary); animation: fadeIn 0.4s ease-in-out; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
     
     .btn { display: block; width: 100%; padding: 14px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-bottom: 12px; font-size: 1rem; color: white; text-align: center; text-decoration: none; transition: filter 0.2s;}
@@ -71,11 +61,6 @@
     .member-preview img { width: 100%; height: 100%; object-fit: cover; display: none; position: absolute; top: 0; left: 0; } 
     .badge-req { color: red; font-size: 0.8rem; }
     
-    #modalReview { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 15px; }
-    .modal-content { background: white; width: 100%; max-width: 800px; height: 95vh; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; animation: fadeIn 0.3s ease; }
-    .modal-content iframe { flex: 1; width: 100%; min-height: 50vh; border: 1px solid #ccc; margin: 10px 0; border-radius: 8px;}
-    .modal-buttons { display: flex; gap: 10px; width: 100%; margin-top: 5px; }
-    
     #loadingOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; color: var(--gold); text-align: center; padding: 20px; }
     .spinner { width: 55px; height: 55px; border: 5px solid #333; border-top: 5px solid var(--gold); border-radius: 50%; animation: spin 1s linear infinite; }
     @keyframes spin { 100% { transform: rotate(360deg); } }
@@ -92,7 +77,6 @@
       .header-title span:last-child { font-size: 1.25rem; }
       .row-member { padding: 12px; gap: 10px; align-items: flex-start; }
       .member-preview { width: 75px; height: 100px; }
-      .modal-buttons { flex-direction: column; }
     }
   </style>
 </head>
@@ -112,7 +96,6 @@
   </header>
 
   <div class="container">
-    <!-- TAMPILAN 1: LANDING PAGE -->
     <div id="viewLanding" class="card">
       <img src="./pamflet.jpeg" alt="Pamflet LKBB Pendekar" onerror="this.src='https://placehold.co/800x400/001a4d/ffffff?text=Pamflet+Pendekar'" style="width:100%; border-radius:8px; margin-bottom:15px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
       
@@ -121,10 +104,7 @@
         <p style="color: #444; margin-top: 3px; font-size: 1rem;">GOR Wilis Kota Madiun</p>
       </div>
       
-      <a href="https://drive.google.com/drive/folders/1OpGbRocRK2W0sKVwg7bvl6aEhmW7jjCN?usp=sharing" target="_blank" class="btn btn-purple">
-        📥 Download Juknis LKBB Pendekar
-      </a>
-      
+      <a href="https://drive.google.com/drive/folders/1OpGbRocRK2W0sKVwg7bvl6aEhmW7jjCN?usp=sharing" target="_blank" class="btn btn-purple">📥 Download Juknis LKBB Pendekar</a>
       <a href="https://wa.me/6281335658828?text=Halo%20Kak%20Airlangga,%20saya%20ingin%20bertanya%20perihal%20LKBB%20Pendekar..." target="_blank" class="btn btn-green">💬 Chat CP 1: Airlangga (081335658828)</a>
       <a href="https://wa.me/6285733298367?text=Halo%20Kak%20Imun,%20saya%20ingin%20bertanya%20perihal%20LKBB%20Pendekar..." target="_blank" class="btn btn-green">💬 Chat CP 2: Imun (085733298367)</a>
       
@@ -133,13 +113,11 @@
       <button class="btn btn-blue" onclick="showView('viewForm')">📝 Lanjut Mendaftar LKBB Pendekar</button>
       <button class="btn btn-gold" onclick="Swal.fire('Fitur Revisi', 'Silakan hubungi Contact Person (CP) untuk mendapatkan akses link revisi berkas secara manual demi keamanan data Anda.', 'info')">🔄 Revisi Berkas Pendaftaran</button>
       
-      <!-- TOMBOL LAPOR ERROR BARU -->
       <a href="https://wa.me/6287717032326?text=Halo%20Admin,%20saya%20mengalami%20kendala%20saat%20pendaftaran%20LKBB%20Pendekar.%20Tolong%20bantuannya." target="_blank" class="btn btn-red">
         🚨 Lapor Error / Kendala Pendaftaran
       </a>
     </div>
 
-    <!-- TAMPILAN 2: FORMULIR -->
     <div id="viewForm" class="card" style="display: none;">
       <button onclick="showView('viewLanding')" style="background:none; border:none; color:var(--primary); cursor:pointer; margin-bottom:15px; font-weight:bold;">← Kembali Halaman Awal</button>
       
@@ -162,10 +140,10 @@
         
         <div class="form-group">
           <label>Email Penanggung Jawab <span class="badge-req">*</span></label>
-          <input type="email" id="email" placeholder="official@sekolah.com" required>
+          <input type="email" id="email" required> <!-- placeholder email dihapus -->
         </div>
 
-        <h3 class="section-title">1. UPLOAD BERKAS UTAMA</h3>
+        <h3 class="section-title">1. UPLOAD SURAT REKOMENDASI</h3>
         <div class="row-member">
             <div class="member-inputs">
                 <label>Surat Rekomendasi (PDF) <span class="badge-req">*</span></label>
@@ -175,43 +153,27 @@
                 <span id="prevRekomTxt" style="color:var(--primary);">Format<br>PDF</span>
             </div>
         </div>
-        <!-- FITUR FOTO PASUKAN LANDSCAPE SUDAH DIHAPUS TOTAL -->
 
         <h3 class="section-title">2. NAMA & FOTO BERLATAR MERAH</h3>
         <p style="font-size: 0.85rem; color: #555; margin-bottom: 15px;">*Pastikan nama sesuai dan foto berkualitas baik.</p>
         <div id="containerAnggota"></div>
-        <button type="button" class="btn btn-submit" onclick="generateCombinedPDF()">Buat Berkas Pendaftaran ➔</button>
+        <button type="button" class="btn btn-submit" onclick="konfirmasiKirim()">Kirim Berkas Pendaftaran ➔</button>
       </form>
     </div>
 
-    <!-- TAMPILAN 3: SUCCESS PAGE -->
     <div id="viewSuccess" class="card" style="display: none; text-align: center; padding: 40px 20px;">
         <h1 style="color: var(--primary); margin-bottom: 20px; font-size: 2.5rem;">🎉 Selamat!</h1>
         <p style="font-size: 1.15rem; color: #333; margin-bottom: 15px; line-height: 1.6;">
             Selamat <strong id="succNamaSekolah" style="color: var(--secondary);">[Nama Sekolah]</strong> telah terdaftar.
         </p>
         <p style="font-size: 1rem; color: #555; margin-bottom: 30px;">
-            Data pendaftaran dan formulir PDF sekolah Anda berhasil dikirim dan tersimpan di sistem Panitia.<br>
+            Data pendaftaran sekolah Anda berhasil dikirim dan tersimpan di sistem Panitia.<br>
             Selamat berlatih dan sampai jumpa di <strong>LKBB PENDEKAR 2026</strong>.
         </p>
         <button class="btn btn-blue" style="max-width: 300px; margin: 0 auto;" onclick="showView('viewLanding')">Kembali ke Beranda</button>
     </div>
   </div>
 
-  <!-- MODAL PREVIEW PDF -->
-  <div id="modalReview">
-    <div class="modal-content">
-      <h2 style="color:var(--primary); text-align:center;">MOHON TELITI KEMBALI</h2>
-      <iframe id="pdfPreviewIframe"></iframe>
-      <div class="modal-buttons">
-        <button class="btn" style="background:#ccc; color:#333; flex: 1; margin: 0;" onclick="document.getElementById('modalReview').style.display='none'">Kembali Edit</button>
-        <button class="btn btn-gold" id="btnBukaPdfTab" style="flex: 1; margin: 0;">Buka PDF di Tab Baru</button>
-        <button class="btn btn-blue" style="flex: 1; margin: 0;" onclick="processSubmit()">Kirim Data ke Panitia ➔</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- OVERLAY LOADING -->
   <div id="loadingOverlay">
     <div class="spinner"></div>
     <h3 id="loadingStatus" style="margin-top:15px; font-size: 1.2rem;">Memproses...</h3>
@@ -230,16 +192,12 @@
 
   <script>
     const scriptURL = 'https://script.google.com/macros/s/AKfycbwE2q_sxiOa7ZueVrwqrjZzq0rgg2XzANff4-gQSww9qOfGzxckMOfS_QnnxrFpuoAenA/exec';
-    
-    // Link Lapor Error WA (Terkoneksi dengan pop-up error)
     const WA_ERROR_LINK = "https://wa.me/6287717032326?text=Halo%20Admin,%20saya%20mengalami%20kendala%20saat%20pendaftaran%20LKBB%20Pendekar.%20Tolong%20bantuannya.";
 
-    // Definisi 18 Anggota
     const roles = ["Pelatih/Pembina", "Official Team", "Danton"];
     for (let i = 1; i <= 15; i++) roles.push(`Pasukan ${i}`);
 
     let generatedPdfBase64 = ""; 
-    let blobPdfUrl = "";
 
     function showView(id) {
       document.getElementById('viewLanding').style.display = 'none';
@@ -252,7 +210,6 @@
     function renderMembers() {
       const container = document.getElementById('containerAnggota');
       roles.forEach((role, idx) => {
-        // Pasukan 1-12 wajib (index 0 sd 14 wajib)
         const isReq = idx <= 14 ? 'required' : ''; 
         const reqBadge = idx <= 14 ? '<span class="badge-req">*Wajib</span>' : '<span style="font-size:0.8rem; color:#888">(Opsional)</span>';
         container.innerHTML += `
@@ -289,36 +246,43 @@
     function fileToArrayBuffer(file) { return new Promise((res, rej) => { const reader = new FileReader(); reader.onload = () => res(reader.result); reader.onerror = () => rej(new Error("Gagal membaca file buffer.")); reader.readAsArrayBuffer(file); }); }
     function fileToBase64(file) { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.readAsDataURL(file); reader.onload = () => resolve(reader.result.split(',')[1]); reader.onerror = () => reject(new Error("Gagal konversi file. Pastikan memori/RAM perangkat Anda tidak penuh.")); }); }
 
-    // FUNGSI UMUM UNTUK MENAMPILKAN ERROR VIA SWEETALERT2
     function showErrorPopup(title, message) {
         Swal.fire({
-            icon: 'error',
-            title: title,
-            text: message,
-            showCancelButton: true,
-            confirmButtonText: 'Laporkan ke WA Admin',
-            cancelButtonText: 'Tutup',
-            confirmButtonColor: '#e74c3c'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                window.open(WA_ERROR_LINK, '_blank');
-            }
-        });
+            icon: 'error', title: title, text: message, showCancelButton: true,
+            confirmButtonText: 'Laporkan ke WA Admin', cancelButtonText: 'Tutup', confirmButtonColor: '#e74c3c'
+        }).then((result) => { if (result.isConfirmed) window.open(WA_ERROR_LINK, '_blank'); });
     }
 
-    // PROSES 1: CETAK PDF (DENGAN KOMPRESI FOTO KHUSUS PDF AGAR RINGAN)
-    async function generateCombinedPDF() {
+    // KONFIRMASI DENGAN SWEETALERT (Menggantikan iframe review)
+    function konfirmasiKirim() {
       const form = document.getElementById('formPendaftaran');
       if(!form.checkValidity()) { form.reportValidity(); return; }
-      
+
+      Swal.fire({
+        title: 'Konfirmasi Data',
+        text: "Apakah data yang Anda masukkan sudah benar?",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#0044cc',
+        cancelButtonColor: '#d4af37',
+        confirmButtonText: 'Lanjut Kirim ➔',
+        cancelButtonText: 'Review Ulang'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          generateCombinedPDF(); // Jika lanjut, proses PDF di latar belakang lalu kirim
+        }
+      });
+    }
+
+    async function generateCombinedPDF() {
       const loading = document.getElementById('loadingOverlay');
       const statusEl = document.getElementById('loadingStatus');
       const detailEl = document.getElementById('loadingDetail');
       loading.style.display = 'flex';
       
       try {
-        statusEl.innerText = "Memuat Library PDF...";
-        detailEl.innerText = "Menyiapkan lembar kerja F4";
+        statusEl.innerText = "Menyiapkan Berkas...";
+        detailEl.innerText = "Membangun form PDF pendaftaran";
 
         const { PDFDocument, StandardFonts, rgb } = PDFLib;
         const mergedPdf = await PDFDocument.create();
@@ -326,13 +290,9 @@
         const fontReg = await mergedPdf.embedFont(StandardFonts.Helvetica);
         const f4Width = 612, f4Height = 936; 
 
-        statusEl.innerText = "Membuat Halaman Bukti Pendaftaran...";
-        detailEl.innerText = "Menyusun data sekolah & anggota";
-        
         try {
           const bgBytes = await fetch('./bg_pasukan.jpg').then(res => res.arrayBuffer());
           const bgImage = await mergedPdf.embedJpg(bgBytes);
-          
           const pageBukti = mergedPdf.addPage([f4Width, f4Height]);
           pageBukti.drawImage(bgImage, { x: 0, y: 0, width: f4Width, height: f4Height });
           
@@ -350,17 +310,13 @@
           let yCur = 720; 
           drawCentered('SELAMAT KEPADA', yCur, 28, fontBold, [0,0,0]); yCur -= 35;
           drawCentered(`${namaSekolah}`, yCur, 28, fontBold, [0, 0.2, 0.6]); yCur -= 35;
-          
           drawCentered(`telah terdaftar di LKBB PENDEKAR 2026 pada ${hari}, ${tgl}`, yCur, 14, fontReg, [0,0,0]); yCur -= 20;
           drawCentered(`pukul ${jam}`, yCur, 14, fontReg, [0,0,0]); yCur -= 20;
           drawCentered(`dengan komposisi personel sebagai berikut:`, yCur, 14, fontReg, [0,0,0]); yCur -= 30;
 
           roles.forEach((role, idx) => {
              const nm = document.getElementById(`nama_${idx}`).value.trim();
-             if(nm) {
-                 drawCentered(`${role} : ${nm}`, yCur, 14, fontBold, [0,0,0]);
-                 yCur -= 20;
-             }
+             if(nm) { drawCentered(`${role} : ${nm}`, yCur, 14, fontBold, [0,0,0]); yCur -= 20; }
           });
 
           yCur -= 40;
@@ -368,8 +324,6 @@
           drawCentered('GOR Wilis Kota Madiun - Minggu, 25 Oktober 2026', yCur, 12, fontBold, [0.8, 0.6, 0.1]);
         } catch(e) { console.warn("Halaman Bukti Gagal: ", e); }
 
-        statusEl.innerText = "Memproses Surat Rekomendasi...";
-        detailEl.innerText = "Menggabungkan file PDF rekomendasi";
         try {
           const fileRekom = document.getElementById('fileRekom').files[0];
           const rekomBytes = await fileToArrayBuffer(fileRekom);
@@ -378,7 +332,6 @@
           rekomPages.forEach(page => mergedPdf.addPage(page));
         } catch(e) { console.warn("Rekomendasi Gagal: ", e); }
 
-        // Kompresi ketat foto anggota HANYA untuk cetak PDF agar tidak RAM Crash
         async function preparePhotoForPdf(file) {
           return new Promise((resolve, reject) => {
             const reader = new FileReader();
@@ -386,20 +339,14 @@
               const img = new Image();
               img.onload = () => {
                 const targetAspect = 3 / 4;
-                let srcW = img.width, srcH = img.height;
-                let srcAspect = srcW / srcH;
+                let srcW = img.width, srcH = img.height, srcAspect = srcW / srcH;
                 let cropW, cropH, cropX, cropY;
 
-                if (srcAspect > targetAspect) {
-                  cropH = srcH; cropW = srcH * targetAspect;
-                  cropX = (srcW - cropW) / 2; cropY = 0;
-                } else {
-                  cropW = srcW; cropH = srcW / targetAspect;
-                  cropX = 0; cropY = (srcH - cropH) / 2;
-                }
+                if (srcAspect > targetAspect) { cropH = srcH; cropW = srcH * targetAspect; cropX = (srcW - cropW) / 2; cropY = 0; } 
+                else { cropW = srcW; cropH = srcW / targetAspect; cropX = 0; cropY = (srcH - cropH) / 2; }
 
                 const canvas = document.createElement('canvas');
-                canvas.width = 300; canvas.height = 400; // Dikompres ke 300x400
+                canvas.width = 300; canvas.height = 400; 
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(img, cropX, cropY, cropW, cropH, 0, 0, canvas.width, canvas.height);
                 canvas.toBlob((blob) => { if (blob) resolve(blob); else reject(new Error('Gagal crop foto.')); }, 'image/jpeg', 0.70);
@@ -411,11 +358,8 @@
         }
 
         const res1 = await fetch('./template_hal1.png?v=FINAL');
-        if (!res1.ok) throw new Error('Gagal memuat template_hal1.png');
         const tpl1Bytes = await res1.arrayBuffer();
-
         const res2 = await fetch('./template_hal2.png?v=FINAL');
-        if (!res2.ok) throw new Error('Gagal memuat template_hal2.png');
         const tpl2Bytes = await res2.arrayBuffer();
         
         const imgTpl1 = await mergedPdf.embedPng(tpl1Bytes);
@@ -444,8 +388,8 @@
           const ftFile = document.getElementById(`foto_${i}`).files[0];
           
           if (nm && ftFile) {
-            statusEl.innerText = `Memproses Formulir (${i + 1}/${totalItems})`;
-            detailEl.innerText = `Memasukkan foto & nama: ${role}`;
+            statusEl.innerText = `Menyiapkan Formulir (${i + 1}/${totalItems})`;
+            detailEl.innerText = `Memproses foto: ${role}`;
 
             const croppedBlob = await preparePhotoForPdf(ftFile);
             const croppedArrayBuffer = await fileToArrayBuffer(croppedBlob);
@@ -455,7 +399,6 @@
             const pageIndex = i % 9;
             const col = pageIndex % 2; 
             const row = Math.floor(pageIndex / 2); 
-            
             const xPos = col === 0 ? 45 : 325;
             const yPos = 635 - (row * 135); 
             
@@ -473,43 +416,29 @@
           }
         }
 
-        statusEl.innerText = "Menyimpan Berkas PDF...";
-        detailEl.innerText = "Hampir selesai, mohon tunggu sebentar";
-        
-        const pdfBytes = await mergedPdf.save();
         generatedPdfBase64 = await mergedPdf.saveAsBase64(); 
         
-        const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-        if(blobPdfUrl) URL.revokeObjectURL(blobPdfUrl); 
-        blobPdfUrl = URL.createObjectURL(blob);
-        
-        document.getElementById('pdfPreviewIframe').src = blobPdfUrl; 
-        document.getElementById('btnBukaPdfTab').onclick = () => window.open(blobPdfUrl, '_blank');
-        
-        loading.style.display = 'none';
-        document.getElementById('modalReview').style.display = 'flex';
+        // Langsung panggil submit ke server setelah PDF siap (tanpa review UI)
+        processSubmit();
+
       } catch (err) {
         loading.style.display = 'none';
-        let errorTxt = err.message || err.toString();
-        showErrorPopup('Gagal Merakit PDF', `Browser kehabisan memori atau gagal memproses gambar.\n\nDetail: ${errorTxt}`);
+        showErrorPopup('Gagal Menyiapkan Data', `Browser kehabisan memori atau koneksi terputus. Pastikan RAM HP mencukupi.\n\nDetail: ${err.message || err.toString()}`);
       }
     }
 
-    // PROSES 2: SUBMIT KE SERVER GOOGLE APP SCRIPT
     async function processSubmit() {
-      document.getElementById('modalReview').style.display = 'none';
       const loading = document.getElementById('loadingOverlay');
       const status = document.getElementById('loadingStatus');
       const detail = document.getElementById('loadingDetail');
-      loading.style.display = 'flex';
 
       try {
         const tkt = document.getElementById('tingkat').value;
         const sek = document.getElementById('namaSekolah').value.trim();
         const email = document.getElementById('email').value.trim();
 
-        status.innerText = 'Menyiapkan Direktori...';
-        detail.innerText = 'Membuat susunan folder khusus di Drive';
+        status.innerText = 'Menyambungkan ke Server...';
+        detail.innerText = 'Membuat folder pendaftaran di Google Drive';
         const resInit = await fetch(scriptURL, {
           method: 'POST',
           body: JSON.stringify({ action: 'init_pendaftaran', tingkat: tkt, namaSekolah: sek })
@@ -523,10 +452,8 @@
         let totalPasukanDanton = 0;
         const filesToUpload = [];
 
-        // HANYA MASUKKAN PDF REKOMENDASI (FOTO PASUKAN DIHAPUS)
         filesToUpload.push({ folderId: folders.rekom, fileName: `Surat_Rekomendasi_${noUrut}_${sek}.pdf`, mimeType: 'application/pdf', file: document.getElementById('fileRekom').files[0] });
 
-        // MASUKKAN FOTO ANGGOTA (FILE ORIGINAL TANPA KOMPRESI KE DRIVE)
         roles.forEach((role, idx) => {
           const nm = document.getElementById(`nama_${idx}`).value;
           const ft = document.getElementById(`foto_${idx}`).files[0];
@@ -538,14 +465,13 @@
           }
         });
 
-        // PROSES UPLOAD BERTAHAP (CHUNK)
         const totalFiles = filesToUpload.length;
         const chunkSize = 5; 
         
         for (let i = 0; i < totalFiles; i += chunkSize) {
             const chunk = filesToUpload.slice(i, i + chunkSize);
             status.innerText = `Mengunggah Berkas (${Math.min(i + chunkSize, totalFiles)}/${totalFiles})...`;
-            detail.innerText = `Mengamankan foto original ke folder pendaftaran.`;
+            detail.innerText = `Menyimpan foto original peserta ke server.`;
             
             const chunkPromises = chunk.map(async (item) => {
                 const b64 = await fileToBase64(item.file);
@@ -559,9 +485,8 @@
             await Promise.all(chunkPromises); 
         }
 
-        // TAHAP AKHIR: KIRIM PDF DAN CATAT KE SPREADSHEET
         status.innerText = 'Menyelesaikan Pendaftaran...';
-        detail.innerText = 'Menyimpan Formulir PDF dan mencatat ke Database Panitia';
+        detail.innerText = 'Menyimpan formulir PDF dan mencatat ke database';
         
         const finalResponse = await fetch(scriptURL, {
           method: 'POST',
@@ -569,7 +494,7 @@
         }).then(r => r.json());
 
         if(finalResponse.result !== 'success') {
-             throw new Error("Data foto berhasil diunggah, NAMUN sistem gagal mencetak formulir PDF ke database.\n\nPesan server: " + finalResponse.message);
+             throw new Error("Gagal menyimpan form PDF ke database.\n\nPesan server: " + finalResponse.message);
         }
 
         loading.style.display = 'none';
@@ -579,13 +504,9 @@
       } catch(err) {
         loading.style.display = 'none';
         let errorMsg = err.message || err.toString();
-        
-        // Menerjemahkan error timeout jaringan
         if (errorMsg === "undefined" || errorMsg.includes("[object") || errorMsg.toLowerCase().includes("failed to fetch")) {
-            errorMsg = "Koneksi internet Anda terputus atau timeout (terlalu lama) saat proses upload file berukuran besar. Pastikan sinyal stabil atau gunakan jaringan Wi-Fi / Laptop.";
+            errorMsg = "Koneksi internet Anda terputus atau timeout saat proses upload. Pastikan sinyal stabil atau gunakan jaringan Wi-Fi/Laptop.";
         }
-        
-        // Memanggil SweetAlert2 Error + Tombol WA Lapor
         showErrorPopup('Pendaftaran Terkendala', errorMsg);
       }
     }

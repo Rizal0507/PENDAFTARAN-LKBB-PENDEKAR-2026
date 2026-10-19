@@ -140,7 +140,7 @@
         
         <div class="form-group">
           <label>Email Penanggung Jawab <span class="badge-req">*</span></label>
-          <input type="email" id="email" required> <!-- placeholder email dihapus -->
+          <input type="email" id="email" required>
         </div>
 
         <h3 class="section-title">1. UPLOAD SURAT REKOMENDASI</h3>
@@ -161,7 +161,7 @@
       </form>
     </div>
 
-    <!-- TAMPILAN 3: SUCCESS PAGE -->
+    <!-- TAMPILAN 3: SUCCESS PAGE YANG BARU -->
     <div id="viewSuccess" class="card" style="display: none; text-align: center; padding: 40px 20px;">
         <h1 style="color: var(--primary); margin-bottom: 20px; font-size: 2.5rem;">🎉 Selamat!</h1>
         <p style="font-size: 1.15rem; color: #333; margin-bottom: 15px; line-height: 1.6;">
@@ -172,13 +172,12 @@
             Selamat berlatih dan sampai jumpa di <strong>LKBB PENDEKAR 2026</strong>.
         </p>
         
-        <!-- KOTAK PERINGATAN BARU -->
         <div style="background: #fff3cd; color: #856404; padding: 15px; border-radius: 8px; border: 1px solid #ffeeba; margin-bottom: 20px; text-align: center;">
             <strong>⚠️ PERHATIAN:</strong><br>
             Mohon <strong>screenshot halaman ini</strong> dan <strong>download hasil berkas pendaftaran</strong> di bawah ini sebagai bukti pendaftaran Anda.
         </div>
         
-        <!-- TOMBOL DOWNLOAD PDF -->
+        <!-- INI TOMBOLNYA, display:none akan diubah jadi block oleh JS nanti -->
         <a id="btnDownloadPdf" href="#" target="_blank" class="btn btn-gold" style="max-width: 300px; margin: 0 auto 15px auto; display: none; text-decoration: none;">
           📄 Lihat / Unduh Formulir PDF
         </a>
@@ -266,7 +265,6 @@
         }).then((result) => { if (result.isConfirmed) window.open(WA_ERROR_LINK, '_blank'); });
     }
 
-    // KONFIRMASI DENGAN SWEETALERT (Menggantikan iframe review)
     function konfirmasiKirim() {
       const form = document.getElementById('formPendaftaran');
       if(!form.checkValidity()) { form.reportValidity(); return; }
@@ -282,7 +280,7 @@
         cancelButtonText: 'Review Ulang'
       }).then((result) => {
         if (result.isConfirmed) {
-          generateCombinedPDF(); // Jika lanjut, proses PDF di latar belakang lalu kirim
+          generateCombinedPDF(); 
         }
       });
     }
@@ -345,10 +343,10 @@
           rekomPages.forEach(page => mergedPdf.addPage(page));
         } catch(e) { console.warn("Rekomendasi Gagal: ", e); }
 
+        // MENGGUNAKAN TEKNIK URL.createObjectURL AGAR RAM HP TIDAK CRASH
         async function preparePhotoForPdf(file) {
           return new Promise((resolve, reject) => {
             const img = new Image();
-            // Meringankan RAM: Buat link langsung ke file fisik, JANGAN muat file ke memori (Base64)
             const objectUrl = URL.createObjectURL(file);
             
             img.onload = () => {
@@ -365,7 +363,7 @@
               ctx.drawImage(img, cropX, cropY, cropW, cropH, 0, 0, canvas.width, canvas.height);
               
               canvas.toBlob((blob) => { 
-                URL.revokeObjectURL(objectUrl); // WAJIB: Hapus link untuk mengosongkan RAM kembali
+                URL.revokeObjectURL(objectUrl); 
                 if (blob) resolve(blob); else reject(new Error('Gagal crop foto.')); 
               }, 'image/jpeg', 0.70);
             };
@@ -439,8 +437,6 @@
         }
 
         generatedPdfBase64 = await mergedPdf.saveAsBase64(); 
-        
-        // Langsung panggil submit ke server setelah PDF siap (tanpa review UI)
         processSubmit();
 
       } catch (err) {
@@ -517,6 +513,13 @@
 
         if(finalResponse.result !== 'success') {
              throw new Error("Gagal menyimpan form PDF ke database.\n\nPesan server: " + finalResponse.message);
+        }
+
+        // --- PENANGKAP LINK PDF DARI SERVER (INI YANG MEMUNCULKAN TOMBOL) ---
+        if (finalResponse.pdfUrl) {
+          const btnPdf = document.getElementById('btnDownloadPdf');
+          btnPdf.href = finalResponse.pdfUrl;
+          btnPdf.style.display = 'block'; // Mengubah display:none menjadi block agar tampil
         }
 
         loading.style.display = 'none';

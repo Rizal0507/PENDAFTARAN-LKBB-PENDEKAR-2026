@@ -161,15 +161,28 @@
       </form>
     </div>
 
+    <!-- TAMPILAN 3: SUCCESS PAGE -->
     <div id="viewSuccess" class="card" style="display: none; text-align: center; padding: 40px 20px;">
         <h1 style="color: var(--primary); margin-bottom: 20px; font-size: 2.5rem;">🎉 Selamat!</h1>
         <p style="font-size: 1.15rem; color: #333; margin-bottom: 15px; line-height: 1.6;">
             Selamat <strong id="succNamaSekolah" style="color: var(--secondary);">[Nama Sekolah]</strong> telah terdaftar.
         </p>
-        <p style="font-size: 1rem; color: #555; margin-bottom: 30px;">
+        <p style="font-size: 1rem; color: #555; margin-bottom: 20px;">
             Data pendaftaran sekolah Anda berhasil dikirim dan tersimpan di sistem Panitia.<br>
             Selamat berlatih dan sampai jumpa di <strong>LKBB PENDEKAR 2026</strong>.
         </p>
+        
+        <!-- KOTAK PERINGATAN BARU -->
+        <div style="background: #fff3cd; color: #856404; padding: 15px; border-radius: 8px; border: 1px solid #ffeeba; margin-bottom: 20px; text-align: center;">
+            <strong>⚠️ PERHATIAN:</strong><br>
+            Mohon <strong>screenshot halaman ini</strong> dan <strong>download hasil berkas pendaftaran</strong> di bawah ini sebagai bukti pendaftaran Anda.
+        </div>
+        
+        <!-- TOMBOL DOWNLOAD PDF -->
+        <a id="btnDownloadPdf" href="#" target="_blank" class="btn btn-gold" style="max-width: 300px; margin: 0 auto 15px auto; display: none; text-decoration: none;">
+          📄 Lihat / Unduh Formulir PDF
+        </a>
+
         <button class="btn btn-blue" style="max-width: 300px; margin: 0 auto;" onclick="showView('viewLanding')">Kembali ke Beranda</button>
     </div>
   </div>

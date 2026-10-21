@@ -267,14 +267,19 @@
 
       roles.forEach((role, idx) => {
          const dataLama = dataServerTerkini.members.find(m => m.role === role);
-         const namaLama = dataLama ? dataLama.nama.replace(/_/g, ' ') : '';
+         // Bersihkan spasi ganda dan ubah format untuk perbandingan
+         const namaLamaTampil = dataLama ? dataLama.nama.replace(/_/g, ' ').trim() : '';
+         const namaLamaCek = namaLamaTampil.replace(/\s+/g, ' ').toUpperCase();
 
-         const namaBaru = document.getElementById(`revNama_${idx}`).value.trim();
+         const namaBaruTampil = document.getElementById(`revNama_${idx}`).value.trim();
+         const namaBaruCek = namaBaruTampil.replace(/\s+/g, ' ').toUpperCase();
          const fileBaru = document.getElementById(`revFoto_${idx}`).files.length > 0;
          
          let detailUbah = [];
-         if (namaLama !== namaBaru && (namaLama || namaBaru)) {
-             detailUbah.push(`Nama (${namaLama || 'Kosong'} ➔ ${namaBaru || 'Dihapus'})`);
+         
+         // Bandingkan teks yang sudah dibersihkan
+         if (namaLamaCek !== namaBaruCek && (namaLamaCek || namaBaruCek)) {
+             detailUbah.push(`Nama (${namaLamaTampil || 'Kosong'} ➔ ${namaBaruTampil || 'Dihapus'})`);
          }
          if (fileBaru) { detailUbah.push(`Foto (Diperbarui)`); }
 

@@ -135,14 +135,17 @@
   </div>
 
   <script>
-    // --- SESUAIKAN SCRIPT URL DENGAN WEB APP URL MILIKMU YANG BARU ---
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbwE2q_sxiOa7ZueVrwqrjZzq0rgg2XzANff4-gQSww9qOfGzxckMOfS_QnnxrFpuoAenA/exec';
+    // --- GANTI URL INI DENGAN URL WEB APP MILIKMU YANG BARU ---
+    const scriptURL = 'PASTE_URL_WEB_APP_DI_SINI';
     
     const roles = ["Pelatih/Pembina", "Official Team", "Danton"];
     for (let i = 1; i <= 15; i++) roles.push(`Pasukan ${i}`);
 
     let dataServerTerkini = null; 
     let generatedPdfBase64 = "";
+    
+    let semuaDataSekolah = [];
+    let namaSekolahTerpilih = "";
 
     function showLoading(status, detail) {
       document.getElementById('loadingStatus').innerText = status;
@@ -173,35 +176,44 @@
     async function tarikDaftarSekolah() {
       showLoading("Mengambil Database...", "Menyiapkan daftar sekolah dari Spreadsheet");
       try {
-        const dataSekolah = await fetch(scriptURL).then(r=>r.json());
-        const sel = document.getElementById('selectSekolah');
-        sel.innerHTML = '<option value="">-- Pilih Sekolah --</option>';
-        dataSekolah.forEach(s => {
-           sel.innerHTML += `<option value="${s.nama}">${s.nama} (${s.tingkat})</option>`;
-        });
+        semuaDataSekolah = await fetch(scriptURL).then(r=>r.json());
+        filterDaftarSekolah();
         hideLoading();
       } catch(e) { hideLoading(); Swal.fire('Error', 'Gagal memuat daftar sekolah.', 'error'); }
     }
 
+    function filterDaftarSekolah() {
+      const tingkatFilter = document.getElementById('filterTingkat').value;
+      const sel = document.getElementById('selectSekolah');
+      sel.innerHTML = '<option value="">-- Pilih Sekolah --</option>';
+      
+      const dataSaring = tingkatFilter ? semuaDataSekolah.filter(s => s.tingkat === tingkatFilter) : semuaDataSekolah;
+      
+      dataSaring.forEach(s => {
+         sel.innerHTML += `<option value="${s.baris}">${s.nama} - (Daftar: ${s.waktu})</option>`;
+      });
+      document.getElementById('areaFormEdit').style.display = 'none';
+    }
+
     // 2. TARIK DATA LAMA SEKOLAH YANG DIPILIH
     async function tarikDataSekolah() {
-      const nama = document.getElementById('selectSekolah').value;
-      if(!nama) { document.getElementById('areaFormEdit').style.display = 'none'; return; }
+      const barisDipilih = document.getElementById('selectSekolah').value;
+      if(!barisDipilih) { document.getElementById('areaFormEdit').style.display = 'none'; return; }
 
-      showLoading("Memanggil Data Server...", `Mencari berkas lama milik ${nama}`);
+      showLoading("Memanggil Data Server...", `Mencari berkas di baris ${barisDipilih}`);
       try {
-        const res = await fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: 'get_sekolah_detail', namaSekolah: nama }) }).then(r=>r.json());
+        const res = await fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: 'get_sekolah_detail', baris: barisDipilih }) }).then(r=>r.json());
         if(res.result !== 'success') throw new Error(res.message || "Gagal menarik data");
         
         dataServerTerkini = res; 
+        namaSekolahTerpilih = res.namaSekolah;
+
         document.getElementById('infoRekomLama').innerText = res.oldRekomName ? `(Saat ini: ${res.oldRekomName})` : '(File rekom lama tidak terdeteksi)';
         
-        // Render form anggota
         const container = document.getElementById('containerAnggota');
         container.innerHTML = '';
         
         roles.forEach((role, idx) => {
-          // Cari apakah data lama punya anggota role ini
           const dataLama = res.members.find(m => m.role === role);
           const namaLama = dataLama ? dataLama.nama : '';
           const imgLama = dataLama ? dataLama.base64 : '';
@@ -243,22 +255,19 @@
       }
     }
 
-    // 3. LOGIKA POPUP AUDIT (CATAT APA YANG BERUBAH)
+    // 3. LOGIKA POPUP AUDIT
     function tampilkanPopupRevisi() {
       let daftarPerubahan = [];
       let adaPerubahan = false;
 
-      // Cek Rekomendasi
       if (document.getElementById('revFileRekom').files.length > 0) {
         adaPerubahan = true;
         daftarPerubahan.push(`1. File Rekomendasi ➔ <b>Diganti Baru</b>`);
       }
 
-      // Cek Anggota Pasukan
       roles.forEach((role, idx) => {
          const dataLama = dataServerTerkini.members.find(m => m.role === role);
          const namaLama = dataLama ? dataLama.nama.replace(/_/g, ' ') : '';
-         const imgLamaAda = dataLama ? true : false;
 
          const namaBaru = document.getElementById(`revNama_${idx}`).value.trim();
          const fileBaru = document.getElementById(`revFoto_${idx}`).files.length > 0;
@@ -298,10 +307,8 @@
       });
     }
 
-    // UTILITIES GENERATE PDF
     function fileToArrayBuffer(file) { return new Promise((res, rej) => { const reader = new FileReader(); reader.onload = () => res(reader.result); reader.readAsArrayBuffer(file); }); }
     function fileToBase64(file) { return new Promise((resolve) => { const reader = new FileReader(); reader.readAsDataURL(file); reader.onload = () => resolve(reader.result.split(',')[1]); }); }
-    async function base64ToBlobUrl(b64Data) { const res = await fetch(b64Data); const blob = await res.blob(); return URL.createObjectURL(blob); }
 
     // 4. EKSEKUSI GENERATE PDF DAN UPLOAD
     async function jalankanProsesRevisi() {
@@ -312,9 +319,7 @@
         const fontBold = await mergedPdf.embedFont(StandardFonts.HelveticaBold);
         const fontReg = await mergedPdf.embedFont(StandardFonts.Helvetica);
         const f4Width = 612, f4Height = 936; 
-        const namaSekolah = document.getElementById('selectSekolah').value;
         
-        // Halaman 1: Cover
         const bgBytes = await fetch('./bg_pasukan.jpg').then(res => res.arrayBuffer());
         const bgImage = await mergedPdf.embedJpg(bgBytes);
         const pageBukti = mergedPdf.addPage([f4Width, f4Height]);
@@ -327,7 +332,7 @@
 
         let yCur = 720; 
         drawCentered('HASIL REVISI DATA', yCur, 28, fontBold, [0.7,0,0]); yCur -= 35;
-        drawCentered(`${namaSekolah.toUpperCase()}`, yCur, 28, fontBold, [0, 0.2, 0.6]); yCur -= 35;
+        drawCentered(`${namaSekolahTerpilih.toUpperCase()}`, yCur, 28, fontBold, [0, 0.2, 0.6]); yCur -= 35;
         drawCentered(`Komposisi personel terbaru hasil revisi panitia:`, yCur, 14, fontReg, [0,0,0]); yCur -= 30;
 
         roles.forEach((role, idx) => {
@@ -335,9 +340,6 @@
             if(nm) { drawCentered(`${role} : ${nm}`, yCur, 14, fontBold, [0,0,0]); yCur -= 20; }
         });
         
-        // Halaman Rekomendasi (Opsional: Tarik jika file baru diupload, jika tidak, abaikan/tidak ikut PDF)
-        
-        // Halaman Foto Pasukan
         const res1 = await fetch('./template_hal1.png?v=FINAL');
         const imgTpl1 = await mergedPdf.embedPng(await res1.arrayBuffer());
         const res2 = await fetch('./template_hal2.png?v=FINAL');
@@ -348,7 +350,6 @@
         const pageForm2 = mergedPdf.addPage([f4Width, f4Height]);
         pageForm2.drawImage(imgTpl2, { x: 0, y: 0, width: f4Width, height: f4Height });
 
-        // Proses Cropping Image Helper
         async function preparePhoto(imgSrc) {
             return new Promise((resolve, reject) => {
                 const img = new Image();
@@ -367,15 +368,14 @@
             });
         }
 
-        // Susun Foto ke PDF
         let indexPdf = 0;
         let filesToUpload = [];
-        let filesToDelete = []; // Menyimpan ID file lama di Drive yang akan dibuang
+        let filesToDelete = [];
 
         if (document.getElementById('revFileRekom').files.length > 0) {
             filesToUpload.push({ 
                 folderId: dataServerTerkini.folderRekomId, 
-                fileName: `REVISI_Rekom_${namaSekolah}.pdf`, 
+                fileName: `REVISI_Rekom_${namaSekolahTerpilih}.pdf`, 
                 mimeType: 'application/pdf', 
                 file: document.getElementById('revFileRekom').files[0] 
             });
@@ -390,11 +390,10 @@
           const fileInput = document.getElementById(`revFoto_${i}`);
           const isAdaFotoBaru = fileInput.files.length > 0;
           
-          if (nm && imgEl.src && imgEl.src.length > 50) { // Jika ada nama dan gambar (bukan src kosong)
+          if (nm && imgEl.src && imgEl.src.length > 50) { 
             showLoading("Merender Foto...", `Memproses ${role}`);
             let imgSrcToProcess = imgEl.src;
             
-            // Jika admin upload foto baru, catat untuk dikirim ke Drive & buang yang lama
             if (isAdaFotoBaru) {
                 const cleanRole = role.replace(/[^a-zA-Z0-9]/g, '_');
                 const cleanNm = nm.replace(/[^a-zA-Z0-9]/g, '_');
@@ -407,7 +406,6 @@
                 imgSrcToProcess = URL.createObjectURL(fileInput.files[0]);
                 if (oldFileId) filesToDelete.push(oldFileId);
             } else {
-                // Jika foto tidak diubah TAPI namanya diubah, kita harus rename filenya (Upload ulang, hapus yang lama)
                 const dataLama = dataServerTerkini.members.find(m => m.role === role);
                 if (dataLama && dataLama.nama.replace(/_/g, ' ') !== nm) {
                    const resFetch = await fetch(imgSrcToProcess);
@@ -441,7 +439,6 @@
             pageTarget.drawLine({ start: { x: xPos + 90, y: yPos + 55 }, end: { x: xPos + 235, y: yPos + 55 }, thickness: 1, color: rgb(0,0,0) });
             pageTarget.drawLine({ start: { x: xPos + 90, y: yPos + 22 }, end: { x: xPos + 235, y: yPos + 22 }, thickness: 1, color: rgb(0,0,0) });
             
-            // Text wrap logic
             const words = nm.toUpperCase().split(' '); let lines = [], cL = words[0] || '';
             for (let w = 1; w < words.length; w++) {
                 if (fontBold.widthOfTextAtSize(cL + " " + words[w], 9) < 140) cL += " " + words[w]; 
@@ -453,14 +450,12 @@
 
             indexPdf++;
           } else {
-             // Jika nama dihapus oleh admin, maka tandai file lama untuk dihapus dari Drive
              if (!nm && oldFileId) filesToDelete.push(oldFileId);
           }
         }
 
         generatedPdfBase64 = await mergedPdf.saveAsBase64(); 
         
-        // UPLOAD FILE FOTO & REKOM BARU KE DRIVE
         const totalFiles = filesToUpload.length;
         for (let i = 0; i < totalFiles; i++) {
             showLoading(`Mengunggah Revisi (${i+1}/${totalFiles})...`, `Menyimpan data terbaru ke Drive`);
@@ -480,7 +475,8 @@
           method: 'POST',
           body: JSON.stringify({ 
               action: 'finish_revisi', 
-              namaSekolah: namaSekolah, 
+              baris: document.getElementById('selectSekolah').value, 
+              namaSekolah: namaSekolahTerpilih,
               folderFormId: dataServerTerkini.folderFormId,
               pdfBase64: generatedPdfBase64,
               filesToDelete: filesToDelete,

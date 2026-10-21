@@ -111,7 +111,20 @@
       <hr style="margin:25px 0; border:0; border-top:1px solid #ccc;">
       
       <button class="btn btn-blue" onclick="showView('viewForm')">📝 Lanjut Mendaftar LKBB Pendekar</button>
-      <button class="btn btn-gold" onclick="Swal.fire('Fitur Revisi', 'Silakan hubungi Contact Person (CP) untuk mendapatkan akses link revisi berkas secara manual demi keamanan data Anda.', 'info')">🔄 Revisi Berkas Pendaftaran</button>
+      <button class="btn btn-gold" onclick="Swal.fire({
+  title: 'Fitur Revisi Berkas',
+  text: 'Silakan hubungi Contact Person (CP) Pendaftaran untuk melakukan revisi berkas demi keamanan data Anda.',
+  icon: 'info',
+  showCancelButton: true,
+  confirmButtonColor: '#0044cc',
+  cancelButtonColor: '#e74c3c',
+  confirmButtonText: 'Lanjut Login Admin ➔',
+  cancelButtonText: 'Batal'
+}).then((result) => {
+  if (result.isConfirmed) {
+    window.open('revisi.html', '_blank');
+  }
+})">🔄 Revisi Berkas Pendaftaran</button>
       
       <a href="https://wa.me/6287717032326?text=Halo%20Admin,%20saya%20mengalami%20kendala%20saat%20pendaftaran%20LKBB%20Pendekar.%20Tolong%20bantuannya." target="_blank" class="btn btn-red">
         🚨 Lapor Error / Kendala Pendaftaran

@@ -81,11 +81,22 @@
     <div id="viewEdit" class="card" style="display: none;">
       <h3 style="color: var(--primary); border-bottom: 2px solid var(--gold); padding-bottom: 5px; margin-bottom: 20px;">FORM REVISI DATA</h3>
       
-      <div class="form-group">
-        <label>Pilih Sekolah yang Ingin Direvisi</label>
-        <select id="selectSekolah" onchange="tarikDataSekolah()">
-          <option value="">-- Memuat Daftar Sekolah... --</option>
-        </select>
+      <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+        <div class="form-group" style="flex: 1; min-width: 200px;">
+          <label>Filter Tingkat Sekolah</label>
+          <select id="filterTingkat" onchange="filterDaftarSekolah()">
+            <option value="">Semua Tingkat (Tampilkan Semua)</option>
+            <option value="SMP_MTs">SMP / MTs Sederajat</option>
+            <option value="SMA_SMK_MA">SMA / SMK / MA Sederajat</option>
+          </select>
+        </div>
+        
+        <div class="form-group" style="flex: 2; min-width: 250px;">
+          <label>Pilih Sekolah yang Ingin Direvisi</label>
+          <select id="selectSekolah" onchange="tarikDataSekolah()">
+            <option value="">-- Memuat Daftar Sekolah... --</option>
+          </select>
+        </div>
       </div>
 
       <div id="areaFormEdit" style="display: none; margin-top: 30px;">

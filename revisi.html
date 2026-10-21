@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Revisi - LKBB Pendekar</title>
+  <link rel="icon" type="image/png" href="logo_rekap.png">
+  <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  
+  <style>
+    :root { --primary: #8e0000; --secondary: #cc0000; --gold: #d4af37; --bg: #f0f4f8; }
+    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; padding: 0; }
+    body { background-color: var(--bg); color: #222; padding-bottom: 30px; }
+    
+    header { background: linear-gradient(135deg, #2a0000 0%, var(--primary) 50%, #110000 100%); padding: 15px 25px; border-bottom: 4px solid var(--gold); display: flex; justify-content: center; align-items: center; }
+    .header-title { text-align: center; color: white; }
+    .header-title span:first-child { display: block; font-size: 1rem; letter-spacing: 2px; }
+    .header-title span:last-child { display: block; font-size: 1.8rem; font-weight: bold; color: var(--gold); }
+    
+    .container { max-width: 850px; margin: 20px auto; padding: 0 15px; }
+    .card { background: white; border-radius: 12px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); margin-bottom: 25px; border-top: 4px solid var(--primary); }
+    
+    .btn { display: block; width: 100%; padding: 14px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-bottom: 12px; font-size: 1rem; color: white; text-align: center; text-decoration: none; transition: 0.2s;}
+    .btn:hover { filter: brightness(1.1); }
+    .btn-red { background: #e74c3c; }
+    .btn-dark { background: #333; }
+    .btn-gold { background: var(--gold); color: #000; }
+    
+    .form-group { margin-bottom: 18px; }
+    .form-group label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 0.9rem; color: var(--primary);}
+    .form-group input, .form-group select { width: 100%; padding: 11px; border: 1px solid #ccc; border-radius: 6px; }
+    
+    .warning-box { background: #fff3cd; color: #856404; padding: 15px; border-radius: 8px; border: 1px solid #ffeeba; margin-bottom: 20px; text-align: center; font-weight: bold; }
+    
+    .row-member { display: flex; flex-direction: row; justify-content: space-between; align-items: center; gap: 15px; background: #fafafa; padding: 15px; border-radius: 8px; border: 1px solid #e0e0e0; margin-bottom: 12px; }
+    .member-inputs { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+    .member-preview { width: 90px; height: 120px; flex-shrink: 0; border: 2px dashed #ccc; border-radius: 6px; display: flex; align-items: center; justify-content: center; overflow: hidden; background: #fff; position: relative; }
+    .member-preview img { width: 100%; height: 100%; object-fit: cover; display: none; position: absolute; top: 0; left: 0; }
+    
+    #loadingOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; color: var(--gold); text-align: center; padding: 20px; }
+    .spinner { width: 55px; height: 55px; border: 5px solid #333; border-top: 5px solid var(--gold); border-radius: 50%; animation: spin 1s linear infinite; }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-title">
+      <span>PANITIA PORTAL</span>
+      <span>REVISI BERKAS PENDEKAR</span>
+    </div>
+  </header>
+
+  <div class="container">
+    
+    <!-- HALAMAN 1: LOGIN -->
+    <div id="viewLogin" class="card">
+      <div class="warning-box">
+        Silakan hubungi Contact Person (CP) Pendaftaran untuk melakukan revisi berkas demi keamanan data Anda.
+      </div>
+      <a href="https://wa.me/6287717032326?text=Halo%20Admin,%20saya%20mengalami%20kendala%20saat%20pendaftaran%20LKBB%20Pendekar.%20Tolong%20bantuannya." target="_blank" class="btn btn-red" style="margin-bottom: 30px;">
+        🚨 Lapor Error / Kendala Pendaftaran
+      </a>
+
+      <h3 style="text-align: center; margin-bottom: 15px; color: var(--primary);">Login Panitia Khusus Revisi</h3>
+      <form id="formLogin" onsubmit="event.preventDefault(); prosesLogin();">
+        <div class="form-group">
+          <label>Username</label>
+          <input type="text" id="username" required>
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="password" required>
+        </div>
+        <button type="submit" class="btn btn-dark">Masuk Sistem ➔</button>
+      </form>
+    </div>
+
+    <!-- HALAMAN 2: PILIH SEKOLAH & EDIT DATA -->
+    <div id="viewEdit" class="card" style="display: none;">
+      <h3 style="color: var(--primary); border-bottom: 2px solid var(--gold); padding-bottom: 5px; margin-bottom: 20px;">FORM REVISI DATA</h3>
+      
+      <div class="form-group">
+        <label>Pilih Sekolah yang Ingin Direvisi</label>
+        <select id="selectSekolah" onchange="tarikDataSekolah()">
+          <option value="">-- Memuat Daftar Sekolah... --</option>
+        </select>
+      </div>
+
+      <div id="areaFormEdit" style="display: none; margin-top: 30px;">
+        <h3 style="margin-bottom: 15px; color: var(--primary);">1. REVISI SURAT REKOMENDASI</h3>
+        <div class="row-member">
+            <div class="member-inputs">
+                <label>Surat Rekomendasi (Abaikan jika tidak diganti)</label>
+                <input type="file" id="revFileRekom" accept=".pdf">
+                <small id="infoRekomLama" style="color: green; font-weight: bold;"></small>
+            </div>
+        </div>
+
+        <h3 style="margin-bottom: 15px; margin-top: 25px; color: var(--primary);">2. REVISI NAMA & FOTO PASUKAN</h3>
+        <p style="font-size: 0.85rem; color: #555; margin-bottom: 15px;">*Abaikan form foto/nama yang tidak ingin diubah. Sistem akan menggunakan data lamanya secara otomatis.</p>
+        
+        <div id="containerAnggota"></div>
+
+        <button type="button" class="btn btn-gold" style="margin-top: 25px;" onclick="tampilkanPopupRevisi()">📝 Simpan & Terapkan Revisi ➔</button>
+      </div>
+    </div>
+
+    <!-- HALAMAN 3: SUCCESS REVISI -->
+    <div id="viewSuccess" class="card" style="display: none; text-align: center; padding: 40px 20px;">
+        <h1 style="color: var(--primary); margin-bottom: 20px;">✅ Revisi Berhasil!</h1>
+        <p style="font-size: 1rem; color: #555; margin-bottom: 20px;">Data PDF dan Google Drive telah diperbarui secara otomatis.</p>
+        <a id="btnDownloadPdf" href="#" target="_blank" class="btn btn-red" style="max-width: 300px; margin: 0 auto 15px auto;">📄 Buka PDF Hasil Revisi</a>
+        <button class="btn btn-dark" style="max-width: 300px; margin: 0 auto;" onclick="location.reload()">Revisi Sekolah Lain</button>
+    </div>
+
+  </div>
+
+  <div id="loadingOverlay">
+    <div class="spinner"></div>
+    <h3 id="loadingStatus" style="margin-top:15px;">Memproses...</h3>
+    <p id="loadingDetail" style="margin-top: 5px; font-size: 0.95rem; color: #aaa;">Mohon tunggu sebentar.</p>
+  </div>
+
+  <script>
+    // --- SESUAIKAN SCRIPT URL DENGAN WEB APP URL MILIKMU YANG BARU ---
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbwE2q_sxiOa7ZueVrwqrjZzq0rgg2XzANff4-gQSww9qOfGzxckMOfS_QnnxrFpuoAenA/exec';
+    
+    const roles = ["Pelatih/Pembina", "Official Team", "Danton"];
+    for (let i = 1; i <= 15; i++) roles.push(`Pasukan ${i}`);
+
+    let dataServerTerkini = null; 
+    let generatedPdfBase64 = "";
+
+    function showLoading(status, detail) {
+      document.getElementById('loadingStatus').innerText = status;
+      document.getElementById('loadingDetail').innerText = detail;
+      document.getElementById('loadingOverlay').style.display = 'flex';
+    }
+    function hideLoading() { document.getElementById('loadingOverlay').style.display = 'none'; }
+
+    // 1. PROSES LOGIN & TARIK DAFTAR SEKOLAH
+    async function prosesLogin() {
+      const u = document.getElementById('username').value;
+      const p = document.getElementById('password').value;
+      
+      showLoading("Mencocokkan Kredensial...", "Harap tunggu.");
+      try {
+        const res = await fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: 'login_revisi', username: u, password: p }) }).then(r=>r.json());
+        if(res.result === 'success') {
+           document.getElementById('viewLogin').style.display = 'none';
+           document.getElementById('viewEdit').style.display = 'block';
+           tarikDaftarSekolah();
+        } else {
+           hideLoading();
+           Swal.fire('Gagal Login', res.message, 'error');
+        }
+      } catch(e) { hideLoading(); Swal.fire('Error', e.message, 'error'); }
+    }
+
+    async function tarikDaftarSekolah() {
+      showLoading("Mengambil Database...", "Menyiapkan daftar sekolah dari Spreadsheet");
+      try {
+        const dataSekolah = await fetch(scriptURL).then(r=>r.json());
+        const sel = document.getElementById('selectSekolah');
+        sel.innerHTML = '<option value="">-- Pilih Sekolah --</option>';
+        dataSekolah.forEach(s => {
+           sel.innerHTML += `<option value="${s.nama}">${s.nama} (${s.tingkat})</option>`;
+        });
+        hideLoading();
+      } catch(e) { hideLoading(); Swal.fire('Error', 'Gagal memuat daftar sekolah.', 'error'); }
+    }
+
+    // 2. TARIK DATA LAMA SEKOLAH YANG DIPILIH
+    async function tarikDataSekolah() {
+      const nama = document.getElementById('selectSekolah').value;
+      if(!nama) { document.getElementById('areaFormEdit').style.display = 'none'; return; }
+
+      showLoading("Memanggil Data Server...", `Mencari berkas lama milik ${nama}`);
+      try {
+        const res = await fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: 'get_sekolah_detail', namaSekolah: nama }) }).then(r=>r.json());
+        if(res.result !== 'success') throw new Error(res.message || "Gagal menarik data");
+        
+        dataServerTerkini = res; 
+        document.getElementById('infoRekomLama').innerText = res.oldRekomName ? `(Saat ini: ${res.oldRekomName})` : '(File rekom lama tidak terdeteksi)';
+        
+        // Render form anggota
+        const container = document.getElementById('containerAnggota');
+        container.innerHTML = '';
+        
+        roles.forEach((role, idx) => {
+          // Cari apakah data lama punya anggota role ini
+          const dataLama = res.members.find(m => m.role === role);
+          const namaLama = dataLama ? dataLama.nama : '';
+          const imgLama = dataLama ? dataLama.base64 : '';
+          
+          container.innerHTML += `
+            <div class="row-member" data-role="${role}" data-fileid="${dataLama ? dataLama.fileId : ''}">
+              <div class="member-inputs">
+                <label>${role}</label>
+                <input type="text" id="revNama_${idx}" value="${namaLama.replace(/_/g, ' ')}" placeholder="Nama Lengkap">
+                <input type="file" id="revFoto_${idx}" accept="image/*" onchange="previewRevImage(event, 'prevRev_${idx}')">
+              </div>
+              <div class="member-preview">
+                <span id="txtRev_${idx}" style="${imgLama ? 'display:none;' : ''}">Foto<br>Baru</span>
+                <img id="prevRev_${idx}" src="${imgLama}" style="${imgLama ? 'display:block;' : ''}" data-oldb64="${imgLama}">
+              </div>
+            </div>
+          `;
+        });
+
+        document.getElementById('areaFormEdit').style.display = 'block';
+        hideLoading();
+      } catch(e) {
+        hideLoading();
+        Swal.fire('Data Gagal Ditarik', e.message, 'error');
+        document.getElementById('selectSekolah').value = "";
+      }
+    }
+
+    function previewRevImage(event, imgId) {
+      const file = event.target.files[0];
+      if(file) {
+        const reader = new FileReader();
+        reader.onload = e => {
+          document.getElementById(imgId).src = e.target.result;
+          document.getElementById(imgId).style.display = 'block';
+          document.getElementById(imgId.replace('prevRev', 'txtRev')).style.display = 'none';
+        }
+        reader.readAsDataURL(file);
+      }
+    }
+
+    // 3. LOGIKA POPUP AUDIT (CATAT APA YANG BERUBAH)
+    function tampilkanPopupRevisi() {
+      let daftarPerubahan = [];
+      let adaPerubahan = false;
+
+      // Cek Rekomendasi
+      if (document.getElementById('revFileRekom').files.length > 0) {
+        adaPerubahan = true;
+        daftarPerubahan.push(`1. File Rekomendasi ➔ <b>Diganti Baru</b>`);
+      }
+
+      // Cek Anggota Pasukan
+      roles.forEach((role, idx) => {
+         const dataLama = dataServerTerkini.members.find(m => m.role === role);
+         const namaLama = dataLama ? dataLama.nama.replace(/_/g, ' ') : '';
+         const imgLamaAda = dataLama ? true : false;
+
+         const namaBaru = document.getElementById(`revNama_${idx}`).value.trim();
+         const fileBaru = document.getElementById(`revFoto_${idx}`).files.length > 0;
+         
+         let detailUbah = [];
+         if (namaLama !== namaBaru && (namaLama || namaBaru)) {
+             detailUbah.push(`Nama (${namaLama || 'Kosong'} ➔ ${namaBaru || 'Dihapus'})`);
+         }
+         if (fileBaru) { detailUbah.push(`Foto (Diperbarui)`); }
+
+         if (detailUbah.length > 0) {
+             adaPerubahan = true;
+             daftarPerubahan.push(`${daftarPerubahan.length + 1}. ${role}: ${detailUbah.join(' & ')}`);
+         }
+      });
+
+      if (!adaPerubahan) {
+          Swal.fire('Info', 'Tidak ada data yang Anda ubah.', 'info');
+          return;
+      }
+
+      let htmlLog = `<div style="text-align:left; font-size:0.9rem; background:#f4f4f4; padding:10px; border-radius:8px; max-height:200px; overflow-y:auto;">
+                      ${daftarPerubahan.join('<br><br>')}
+                     </div>`;
+
+      Swal.fire({
+        title: 'Konfirmasi Revisi Data',
+        html: `<p style="margin-bottom:10px;">Berikut adalah rincian data yang akan diganti:</p>${htmlLog}`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#8e0000',
+        cancelButtonColor: '#555',
+        confirmButtonText: 'Terapkan Revisi ➔',
+        cancelButtonText: 'Batal'
+      }).then((result) => {
+        if (result.isConfirmed) jalankanProsesRevisi();
+      });
+    }
+
+    // UTILITIES GENERATE PDF
+    function fileToArrayBuffer(file) { return new Promise((res, rej) => { const reader = new FileReader(); reader.onload = () => res(reader.result); reader.readAsArrayBuffer(file); }); }
+    function fileToBase64(file) { return new Promise((resolve) => { const reader = new FileReader(); reader.readAsDataURL(file); reader.onload = () => resolve(reader.result.split(',')[1]); }); }
+    async function base64ToBlobUrl(b64Data) { const res = await fetch(b64Data); const blob = await res.blob(); return URL.createObjectURL(blob); }
+
+    // 4. EKSEKUSI GENERATE PDF DAN UPLOAD
+    async function jalankanProsesRevisi() {
+      showLoading("Membangun Ulang PDF...", "Memproses tata letak foto dan nama baru");
+      try {
+        const { PDFDocument, StandardFonts, rgb } = PDFLib;
+        const mergedPdf = await PDFDocument.create();
+        const fontBold = await mergedPdf.embedFont(StandardFonts.HelveticaBold);
+        const fontReg = await mergedPdf.embedFont(StandardFonts.Helvetica);
+        const f4Width = 612, f4Height = 936; 
+        const namaSekolah = document.getElementById('selectSekolah').value;
+        
+        // Halaman 1: Cover
+        const bgBytes = await fetch('./bg_pasukan.jpg').then(res => res.arrayBuffer());
+        const bgImage = await mergedPdf.embedJpg(bgBytes);
+        const pageBukti = mergedPdf.addPage([f4Width, f4Height]);
+        pageBukti.drawImage(bgImage, { x: 0, y: 0, width: f4Width, height: f4Height });
+        
+        const drawCentered = (txt, yPos, size, useFont, colorArr) => {
+            const txtW = useFont.widthOfTextAtSize(txt, size);
+            pageBukti.drawText(txt, { x: (f4Width - txtW) / 2, y: yPos, size: size, font: useFont, color: rgb(...colorArr) });
+        };
+
+        let yCur = 720; 
+        drawCentered('HASIL REVISI DATA', yCur, 28, fontBold, [0.7,0,0]); yCur -= 35;
+        drawCentered(`${namaSekolah.toUpperCase()}`, yCur, 28, fontBold, [0, 0.2, 0.6]); yCur -= 35;
+        drawCentered(`Komposisi personel terbaru hasil revisi panitia:`, yCur, 14, fontReg, [0,0,0]); yCur -= 30;
+
+        roles.forEach((role, idx) => {
+            const nm = document.getElementById(`revNama_${idx}`).value.trim();
+            if(nm) { drawCentered(`${role} : ${nm}`, yCur, 14, fontBold, [0,0,0]); yCur -= 20; }
+        });
+        
+        // Halaman Rekomendasi (Opsional: Tarik jika file baru diupload, jika tidak, abaikan/tidak ikut PDF)
+        
+        // Halaman Foto Pasukan
+        const res1 = await fetch('./template_hal1.png?v=FINAL');
+        const imgTpl1 = await mergedPdf.embedPng(await res1.arrayBuffer());
+        const res2 = await fetch('./template_hal2.png?v=FINAL');
+        const imgTpl2 = await mergedPdf.embedPng(await res2.arrayBuffer());
+
+        const pageForm1 = mergedPdf.addPage([f4Width, f4Height]);
+        pageForm1.drawImage(imgTpl1, { x: 0, y: 0, width: f4Width, height: f4Height });
+        const pageForm2 = mergedPdf.addPage([f4Width, f4Height]);
+        pageForm2.drawImage(imgTpl2, { x: 0, y: 0, width: f4Width, height: f4Height });
+
+        // Proses Cropping Image Helper
+        async function preparePhoto(imgSrc) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas'); canvas.width = 300; canvas.height = 400; 
+                    const targetAspect = 3 / 4; let srcW = img.width, srcH = img.height, srcAspect = srcW / srcH;
+                    let cropW, cropH, cropX, cropY;
+                    if (srcAspect > targetAspect) { cropH = srcH; cropW = srcH * targetAspect; cropX = (srcW - cropW) / 2; cropY = 0; } 
+                    else { cropW = srcW; cropH = srcW / targetAspect; cropX = 0; cropY = (srcH - cropH) / 2; }
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, cropX, cropY, cropW, cropH, 0, 0, canvas.width, canvas.height);
+                    canvas.toBlob((blob) => resolve(blob), 'image/jpeg', 0.70);
+                };
+                img.onerror = () => reject(new Error("Format foto salah."));
+                img.src = imgSrc;
+            });
+        }
+
+        // Susun Foto ke PDF
+        let indexPdf = 0;
+        let filesToUpload = [];
+        let filesToDelete = []; // Menyimpan ID file lama di Drive yang akan dibuang
+
+        if (document.getElementById('revFileRekom').files.length > 0) {
+            filesToUpload.push({ 
+                folderId: dataServerTerkini.folderRekomId, 
+                fileName: `REVISI_Rekom_${namaSekolah}.pdf`, 
+                mimeType: 'application/pdf', 
+                file: document.getElementById('revFileRekom').files[0] 
+            });
+            if (dataServerTerkini.oldRekomId) filesToDelete.push(dataServerTerkini.oldRekomId);
+        }
+
+        for (let i = 0; i < roles.length; i++) {
+          const role = roles[i];
+          const nm = document.getElementById(`revNama_${i}`).value.trim();
+          const imgEl = document.getElementById(`prevRev_${i}`);
+          const oldFileId = document.querySelector(`[data-role="${role}"]`).getAttribute('data-fileid');
+          const fileInput = document.getElementById(`revFoto_${i}`);
+          const isAdaFotoBaru = fileInput.files.length > 0;
+          
+          if (nm && imgEl.src && imgEl.src.length > 50) { // Jika ada nama dan gambar (bukan src kosong)
+            showLoading("Merender Foto...", `Memproses ${role}`);
+            let imgSrcToProcess = imgEl.src;
+            
+            // Jika admin upload foto baru, catat untuk dikirim ke Drive & buang yang lama
+            if (isAdaFotoBaru) {
+                const cleanRole = role.replace(/[^a-zA-Z0-9]/g, '_');
+                const cleanNm = nm.replace(/[^a-zA-Z0-9]/g, '_');
+                filesToUpload.push({ 
+                    folderId: dataServerTerkini.folderFormId, 
+                    fileName: `${cleanRole}_${cleanNm}_REV.jpg`, 
+                    mimeType: fileInput.files[0].type || 'image/jpeg', 
+                    file: fileInput.files[0] 
+                });
+                imgSrcToProcess = URL.createObjectURL(fileInput.files[0]);
+                if (oldFileId) filesToDelete.push(oldFileId);
+            } else {
+                // Jika foto tidak diubah TAPI namanya diubah, kita harus rename filenya (Upload ulang, hapus yang lama)
+                const dataLama = dataServerTerkini.members.find(m => m.role === role);
+                if (dataLama && dataLama.nama.replace(/_/g, ' ') !== nm) {
+                   const resFetch = await fetch(imgSrcToProcess);
+                   const blobLama = await resFetch.blob();
+                   const cleanRole = role.replace(/[^a-zA-Z0-9]/g, '_');
+                   const cleanNm = nm.replace(/[^a-zA-Z0-9]/g, '_');
+                   filesToUpload.push({ 
+                        folderId: dataServerTerkini.folderFormId, 
+                        fileName: `${cleanRole}_${cleanNm}_REV.jpg`, 
+                        mimeType: 'image/jpeg', 
+                        file: blobLama 
+                   });
+                   if (oldFileId) filesToDelete.push(oldFileId);
+                }
+            }
+
+            const croppedBlob = await preparePhoto(imgSrcToProcess);
+            const croppedArrayBuffer = await fileToArrayBuffer(croppedBlob);
+            const imgEmbed = await mergedPdf.embedJpg(croppedArrayBuffer);
+
+            const pageTarget = indexPdf < 9 ? pageForm1 : pageForm2;
+            const pageIndex = indexPdf % 9;
+            const col = pageIndex % 2; 
+            const row = Math.floor(pageIndex / 2); 
+            const xPos = col === 0 ? 45 : 325;
+            const yPos = 635 - (row * 135); 
+            
+            pageTarget.drawRectangle({ x: xPos, y: yPos, width: 75, height: 100, borderColor: rgb(0,0,0), borderWidth: 1.5 });
+            pageTarget.drawImage(imgEmbed, { x: xPos, y: yPos, width: 75, height: 100 });
+            pageTarget.drawText(role.toUpperCase(), { x: xPos + 90, y: yPos + 82, size: 9, font: fontBold, color: rgb(0, 0, 0) });
+            pageTarget.drawLine({ start: { x: xPos + 90, y: yPos + 55 }, end: { x: xPos + 235, y: yPos + 55 }, thickness: 1, color: rgb(0,0,0) });
+            pageTarget.drawLine({ start: { x: xPos + 90, y: yPos + 22 }, end: { x: xPos + 235, y: yPos + 22 }, thickness: 1, color: rgb(0,0,0) });
+            
+            // Text wrap logic
+            const words = nm.toUpperCase().split(' '); let lines = [], cL = words[0] || '';
+            for (let w = 1; w < words.length; w++) {
+                if (fontBold.widthOfTextAtSize(cL + " " + words[w], 9) < 140) cL += " " + words[w]; 
+                else { lines.push(cL); cL = words[w]; }
+            }
+            lines.push(cL);
+            pageTarget.drawText(lines[0] || "", { x: xPos + 90, y: yPos + 58, size: 9, font: fontBold, color: rgb(0, 0, 0) });
+            if (lines.length > 1) pageTarget.drawText(lines[1], { x: xPos + 90, y: yPos + 26, size: 9, font: fontBold, color: rgb(0, 0, 0) });
+
+            indexPdf++;
+          } else {
+             // Jika nama dihapus oleh admin, maka tandai file lama untuk dihapus dari Drive
+             if (!nm && oldFileId) filesToDelete.push(oldFileId);
+          }
+        }
+
+        generatedPdfBase64 = await mergedPdf.saveAsBase64(); 
+        
+        // UPLOAD FILE FOTO & REKOM BARU KE DRIVE
+        const totalFiles = filesToUpload.length;
+        for (let i = 0; i < totalFiles; i++) {
+            showLoading(`Mengunggah Revisi (${i+1}/${totalFiles})...`, `Menyimpan data terbaru ke Drive`);
+            let fileB64 = "";
+            if (filesToUpload[i].file instanceof Blob) {
+               fileB64 = await fileToBase64(filesToUpload[i].file);
+            }
+            await fetch(scriptURL, { 
+                method: 'POST', 
+                body: JSON.stringify({ action: 'upload_file', folderId: filesToUpload[i].folderId, fileName: filesToUpload[i].fileName, mimeType: filesToUpload[i].mimeType, base64Data: fileB64 }) 
+            });
+        }
+
+        showLoading("Finalisasi Sistem...", "Menyimpan PDF Form Baru & Membersihkan data lama");
+        
+        const resFinal = await fetch(scriptURL, {
+          method: 'POST',
+          body: JSON.stringify({ 
+              action: 'finish_revisi', 
+              namaSekolah: namaSekolah, 
+              folderFormId: dataServerTerkini.folderFormId,
+              pdfBase64: generatedPdfBase64,
+              filesToDelete: filesToDelete,
+              oldPdfId: dataServerTerkini.oldPdfId
+          })
+        }).then(r => r.json());
+
+        if(resFinal.result !== 'success') throw new Error(resFinal.message);
+
+        hideLoading();
+        document.getElementById('btnDownloadPdf').href = resFinal.newPdfUrl;
+        document.getElementById('viewEdit').style.display = 'none';
+        document.getElementById('viewSuccess').style.display = 'block';
+        window.scrollTo(0, 0);
+
+      } catch (err) {
+        hideLoading();
+        Swal.fire('Error Finalisasi', err.message || err.toString(), 'error');
+      }
+    }
+  </script>
+</body>
+</html>
